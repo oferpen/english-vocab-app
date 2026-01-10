@@ -24,8 +24,9 @@ export default function WelcomeScreen({ childName, avatar, level, streak }: Welc
 
   const handleSkip = () => {
     setShowWelcome(false);
+    // Skip goes to progress page
     if (pathname === '/') {
-      router.push('/learn');
+      router.push('/progress');
     }
   };
 

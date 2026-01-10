@@ -4,6 +4,8 @@ import LearnTabs from '@/components/LearnTabs';
 import BottomNav from '@/components/BottomNav';
 import ChildSwitchLock from '@/components/ChildSwitchLock';
 
+export const dynamic = 'force-dynamic';
+
 export default async function LearnPage() {
   const child = await getActiveChild();
   

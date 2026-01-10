@@ -8,6 +8,8 @@ import ProgressDisplay from '@/components/ProgressDisplay';
 import BottomNav from '@/components/BottomNav';
 import ChildSwitchLock from '@/components/ChildSwitchLock';
 
+export const dynamic = 'force-dynamic';
+
 export default async function ProgressPage() {
   const child = await getActiveChild();
   

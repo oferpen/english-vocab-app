@@ -4,6 +4,8 @@ import QuizTabs from '@/components/QuizTabs';
 import BottomNav from '@/components/BottomNav';
 import ChildSwitchLock from '@/components/ChildSwitchLock';
 
+export const dynamic = 'force-dynamic';
+
 export default async function QuizPage() {
   const child = await getActiveChild();
   

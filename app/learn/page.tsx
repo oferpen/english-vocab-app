@@ -3,6 +3,7 @@ import { getTodayPlan } from '@/app/actions/plans';
 import LearnTabs from '@/components/LearnTabs';
 import BottomNav from '@/components/BottomNav';
 import ChildSwitchLock from '@/components/ChildSwitchLock';
+import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 

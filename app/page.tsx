@@ -1,5 +1,35 @@
+import { getActiveChild } from '@/app/actions/children';
+import { getLevelState } from '@/app/actions/levels';
+import { getStreak } from '@/app/actions/streak';
+import WelcomeScreen from '@/components/WelcomeScreen';
 import { redirect } from 'next/navigation';
 
-export default function Home() {
-  redirect('/learn');
+export const dynamic = 'force-dynamic';
+
+export default async function Home() {
+  const child = await getActiveChild();
+  
+  if (!child) {
+    redirect('/parent');
+  }
+
+  const levelState = await getLevelState(child.id);
+  const streak = await getStreak(child.id);
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <WelcomeScreen 
+        childName={child.name}
+        avatar={child.avatar || undefined}
+        level={levelState.level}
+        streak={streak}
+      />
+      {/* Redirect will happen via WelcomeScreen component */}
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-xl text-gray-600">טוען...</p>
+        </div>
+      </div>
+    </div>
+  );
 }

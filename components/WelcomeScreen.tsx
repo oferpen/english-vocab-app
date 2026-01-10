@@ -11,23 +11,26 @@ interface WelcomeScreenProps {
 }
 
 export default function WelcomeScreen({ childName, avatar, level, streak }: WelcomeScreenProps) {
-  const [showWelcome, setShowWelcome] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    // Check if welcome was already shown today
+    // Check if welcome was already shown in this session
     const welcomeShown = sessionStorage.getItem('welcomeShown');
     if (welcomeShown) {
-      setShowWelcome(false);
-      // If already shown, redirect immediately if on home page
+      // If already shown, redirect immediately without showing welcome
       if (pathname === '/') {
         router.push('/learn');
       }
       return;
     }
 
-    // Hide welcome after 5 seconds and redirect
+    // Show welcome screen
+    setShowWelcome(true);
+
+    // Hide welcome after 5 seconds and redirect (only if user hasn't clicked)
     const timer = setTimeout(() => {
       setShowWelcome(false);
       sessionStorage.setItem('welcomeShown', 'true');

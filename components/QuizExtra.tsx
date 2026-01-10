@@ -120,6 +120,10 @@ export default function QuizExtra({ childId }: QuizExtraProps) {
 
     if (correct) {
       setScore({ ...score, correct: score.correct + 1, total: score.total + 1 });
+      // Auto-advance to next question after 1.5 seconds if correct
+      setTimeout(() => {
+        handleNext();
+      }, 1500);
     } else {
       setScore({ ...score, total: score.total + 1 });
     }

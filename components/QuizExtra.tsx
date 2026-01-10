@@ -305,9 +305,9 @@ export default function QuizExtra({ childId }: QuizExtraProps) {
             <p className="text-center text-yellow-800 mb-2">לא נכון, נסה שוב!</p>
             <button
               onClick={handleRetry}
-              className="w-full bg-yellow-500 text-white py-2 rounded-lg"
+              className="w-full bg-yellow-500 text-white py-2 rounded-lg text-sm"
             >
-              נסה שוב
+              שוב
             </button>
           </div>
         )}

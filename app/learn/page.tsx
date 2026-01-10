@@ -27,7 +27,14 @@ export default async function LearnPage() {
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       <header className="bg-white shadow-sm p-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">ללמוד</h1>
+        <div>
+          <h1 className="text-2xl font-bold">ללמוד</h1>
+          {child && (
+            <p className="text-sm text-gray-600 mt-1">
+              שלום {child.name}! {child.avatar || '👶'}
+            </p>
+          )}
+        </div>
         <div className="flex gap-2">
           <ChildSwitchLock />
           <a href="/parent" className="text-sm text-gray-600">הורים</a>

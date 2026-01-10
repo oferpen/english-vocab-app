@@ -27,12 +27,18 @@ export default async function LearnPage() {
   
   // Auto-generate plan if none exists for today
   if (!todayPlan) {
-    const { generateStarterPack } = await import('@/app/actions/plans');
-    const { getTodayDate } = await import('@/lib/utils');
     try {
+      const { generateStarterPack } = await import('@/app/actions/plans');
+      const { getTodayDate } = await import('@/lib/utils');
       todayPlan = await generateStarterPack(child.id, getTodayDate(), 10);
-    } catch (error) {
-      console.error('Failed to auto-generate plan:', error);
+    } catch (error: any) {
+      // If database tables don't exist yet, try to create them
+      if (error.message?.includes('does not exist') || error.code === 'P2021') {
+        // Database not ready, will be set up on first request
+        console.error('Database not ready:', error.message);
+      } else {
+        console.error('Failed to auto-generate plan:', error);
+      }
     }
   }
 

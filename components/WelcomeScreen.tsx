@@ -40,6 +40,14 @@ export default function WelcomeScreen({ childName, avatar, level, streak }: Welc
     }
   };
 
+  const handleSkip = () => {
+    setShowWelcome(false);
+    sessionStorage.setItem('welcomeShown', 'true');
+    if (pathname === '/') {
+      router.push('/learn');
+    }
+  };
+
   if (!showWelcome) return null;
 
   return (
@@ -78,7 +86,7 @@ export default function WelcomeScreen({ childName, avatar, level, streak }: Welc
         </button>
         
         <button
-          onClick={() => setShowWelcome(false)}
+          onClick={handleSkip}
           className="mt-4 text-gray-500 text-sm hover:text-gray-700"
         >
           דלג

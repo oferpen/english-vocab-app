@@ -11,8 +11,7 @@ interface WelcomeScreenProps {
 }
 
 export default function WelcomeScreen({ childName, avatar, level, streak }: WelcomeScreenProps) {
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [shouldRedirect, setShouldRedirect] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -24,11 +23,9 @@ export default function WelcomeScreen({ childName, avatar, level, streak }: Welc
       if (pathname === '/') {
         router.push('/learn');
       }
+      setShowWelcome(false);
       return;
     }
-
-    // Show welcome screen
-    setShowWelcome(true);
 
     // Hide welcome after 5 seconds and redirect (only if user hasn't clicked)
     const timer = setTimeout(() => {

@@ -1,0 +1,152 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model ParentAccount {
+  id               String   @id @default(cuid())
+  pinHash          String?
+  createdAt        DateTime @default(now())
+  lastActiveChildId String?
+  settingsJson     String   @default("{}") // JSON string for global defaults
+  
+  children         ChildProfile[]
+  
+  @@map("parent_accounts")
+}
+
+model ChildProfile {
+  id               String   @id @default(cuid())
+  parentAccountId String
+  name             String
+  avatar           String?  // emoji or image URL
+  age              Int?
+  grade            String?
+  createdAt        DateTime @default(now())
+  
+  parentAccount    ParentAccount @relation(fields: [parentAccountId], references: [id], onDelete: Cascade)
+  dailyPlans       DailyPlan[]
+  progress         Progress[]
+  quizAttempts     QuizAttempt[]
+  missionStates    MissionState[]
+  levelState       LevelState?
+  
+  @@map("child_profiles")
+}
+
+model Word {
+  id               String   @id @default(cuid())
+  englishWord      String
+  hebrewTranslation String
+  category         String
+  difficulty       Int      @default(1) // 1-3
+  active           Boolean  @default(true)
+  imageUrl         String?
+  audioUrl         String?
+  exampleEn        String?
+  exampleHe        String?
+  createdAt        DateTime @default(now())
+  
+  dailyPlans       DailyPlanWord[]
+  progress         Progress[]
+  quizAttempts     QuizAttempt[]
+  
+  @@map("words")
+}
+
+model DailyPlan {
+  id        String   @id @default(cuid())
+  childId   String
+  date      String   // YYYY-MM-DD format
+  createdAt DateTime @default(now())
+  
+  child     ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
+  words     DailyPlanWord[]
+  
+  @@unique([childId, date])
+  @@map("daily_plans")
+}
+
+model DailyPlanWord {
+  id          String    @id @default(cuid())
+  dailyPlanId String
+  wordId      String
+  
+  dailyPlan   DailyPlan @relation(fields: [dailyPlanId], references: [id], onDelete: Cascade)
+  word        Word      @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  
+  @@unique([dailyPlanId, wordId])
+  @@map("daily_plan_words")
+}
+
+model Progress {
+  id              String   @id @default(cuid())
+  childId         String
+  wordId          String
+  timesSeenInLearn Int     @default(0)
+  quizAttempts    Int     @default(0)
+  quizCorrect     Int     @default(0)
+  lastSeenAt      DateTime?
+  masteryScore    Int      @default(0) // 0-100
+  needsReview     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now())
+  
+  child           ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
+  word            Word         @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  
+  @@unique([childId, wordId])
+  @@map("progress")
+}
+
+model QuizAttempt {
+  id          String   @id @default(cuid())
+  childId     String
+  wordId      String
+  createdAt   DateTime @default(now())
+  questionType String  // EN_TO_HE, HE_TO_EN, AUDIO_TO_EN
+  correct     Boolean
+  isExtra     Boolean  @default(false) // false = today's quiz, true = extra practice
+  
+  child       ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
+  word        Word         @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  
+  @@map("quiz_attempts")
+}
+
+model MissionState {
+  id            String   @id @default(cuid())
+  childId       String
+  periodType    String   // DAILY, WEEKLY
+  missionKey    String   // e.g., "learn_5_words", "quiz_4_days"
+  progress      Int      @default(0)
+  target        Int
+  completed     Boolean  @default(false)
+  periodStartDate String // YYYY-MM-DD
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+  
+  child         ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
+  
+  @@unique([childId, periodType, missionKey, periodStartDate])
+  @@map("mission_states")
+}
+
+model LevelState {
+  id        String   @id @default(cuid())
+  childId   String   @unique
+  level     Int      @default(1) // 1-10
+  xp        Int      @default(0)
+  updatedAt DateTime @default(now())
+  
+  child     ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
+  
+  @@map("level_states")
+}

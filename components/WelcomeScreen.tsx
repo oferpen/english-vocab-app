@@ -20,17 +20,24 @@ export default function WelcomeScreen({ childName, avatar, level, streak }: Welc
     const welcomeShown = sessionStorage.getItem('welcomeShown');
     if (welcomeShown) {
       setShowWelcome(false);
+      // If already shown, redirect immediately if on home page
+      if (pathname === '/') {
+        router.push('/learn');
+      }
       return;
     }
 
-    // Hide welcome after 5 seconds
+    // Hide welcome after 5 seconds and redirect
     const timer = setTimeout(() => {
       setShowWelcome(false);
       sessionStorage.setItem('welcomeShown', 'true');
+      if (pathname === '/') {
+        router.push('/learn');
+      }
     }, 5000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [pathname, router]);
 
   const handleStart = () => {
     setShowWelcome(false);

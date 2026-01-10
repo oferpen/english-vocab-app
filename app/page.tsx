@@ -24,12 +24,6 @@ export default async function Home() {
         level={levelState.level}
         streak={streak}
       />
-      {/* Redirect will happen via WelcomeScreen component */}
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <p className="text-xl text-gray-600">טוען...</p>
-        </div>
-      </div>
     </div>
   );
 }

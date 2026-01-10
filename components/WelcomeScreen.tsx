@@ -15,33 +15,8 @@ export default function WelcomeScreen({ childName, avatar, level, streak }: Welc
   const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    // Check if welcome was already shown in this session
-    const welcomeShown = sessionStorage.getItem('welcomeShown');
-    if (welcomeShown) {
-      // If already shown, redirect immediately without showing welcome
-      if (pathname === '/') {
-        router.push('/learn');
-      }
-      setShowWelcome(false);
-      return;
-    }
-
-    // Hide welcome after 5 seconds and redirect (only if user hasn't clicked)
-    const timer = setTimeout(() => {
-      setShowWelcome(false);
-      sessionStorage.setItem('welcomeShown', 'true');
-      if (pathname === '/') {
-        router.push('/learn');
-      }
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [pathname, router]);
-
   const handleStart = () => {
     setShowWelcome(false);
-    sessionStorage.setItem('welcomeShown', 'true');
     if (pathname === '/') {
       router.push('/learn');
     }
@@ -49,7 +24,6 @@ export default function WelcomeScreen({ childName, avatar, level, streak }: Welc
 
   const handleSkip = () => {
     setShowWelcome(false);
-    sessionStorage.setItem('welcomeShown', 'true');
     if (pathname === '/') {
       router.push('/learn');
     }

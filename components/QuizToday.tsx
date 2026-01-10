@@ -93,10 +93,6 @@ export default function QuizToday({ childId, todayPlan }: QuizTodayProps) {
 
     if (correct) {
       setScore({ ...score, correct: score.correct + 1, total: score.total + 1 });
-      // Auto-advance to next question after 1.5 seconds if correct
-      setTimeout(() => {
-        handleNext();
-      }, 1500);
     } else {
       setScore({ ...score, total: score.total + 1 });
     }
@@ -261,6 +257,7 @@ export default function QuizToday({ childId, todayPlan }: QuizTodayProps) {
         {showResult && isCorrect && (
           <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-center text-green-800 text-xl font-bold">נכון! כל הכבוד! 🎉</p>
+            {/* Auto-advancing to next question... */}
           </div>
         )}
 

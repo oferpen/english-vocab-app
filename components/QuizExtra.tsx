@@ -94,14 +94,14 @@ export default function QuizExtra({ childId }: QuizExtraProps) {
       const questionType = questionTypes[Math.floor(Math.random() * questionTypes.length)];
       
       // Use a seeded random to ensure consistent wrong answers for the same word
-      const seed = word.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const seed = word.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
       
       // Generate wrong answers with consistent selection
       const availableWords = allWords.filter((w) => w.id !== word.id);
       // Sort by a hash based on word id and seed to get consistent order
       const sortedWords = [...availableWords].sort((a, b) => {
-        const hashA = (a.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + seed) % 1000;
-        const hashB = (b.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + seed) % 1000;
+        const hashA = (a.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) + seed) % 1000;
+        const hashB = (b.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) + seed) % 1000;
         return hashA - hashB;
       });
       
@@ -114,8 +114,8 @@ export default function QuizExtra({ childId }: QuizExtraProps) {
       // Shuffle answers with consistent order for the same word
       const allAnswers = [correctAnswer, ...wrongAnswers];
       const shuffledAnswers = [...allAnswers].sort((a, b) => {
-        const hashA = a.split('').reduce((acc, char) => acc + char.charCodeAt(0), seed);
-        const hashB = b.split('').reduce((acc, char) => acc + char.charCodeAt(0), seed);
+        const hashA = a.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), seed);
+        const hashB = b.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), seed);
         return hashA - hashB;
       });
 

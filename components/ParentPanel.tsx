@@ -23,6 +23,19 @@ export default function ParentPanel({ session: initialSession }: ParentPanelProp
   const [pinVerified, setPinVerified] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
 
+  // Store referrer when component mounts (before PIN gate)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const referrer = document.referrer;
+      const currentOrigin = window.location.origin;
+      
+      // Only store if referrer is from our app and not the parent panel itself
+      if (referrer && referrer.startsWith(currentOrigin) && !referrer.includes('/parent')) {
+        sessionStorage.setItem('parentPanelReturnTo', referrer.replace(currentOrigin, ''));
+      }
+    }
+  }, []);
+
   // Always require PIN verification, regardless of Google session
   // Wait for session to load before showing PINGate
   if (status === 'loading') {
@@ -52,8 +65,18 @@ export default function ParentPanel({ session: initialSession }: ParentPanelProp
   const handleExit = () => {
     // Hide content immediately for instant feedback
     setIsExiting(true);
-    // Use window.location for instant navigation without React delay
-    window.location.href = '/';
+    
+    // Get stored return path or fallback to home
+    if (typeof window !== 'undefined') {
+      const returnTo = sessionStorage.getItem('parentPanelReturnTo');
+      sessionStorage.removeItem('parentPanelReturnTo'); // Clean up
+      
+      if (returnTo && returnTo !== '/parent') {
+        window.location.href = returnTo;
+      } else {
+        window.location.href = '/';
+      }
+    }
   };
 
   return (

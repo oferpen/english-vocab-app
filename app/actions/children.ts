@@ -51,10 +51,62 @@ export async function createChild(data: {
   age?: number;
   grade?: string;
 }) {
-  const parentAccount = await getCurrentParentAccount();
-  if (!parentAccount) {
-    throw new Error('Parent account not found');
-  }
+  try {
+    const parentAccount = await getCurrentParentAccount();
+    if (!parentAccount) {
+      // Try to get session to create parent account if needed
+      const { getAuthSession } = await import('@/lib/auth-helper');
+      const session = await getAuthSession();
+      
+      if (session?.user?.email) {
+        // Create parent account for this Google user
+        const newParent = await prisma.parentAccount.create({
+          data: {
+            email: session.user.email,
+            googleId: session.user.email,
+            name: session.user.name || null,
+            image: session.user.image || null,
+            settingsJson: JSON.stringify({
+              questionTypes: {
+                enToHe: true,
+                heToEn: true,
+                audioToEn: true,
+              },
+              quizLength: 10,
+              extraLearningStrategy: 'unseen',
+              streakRule: 'either',
+              rewardIntensity: 'normal',
+            }),
+          },
+        });
+        
+        const child = await prisma.childProfile.create({
+          data: {
+            ...data,
+            parentAccountId: newParent.id,
+          },
+        });
+        
+        await prisma.parentAccount.update({
+          where: { id: newParent.id },
+          data: { lastActiveChildId: child.id },
+        });
+        
+        await prisma.levelState.create({
+          data: {
+            childId: child.id,
+            level: 1,
+            xp: 0,
+          },
+        });
+        
+        revalidatePath('/');
+        revalidatePath('/parent');
+        return child;
+      }
+      
+      throw new Error('Parent account not found and no Google session available');
+    }
 
   const child = await prisma.childProfile.create({
     data: {

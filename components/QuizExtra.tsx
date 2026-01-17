@@ -214,7 +214,7 @@ export default function QuizExtra({ childId }: QuizExtraProps) {
           )}
         </div>
         <button
-          onClick={generateQuestions}
+          onClick={() => generateQuestions()}
           className="w-full bg-green-600 text-white py-4 rounded-lg text-lg font-medium"
         >
           התחל תרגול

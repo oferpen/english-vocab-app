@@ -1,0 +1,12 @@
+import ParentPanel from '@/components/ParentPanel';
+import { getAuthSession } from '@/lib/auth-helper';
+
+export const dynamic = 'force-dynamic';
+
+export default async function ParentPage() {
+  const session = await getAuthSession();
+
+  // Always show ParentPanel - it will show PINGate if not authenticated
+  // PINGate will show Google login if configured, or PIN entry
+  return <ParentPanel session={session} />;
+}

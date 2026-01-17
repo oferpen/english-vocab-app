@@ -7,6 +7,9 @@ import { getSettings } from '@/app/actions/settings';
 import { updateMissionProgress } from '@/app/actions/missions';
 import { addXP } from '@/app/actions/levels';
 import { useRouter } from 'next/navigation';
+import Confetti from './Confetti';
+import CelebrationScreen from './CelebrationScreen';
+import { playSuccessSound, playFailureSound } from '@/lib/sounds';
 
 interface QuizTodayProps {
   childId: string;
@@ -23,7 +26,10 @@ export default function QuizToday({ childId, todayPlan }: QuizTodayProps) {
   const [completed, setCompleted] = useState(false);
   const [score, setScore] = useState({ correct: 0, total: 0 });
   const [usedWordIds, setUsedWordIds] = useState<Set<string>>(new Set());
-  const [useAllWords, setUseAllWords] = useState(false); // Track if we should use all words
+  const [useAllWords, setUseAllWords] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [xpGained, setXpGained] = useState(0);
   const router = useRouter();
 
   const words = todayPlan?.words?.map((w: any) => w.word) || [];
@@ -72,8 +78,16 @@ export default function QuizToday({ childId, todayPlan }: QuizTodayProps) {
       // Use a seeded random to ensure consistent wrong answers for the same word
       const seed = word.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
       
+      const correctAnswer = questionType === 'EN_TO_HE' ? word.hebrewTranslation : word.englishWord;
+      
       // Generate wrong answers with consistent selection
-      const availableWords = allWords.filter((w) => w.id !== word.id);
+      // Filter out words that have the same translation as the correct answer
+      const availableWords = allWords.filter((w) => {
+        if (w.id === word.id) return false;
+        const wAnswer = questionType === 'EN_TO_HE' ? w.hebrewTranslation : w.englishWord;
+        return wAnswer !== correctAnswer; // Exclude words with same translation
+      });
+      
       // Sort by a hash based on word id and seed to get consistent order
       const sortedWords = [...availableWords].sort((a, b) => {
         const hashA = (a.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) + seed) % 1000;
@@ -81,11 +95,30 @@ export default function QuizToday({ childId, todayPlan }: QuizTodayProps) {
         return hashA - hashB;
       });
       
-      const wrongAnswers = sortedWords
-        .slice(0, 3)
-        .map((w) => questionType === 'EN_TO_HE' ? w.hebrewTranslation : w.englishWord);
-
-      const correctAnswer = questionType === 'EN_TO_HE' ? word.hebrewTranslation : word.englishWord;
+      // Get wrong answers and ensure uniqueness
+      const wrongAnswerSet = new Set<string>();
+      for (const w of sortedWords) {
+        const wAnswer = questionType === 'EN_TO_HE' ? w.hebrewTranslation : w.englishWord;
+        if (wAnswer !== correctAnswer && !wrongAnswerSet.has(wAnswer)) {
+          wrongAnswerSet.add(wAnswer);
+          if (wrongAnswerSet.size >= 3) break;
+        }
+      }
+      
+      const wrongAnswers = Array.from(wrongAnswerSet);
+      
+      // If we don't have enough unique wrong answers, pad with placeholder
+      while (wrongAnswers.length < 3 && availableWords.length > wrongAnswers.length) {
+        // Try to find more unique answers
+        for (const w of sortedWords) {
+          const wAnswer = questionType === 'EN_TO_HE' ? w.hebrewTranslation : w.englishWord;
+          if (wAnswer !== correctAnswer && !wrongAnswers.includes(wAnswer)) {
+            wrongAnswers.push(wAnswer);
+            if (wrongAnswers.length >= 3) break;
+          }
+        }
+        if (wrongAnswers.length < 3) break; // Avoid infinite loop
+      }
       
       // Shuffle answers with consistent order for the same word
       const allAnswers = [correctAnswer, ...wrongAnswers];
@@ -115,6 +148,16 @@ export default function QuizToday({ childId, todayPlan }: QuizTodayProps) {
     setIsCorrect(correct);
     setShowResult(true);
 
+    // Play sound based on result
+    if (correct) {
+      playSuccessSound();
+      // Show confetti for correct answer
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 1000);
+    } else {
+      playFailureSound();
+    }
+
     if (!correct && !retryUsed) {
       // Allow retry
       return;
@@ -136,6 +179,40 @@ export default function QuizToday({ childId, todayPlan }: QuizTodayProps) {
     }
   };
 
+  const handleSkip = async () => {
+    if (showResult) return;
+    
+    // Play failure sound for skip
+    playFailureSound();
+    
+    const question = questions[currentIndex];
+    // Record skip as incorrect attempt
+    await recordQuizAttempt(
+      childId,
+      question.word.id,
+      question.questionType as any,
+      false,
+      false
+    );
+    
+    setScore({ ...score, total: score.total + 1 });
+    
+    // Move to next question
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+      setSelectedAnswer(null);
+      setShowResult(false);
+      setIsCorrect(false);
+      setRetryUsed(false);
+    } else {
+      const xp = score.correct * 10;
+      setXpGained(xp);
+      setShowCelebration(true);
+      await updateMissionProgress(childId, 'DAILY', 'complete_quiz', 1, 1);
+      await addXP(childId, xp);
+    }
+  };
+
   const handleNext = async () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1);
@@ -144,9 +221,11 @@ export default function QuizToday({ childId, todayPlan }: QuizTodayProps) {
       setIsCorrect(false);
       setRetryUsed(false);
     } else {
-      setCompleted(true);
+      const xp = (score.correct + (correct ? 1 : 0)) * 10;
+      setXpGained(xp);
+      setShowCelebration(true);
       await updateMissionProgress(childId, 'DAILY', 'complete_quiz', 1, 1);
-      await addXP(childId, score.correct * 10);
+      await addXP(childId, xp);
     }
   };
 
@@ -210,31 +289,30 @@ export default function QuizToday({ childId, todayPlan }: QuizTodayProps) {
     }
   };
 
-  if (completed) {
+  if (completed || showCelebration) {
     const percentage = Math.round((score.correct / score.total) * 100);
+    const emoji = percentage >= 80 ? '🎉' : percentage >= 60 ? '👍' : '💪';
+    
     return (
-      <div className="p-8 text-center">
-        <div className="text-6xl mb-4">🎉</div>
-        <h2 className="text-3xl font-bold mb-2">סיימת את החידון!</h2>
-        <p className="text-xl text-gray-600 mb-2">
-          {score.correct} מתוך {score.total} נכונים
-        </p>
-        <p className="text-2xl font-bold text-blue-600 mb-6">{percentage}%</p>
-        <div className="space-y-3">
-          <button
-            onClick={handleNewQuiz}
-            className="w-full bg-green-600 text-white px-8 py-3 rounded-lg text-lg font-medium"
-          >
-            חידון חדש עם מילים אחרות 🎯
-          </button>
-          <button
-            onClick={() => router.push('/progress')}
-            className="w-full bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-medium"
-          >
-            צפה בהתקדמות
-          </button>
-        </div>
-      </div>
+      <>
+        <Confetti trigger={showCelebration && percentage >= 80} />
+        <CelebrationScreen
+          title={`סיימת את החידון! ${emoji}`}
+          message={`${score.correct} מתוך ${score.total} נכונים (${percentage}%)! קיבלת ${xpGained} נקודות XP!`}
+          emoji={emoji}
+          showConfetti={showCelebration && percentage >= 80}
+          actionLabel="חידון חדש עם מילים אחרות 🎯"
+          onAction={() => {
+            setShowCelebration(false);
+            setCompleted(true);
+            handleNewQuiz();
+          }}
+          onClose={() => {
+            setShowCelebration(false);
+            setCompleted(true);
+          }}
+        />
+      </>
     );
   }
 
@@ -242,72 +320,78 @@ export default function QuizToday({ childId, todayPlan }: QuizTodayProps) {
   const progress = ((currentIndex + 1) / questions.length) * 100;
 
   return (
-    <div className="p-4">
-      <div className="mb-4">
-        <div className="flex justify-between items-center mb-2">
-          <div className="flex justify-between text-sm text-gray-600 flex-1">
-            <span>{currentIndex + 1} מתוך {questions.length}</span>
-            <span>{Math.round(progress)}%</span>
+    <>
+      <Confetti trigger={showConfetti} duration={1000} />
+      <div className="p-4 md:p-6 bg-gray-50 min-h-[calc(100vh-200px)] animate-fade-in">
+        {/* Progress Bar */}
+      <div className="mb-6 bg-white rounded-xl p-5 shadow-md border border-gray-100">
+        <div className="flex justify-between items-center mb-3">
+          <span className="text-base font-semibold text-gray-700">
+            {currentIndex + 1} מתוך {questions.length}
+          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-base font-bold text-primary-600">{Math.round(progress)}%</span>
+            <button
+              onClick={handleRestartQuiz}
+              className="text-sm text-gray-500 hover:text-primary-600 transition-colors"
+              title="התחל חידון חדש"
+            >
+              🔄
+            </button>
           </div>
-          <button
-            onClick={handleRestartQuiz}
-            className="ml-4 text-sm text-gray-600 hover:text-gray-800 underline"
-            title="התחל חידון חדש"
-          >
-            🔄 החלף חידון
-          </button>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
           <div
-            className="bg-blue-600 h-2 rounded-full transition-all"
+            className="bg-gradient-to-r from-primary-500 to-primary-600 h-3 rounded-full transition-all duration-500 ease-out shadow-sm"
             style={{ width: `${progress}%` }}
           />
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-4">
-        <div className="text-center mb-6">
+      {/* Question Card */}
+      <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-6 border border-gray-100 animate-slide-up">
+        <div className="text-center mb-8">
           {question.questionType === 'EN_TO_HE' && (
             <>
-              <h2 className="text-4xl font-bold mb-4 text-blue-600">{question.word.englishWord}</h2>
-              <p className="text-lg text-gray-600">מה התרגום בעברית?</p>
+              <h2 className="text-5xl md:text-6xl font-bold mb-4 text-primary-600 drop-shadow-sm">{question.word.englishWord}</h2>
+              <p className="text-lg md:text-xl text-gray-600 font-medium">מה התרגום בעברית?</p>
             </>
           )}
           {question.questionType === 'HE_TO_EN' && (
             <>
-              <h2 className="text-4xl font-bold mb-4 text-blue-600">{question.word.hebrewTranslation}</h2>
-              <p className="text-lg text-gray-600">מה המילה באנגלית?</p>
+              <h2 className="text-5xl md:text-6xl font-bold mb-4 text-primary-600 drop-shadow-sm">{question.word.hebrewTranslation}</h2>
+              <p className="text-lg md:text-xl text-gray-600 font-medium">מה המילה באנגלית?</p>
             </>
           )}
           {question.questionType === 'AUDIO_TO_EN' && (
             <>
               <button
                 onClick={() => speakWord(question.word.englishWord)}
-                className="text-6xl mb-4 hover:scale-110 transition-transform"
+                className="text-6xl md:text-7xl mb-4 hover:scale-110 active:scale-95 transition-all duration-200 hover:drop-shadow-lg"
               >
                 🔊
               </button>
-              <p className="text-lg text-gray-600">מה המילה ששמעת?</p>
+              <p className="text-lg md:text-xl text-gray-600 font-medium">מה המילה ששמעת?</p>
             </>
           )}
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3 md:space-y-4">
           {question.answers.map((answer: string, idx: number) => {
-            let buttonClass = 'w-full py-4 rounded-lg text-lg font-medium border-2 ';
+            let buttonClass = 'w-full py-4 md:py-5 rounded-xl text-lg md:text-xl font-semibold border-2 transition-all duration-200 ';
             
             if (showResult) {
               if (answer === question.correctAnswer) {
-                buttonClass += 'bg-green-500 text-white border-green-600';
+                buttonClass += 'bg-success-500 text-white border-success-600 shadow-lg scale-105';
               } else if (answer === selectedAnswer && !isCorrect) {
-                buttonClass += 'bg-red-500 text-white border-red-600';
+                buttonClass += 'bg-red-500 text-white border-red-600 shadow-md';
               } else {
-                buttonClass += 'bg-gray-100 text-gray-600 border-gray-300';
+                buttonClass += 'bg-gray-100 text-gray-500 border-gray-300';
               }
             } else {
               buttonClass += selectedAnswer === answer
-                ? 'bg-blue-100 text-blue-800 border-blue-400'
-                : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50';
+                ? 'bg-primary-100 text-primary-800 border-primary-400 shadow-md'
+                : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50 hover:border-primary-300 hover:shadow-sm';
             }
 
             return (
@@ -324,12 +408,12 @@ export default function QuizToday({ childId, todayPlan }: QuizTodayProps) {
         </div>
 
         {showResult && !isCorrect && !retryUsed && (
-          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-center text-yellow-800 mb-2">לא נכון, נסה שוב!</p>
+          <div className="mt-6 p-5 bg-yellow-50 border-2 border-yellow-300 rounded-xl shadow-sm animate-slide-up">
+            <p className="text-center text-yellow-800 mb-3 text-lg font-semibold">לא נכון, נסה שוב!</p>
             <div className="flex justify-center">
               <button
                 onClick={handleRetry}
-                className="bg-yellow-500 text-white px-6 py-2 rounded-lg"
+                className="bg-yellow-500 hover:bg-yellow-600 text-white px-8 py-3 rounded-lg font-bold transition-all duration-200 transform hover:scale-105 active:scale-95"
               >
                 נסה שוב
               </button>
@@ -338,29 +422,39 @@ export default function QuizToday({ childId, todayPlan }: QuizTodayProps) {
         )}
 
         {showResult && isCorrect && (
-          <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-center text-green-800 text-xl font-bold">נכון! כל הכבוד! 🎉</p>
-            {/* Auto-advancing to next question... */}
+          <div className="mt-6 p-5 bg-success-50 border-2 border-success-300 rounded-xl shadow-sm animate-slide-up">
+            <p className="text-center text-success-800 text-2xl font-bold">נכון! כל הכבוד! 🎉</p>
           </div>
         )}
 
         {showResult && !isCorrect && retryUsed && (
-          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-center text-red-800">
-              התשובה הנכונה: <strong>{question.correctAnswer}</strong>
+          <div className="mt-6 p-5 bg-red-50 border-2 border-red-300 rounded-xl shadow-sm animate-slide-up">
+            <p className="text-center text-red-800 text-lg">
+              התשובה הנכונה: <strong className="text-xl">{question.correctAnswer}</strong>
             </p>
           </div>
         )}
       </div>
 
-      {showResult && (
-        <button
-          onClick={handleNext}
-          className="w-full bg-blue-600 text-white py-4 rounded-lg text-lg font-medium"
-        >
-          {currentIndex < questions.length - 1 ? 'הבא' : 'סיים חידון'}
-        </button>
-      )}
-    </div>
+      <div className="flex gap-3">
+        {!showResult && (
+          <button
+            onClick={handleSkip}
+            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-4 md:py-5 rounded-xl text-base md:text-lg font-semibold shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+          >
+            דלג ⏭️
+          </button>
+        )}
+        {showResult && (
+          <button
+            onClick={handleNext}
+            className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-5 md:py-6 rounded-xl text-lg md:text-xl font-bold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+          >
+            {currentIndex < questions.length - 1 ? 'המשך →' : 'סיים חידון ✓'}
+          </button>
+        )}
+      </div>
+      </div>
+    </>
   );
 }

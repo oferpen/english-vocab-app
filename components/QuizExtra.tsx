@@ -7,6 +7,7 @@ import { getWordsNeedingReview, getUnseenWords } from '@/app/actions/progress';
 import { getTodayPlan } from '@/app/actions/plans';
 import { getSettings } from '@/app/actions/settings';
 import { useRouter } from 'next/navigation';
+import { playSuccessSound, playFailureSound } from '@/lib/sounds';
 
 interface QuizExtraProps {
   childId: string;
@@ -96,8 +97,16 @@ export default function QuizExtra({ childId }: QuizExtraProps) {
       // Use a seeded random to ensure consistent wrong answers for the same word
       const seed = word.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
       
+      const correctAnswer = questionType === 'EN_TO_HE' ? word.hebrewTranslation : word.englishWord;
+      
       // Generate wrong answers with consistent selection
-      const availableWords = allWords.filter((w) => w.id !== word.id);
+      // Filter out words that have the same translation as the correct answer
+      const availableWords = allWords.filter((w) => {
+        if (w.id === word.id) return false;
+        const wAnswer = questionType === 'EN_TO_HE' ? w.hebrewTranslation : w.englishWord;
+        return wAnswer !== correctAnswer; // Exclude words with same translation
+      });
+      
       // Sort by a hash based on word id and seed to get consistent order
       const sortedWords = [...availableWords].sort((a, b) => {
         const hashA = (a.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) + seed) % 1000;
@@ -105,11 +114,30 @@ export default function QuizExtra({ childId }: QuizExtraProps) {
         return hashA - hashB;
       });
       
-      const wrongAnswers = sortedWords
-        .slice(0, 3)
-        .map((w) => questionType === 'EN_TO_HE' ? w.hebrewTranslation : w.englishWord);
-
-      const correctAnswer = questionType === 'EN_TO_HE' ? word.hebrewTranslation : word.englishWord;
+      // Get wrong answers and ensure uniqueness
+      const wrongAnswerSet = new Set<string>();
+      for (const w of sortedWords) {
+        const wAnswer = questionType === 'EN_TO_HE' ? w.hebrewTranslation : w.englishWord;
+        if (wAnswer !== correctAnswer && !wrongAnswerSet.has(wAnswer)) {
+          wrongAnswerSet.add(wAnswer);
+          if (wrongAnswerSet.size >= 3) break;
+        }
+      }
+      
+      const wrongAnswers = Array.from(wrongAnswerSet);
+      
+      // If we don't have enough unique wrong answers, pad with placeholder
+      while (wrongAnswers.length < 3 && availableWords.length > wrongAnswers.length) {
+        // Try to find more unique answers
+        for (const w of sortedWords) {
+          const wAnswer = questionType === 'EN_TO_HE' ? w.hebrewTranslation : w.englishWord;
+          if (wAnswer !== correctAnswer && !wrongAnswers.includes(wAnswer)) {
+            wrongAnswers.push(wAnswer);
+            if (wrongAnswers.length >= 3) break;
+          }
+        }
+        if (wrongAnswers.length < 3) break; // Avoid infinite loop
+      }
       
       // Shuffle answers with consistent order for the same word
       const allAnswers = [correctAnswer, ...wrongAnswers];
@@ -141,6 +169,13 @@ export default function QuizExtra({ childId }: QuizExtraProps) {
     setIsCorrect(correct);
     setShowResult(true);
 
+    // Play sound based on result
+    if (correct) {
+      playSuccessSound();
+    } else {
+      playFailureSound();
+    }
+
     if (!correct && !retryUsed) {
       return;
     }
@@ -157,6 +192,36 @@ export default function QuizExtra({ childId }: QuizExtraProps) {
       setScore({ ...score, correct: score.correct + 1, total: score.total + 1 });
     } else {
       setScore({ ...score, total: score.total + 1 });
+    }
+  };
+
+  const handleSkip = async () => {
+    if (showResult) return;
+    
+    // Play failure sound for skip
+    playFailureSound();
+    
+    const question = questions[currentIndex];
+    // Record skip as incorrect attempt
+    await recordQuizAttempt(
+      childId,
+      question.word.id,
+      question.questionType as any,
+      false,
+      true
+    );
+    
+    setScore({ ...score, total: score.total + 1 });
+    
+    // Move to next question
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+      setSelectedAnswer(null);
+      setShowResult(false);
+      setIsCorrect(false);
+      setRetryUsed(false);
+    } else {
+      setCompleted(true);
     }
   };
 
@@ -399,14 +464,24 @@ export default function QuizExtra({ childId }: QuizExtraProps) {
         )}
       </div>
 
-      {showResult && (
-        <button
-          onClick={handleNext}
-          className="w-full bg-green-600 text-white py-4 rounded-lg text-lg font-medium"
-        >
-          {currentIndex < questions.length - 1 ? 'הבא' : 'סיים תרגול'}
-        </button>
-      )}
+      <div className="flex gap-3">
+        {!showResult && (
+          <button
+            onClick={handleSkip}
+            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-4 md:py-5 rounded-xl text-base md:text-lg font-semibold shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+          >
+            דלג ⏭️
+          </button>
+        )}
+        {showResult && (
+          <button
+            onClick={handleNext}
+            className="w-full bg-gradient-to-r from-success-500 to-success-600 hover:from-success-600 hover:to-success-700 text-white py-5 md:py-6 rounded-xl text-lg md:text-xl font-bold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+          >
+            {currentIndex < questions.length - 1 ? 'המשך →' : 'סיים תרגול ✓'}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

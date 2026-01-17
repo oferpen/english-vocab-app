@@ -13,25 +13,25 @@ interface PageHeaderProps {
 
 export default function PageHeader({ title, childName, avatar, currentChildId }: PageHeaderProps) {
   return (
-    <header className="bg-white shadow-sm border-b">
-      <div className="flex justify-between items-center p-4">
-        <div className="flex items-center gap-3">
+    <header className="bg-white shadow-md border-b border-gray-200">
+      <div className="flex justify-between items-center p-4 md:p-5">
+        <div className="flex items-center gap-3 md:gap-4">
           {childName && (
             <>
-              <span className="text-2xl">{avatar || '👶'}</span>
+              <span className="text-3xl md:text-4xl">{avatar || '👶'}</span>
               <div>
-                <h1 className="text-xl font-bold text-gray-800">{title}</h1>
-                <p className="text-sm text-gray-600">שלום {childName}!</p>
+                <h1 className="text-xl md:text-2xl font-bold text-gray-800">{title}</h1>
+                <p className="text-sm md:text-base text-gray-600 font-medium">שלום {childName}!</p>
               </div>
             </>
           )}
-          {!childName && <h1 className="text-xl font-bold text-gray-800">{title}</h1>}
+          {!childName && <h1 className="text-xl md:text-2xl font-bold text-gray-800">{title}</h1>}
         </div>
         {childName && (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 md:gap-4">
             <Link
               href="/parent"
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+              className="text-sm md:text-base text-primary-600 hover:text-primary-700 font-semibold transition-colors duration-200"
             >
               🔐 פאנל הורים
             </Link>
@@ -40,7 +40,7 @@ export default function PageHeader({ title, childName, avatar, currentChildId }:
         )}
       </div>
       {childName && currentChildId && (
-        <div className="px-4 pb-2">
+        <div className="px-4 md:px-5 pb-3">
           <ChildSwitcher currentChildId={currentChildId} currentChildName={childName} />
         </div>
       )}

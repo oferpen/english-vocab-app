@@ -69,14 +69,14 @@ export default function WelcomeScreen({ childName, avatar, level, streak, isPare
         
         {/* Show progress only if child is logged in */}
         {showProgress && (level || streak !== undefined) && (
-          <div className="bg-gray-50 rounded-lg p-4 mb-6">
+          <div className="bg-gradient-to-br from-primary-50 to-purple-50 rounded-xl p-5 mb-6 border border-primary-100 shadow-sm">
             {level && (
-              <div className="text-lg mb-2">
-                <span className="font-bold text-blue-600">רמה {level}</span>
+              <div className="text-lg md:text-xl mb-2">
+                <span className="font-bold text-primary-600">רמה {level}</span>
               </div>
             )}
             {streak !== undefined && streak > 0 && (
-              <div className="text-lg">
+              <div className="text-lg md:text-xl">
                 <span className="font-bold text-orange-600">רצף: {streak} ימים 🔥</span>
               </div>
             )}
@@ -93,7 +93,7 @@ export default function WelcomeScreen({ childName, avatar, level, streak, isPare
         {childName && childName.trim() && (
           <button
             onClick={handleStart}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-lg text-xl font-bold shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+            className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-5 rounded-xl text-xl md:text-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-200 transform hover:scale-105 active:scale-95"
           >
             בואו נתחיל! 🚀
           </button>
@@ -102,7 +102,7 @@ export default function WelcomeScreen({ childName, avatar, level, streak, isPare
         {(!childName || !childName.trim()) && (
           <button
             onClick={handleStart}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-lg text-xl font-bold shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+            className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-5 rounded-xl text-xl md:text-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-200 transform hover:scale-105 active:scale-95"
           >
             בחר ילד להתחיל 🚀
           </button>

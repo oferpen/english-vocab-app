@@ -43,21 +43,23 @@ export default async function ProgressPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      <PageHeader title="התקדמות" childName={child.name} avatar={child.avatar} currentChildId={child.id} />
-      <ProgressDisplay
-        child={child}
-        progress={progress}
-        streak={streak}
-        levelState={levelState}
-        missions={missions}
-        masteredWords={masteredWords}
-        totalLearned={totalLearned}
-        needsReview={needsReview}
-        todayLearned={todayLearned}
-        todayTotal={todayWords.length}
-        xpProgress={xpProgress}
-        xpForNext={xpForNext}
-      />
+      <div className="max-w-2xl mx-auto bg-white min-h-screen">
+        <PageHeader title="התקדמות" childName={child.name} avatar={child.avatar} currentChildId={child.id} />
+        <ProgressDisplay
+          child={child}
+          progress={progress}
+          streak={streak}
+          levelState={levelState}
+          missions={missions}
+          masteredWords={masteredWords}
+          totalLearned={totalLearned}
+          needsReview={needsReview}
+          todayLearned={todayLearned}
+          todayTotal={todayWords.length}
+          xpProgress={xpProgress}
+          xpForNext={xpForNext}
+        />
+      </div>
       <BottomNav />
     </div>
   );

@@ -46,15 +46,17 @@ export default async function Home() {
 
     return (
       <div className="min-h-screen bg-gray-50">
-        <WelcomeScreen 
-          childName={child.name}
-          avatar={child.avatar || undefined}
-          level={levelState?.level || 1}
-          streak={streak}
-          isParentLoggedIn={true}
-          showProgress={true}
-          currentChildId={child.id}
-        />
+        <div className="max-w-2xl mx-auto">
+          <WelcomeScreen 
+            childName={child.name}
+            avatar={child.avatar || undefined}
+            level={levelState?.level || 1}
+            streak={streak}
+            isParentLoggedIn={true}
+            showProgress={true}
+            currentChildId={child.id}
+          />
+        </div>
       </div>
     );
   } catch (error) {

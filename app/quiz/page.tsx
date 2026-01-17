@@ -29,8 +29,10 @@ export default async function QuizPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      <PageHeader title="חידון" childName={child.name} avatar={child.avatar} currentChildId={child.id} />
-      <QuizTabs childId={child.id} todayPlan={todayPlan} />
+      <div className="max-w-2xl mx-auto bg-white min-h-screen">
+        <PageHeader title="חידון" childName={child.name} avatar={child.avatar} currentChildId={child.id} />
+        <QuizTabs childId={child.id} todayPlan={todayPlan} />
+      </div>
       <BottomNav />
     </div>
   );

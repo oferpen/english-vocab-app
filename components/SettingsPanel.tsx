@@ -26,9 +26,16 @@ export default function SettingsPanel() {
     router.refresh();
   };
 
-  if (loading || !settings) {
+  if (loading || !settings || !settings.questionTypes) {
     return <div className="p-4 text-center">טוען...</div>;
   }
+
+  // Ensure questionTypes exists with defaults
+  const questionTypes = settings.questionTypes || {
+    enToHe: true,
+    heToEn: true,
+    audioToEn: true,
+  };
 
   return (
     <div className="p-4">
@@ -40,10 +47,10 @@ export default function SettingsPanel() {
           <label className="flex items-center">
             <input
               type="checkbox"
-              checked={settings.questionTypes.enToHe}
+              checked={questionTypes.enToHe ?? true}
               onChange={(e) =>
                 handleUpdate({
-                  questionTypes: { ...settings.questionTypes, enToHe: e.target.checked },
+                  questionTypes: { ...questionTypes, enToHe: e.target.checked },
                 })
               }
               className="ml-2"
@@ -53,10 +60,10 @@ export default function SettingsPanel() {
           <label className="flex items-center">
             <input
               type="checkbox"
-              checked={settings.questionTypes.heToEn}
+              checked={questionTypes.heToEn ?? true}
               onChange={(e) =>
                 handleUpdate({
-                  questionTypes: { ...settings.questionTypes, heToEn: e.target.checked },
+                  questionTypes: { ...questionTypes, heToEn: e.target.checked },
                 })
               }
               className="ml-2"
@@ -66,10 +73,10 @@ export default function SettingsPanel() {
           <label className="flex items-center">
             <input
               type="checkbox"
-              checked={settings.questionTypes.audioToEn}
+              checked={questionTypes.audioToEn ?? true}
               onChange={(e) =>
                 handleUpdate({
-                  questionTypes: { ...settings.questionTypes, audioToEn: e.target.checked },
+                  questionTypes: { ...questionTypes, audioToEn: e.target.checked },
                 })
               }
               className="ml-2"

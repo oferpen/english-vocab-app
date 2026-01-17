@@ -23,7 +23,21 @@ export async function getSettings(): Promise<AppSettings> {
   }
 
   try {
-    return JSON.parse(parentAccount.settingsJson) as AppSettings;
+    const parsed = JSON.parse(parentAccount.settingsJson || '{}') as Partial<AppSettings>;
+    const defaults = getDefaultSettings();
+    
+    // Ensure all required fields exist with defaults
+    return {
+      questionTypes: {
+        enToHe: parsed.questionTypes?.enToHe ?? defaults.questionTypes.enToHe,
+        heToEn: parsed.questionTypes?.heToEn ?? defaults.questionTypes.heToEn,
+        audioToEn: parsed.questionTypes?.audioToEn ?? defaults.questionTypes.audioToEn,
+      },
+      quizLength: parsed.quizLength ?? defaults.quizLength,
+      extraLearningStrategy: parsed.extraLearningStrategy ?? defaults.extraLearningStrategy,
+      streakRule: parsed.streakRule ?? defaults.streakRule,
+      rewardIntensity: parsed.rewardIntensity ?? defaults.rewardIntensity,
+    };
   } catch {
     return getDefaultSettings();
   }

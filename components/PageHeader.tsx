@@ -13,24 +13,25 @@ interface PageHeaderProps {
 
 export default function PageHeader({ title, childName, avatar, currentChildId }: PageHeaderProps) {
   return (
-    <header className="bg-white shadow-sm p-4">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold">{title}</h1>
+    <header className="bg-white shadow-sm border-b">
+      <div className="flex justify-between items-center p-4">
+        <div className="flex items-center gap-3">
           {childName && (
-            <div className="mt-1">
-              <p className="text-sm text-gray-600">
-                שלום {childName}! {avatar || '👶'}
-              </p>
-              <ChildSwitcher currentChildId={currentChildId} currentChildName={childName} />
-            </div>
+            <>
+              <span className="text-2xl">{avatar || '👶'}</span>
+              <div>
+                <h1 className="text-xl font-bold text-gray-800">{title}</h1>
+                <p className="text-sm text-gray-600">שלום {childName}!</p>
+              </div>
+            </>
           )}
+          {!childName && <h1 className="text-xl font-bold text-gray-800">{title}</h1>}
         </div>
         {childName && (
-          <div className="flex flex-col gap-2 items-end">
+          <div className="flex items-center gap-3">
             <Link
               href="/parent"
-              className="text-xs text-green-600 hover:text-green-800 underline"
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
             >
               🔐 פאנל הורים
             </Link>
@@ -38,6 +39,11 @@ export default function PageHeader({ title, childName, avatar, currentChildId }:
           </div>
         )}
       </div>
+      {childName && currentChildId && (
+        <div className="px-4 pb-2">
+          <ChildSwitcher currentChildId={currentChildId} currentChildName={childName} />
+        </div>
+      )}
     </header>
   );
 }

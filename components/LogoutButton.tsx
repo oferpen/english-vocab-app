@@ -10,9 +10,10 @@ export default function LogoutButton() {
   return (
     <button
       onClick={handleLogout}
-      className="text-xs text-red-600 hover:text-red-800 underline"
+      className="text-sm text-gray-600 hover:text-red-600 transition-colors"
+      title="התנתק"
     >
-      התנתק
+      🚪
     </button>
   );
 }

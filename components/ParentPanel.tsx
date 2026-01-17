@@ -44,8 +44,8 @@ export default function ParentPanel({ session: initialSession }: ParentPanelProp
   };
 
   const handleExit = () => {
-    setPinVerified(false);
-    router.push('/');
+    // Navigate immediately without resetting state to avoid flash
+    router.replace('/');
   };
 
   return (

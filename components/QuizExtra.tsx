@@ -25,6 +25,7 @@ export default function QuizExtra({ childId }: QuizExtraProps) {
   const [score, setScore] = useState({ correct: 0, total: 0 });
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [usedWordIds, setUsedWordIds] = useState<Set<string>>(new Set());
   const router = useRouter();
 
   useEffect(() => {
@@ -40,7 +41,7 @@ export default function QuizExtra({ childId }: QuizExtraProps) {
     }
   };
 
-  const generateQuestions = async () => {
+  const generateQuestions = async (resetUsedWords: boolean = false) => {
     setLoading(true);
     const settings = await getSettings();
     const allWords = await getAllWords();
@@ -65,8 +66,24 @@ export default function QuizExtra({ childId }: QuizExtraProps) {
       return;
     }
 
+    // Use fresh word IDs if resetting, otherwise use current state
+    const currentUsedWordIds = resetUsedWords ? new Set<string>() : usedWordIds;
+
+    // Get words that haven't been used yet, or all words if we've used them all
+    const availableWords = wordList.filter((w: any) => !currentUsedWordIds.has(w.id));
+    const wordsToUse = availableWords.length > 0 ? availableWords : wordList;
+    
+    // Shuffle to get different words each time
+    const shuffledWords = [...wordsToUse].sort(() => Math.random() - 0.5);
+    const wordsForQuiz = shuffledWords.slice(0, settings.quizLength || 10);
+
+    // Update used word IDs
+    const newUsedWordIds = resetUsedWords ? new Set<string>() : new Set(currentUsedWordIds);
+    wordsForQuiz.forEach((w: any) => newUsedWordIds.add(w.id));
+    setUsedWordIds(newUsedWordIds);
+
     const questionList: any[] = [];
-    for (const word of wordList.slice(0, settings.quizLength || 10)) {
+    for (const word of wordsForQuiz) {
       const questionTypes: string[] = [];
       if (settings.questionTypes.enToHe) questionTypes.push('EN_TO_HE');
       if (settings.questionTypes.heToEn) questionTypes.push('HE_TO_EN');
@@ -75,20 +92,38 @@ export default function QuizExtra({ childId }: QuizExtraProps) {
       if (questionTypes.length === 0) continue;
 
       const questionType = questionTypes[Math.floor(Math.random() * questionTypes.length)];
-      const wrongAnswers = allWords
-        .filter((w) => w.id !== word.id)
-        .sort(() => Math.random() - 0.5)
+      
+      // Use a seeded random to ensure consistent wrong answers for the same word
+      const seed = word.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      
+      // Generate wrong answers with consistent selection
+      const availableWords = allWords.filter((w) => w.id !== word.id);
+      // Sort by a hash based on word id and seed to get consistent order
+      const sortedWords = [...availableWords].sort((a, b) => {
+        const hashA = (a.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + seed) % 1000;
+        const hashB = (b.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + seed) % 1000;
+        return hashA - hashB;
+      });
+      
+      const wrongAnswers = sortedWords
         .slice(0, 3)
         .map((w) => questionType === 'EN_TO_HE' ? w.hebrewTranslation : w.englishWord);
 
       const correctAnswer = questionType === 'EN_TO_HE' ? word.hebrewTranslation : word.englishWord;
-      const allAnswers = [correctAnswer, ...wrongAnswers].sort(() => Math.random() - 0.5);
+      
+      // Shuffle answers with consistent order for the same word
+      const allAnswers = [correctAnswer, ...wrongAnswers];
+      const shuffledAnswers = [...allAnswers].sort((a, b) => {
+        const hashA = a.split('').reduce((acc, char) => acc + char.charCodeAt(0), seed);
+        const hashB = b.split('').reduce((acc, char) => acc + char.charCodeAt(0), seed);
+        return hashA - hashB;
+      });
 
       questionList.push({
         word,
         questionType,
         correctAnswer,
-        answers: allAnswers,
+        answers: shuffledAnswers,
       });
     }
 
@@ -196,6 +231,32 @@ export default function QuizExtra({ childId }: QuizExtraProps) {
     );
   }
 
+  const handleNewQuiz = async () => {
+    setCompleted(false);
+    setCurrentIndex(0);
+    setSelectedAnswer(null);
+    setShowResult(false);
+    setIsCorrect(false);
+    setRetryUsed(false);
+    setScore({ correct: 0, total: 0 });
+    // Don't reset usedWordIds - keep track to avoid repeating words
+    await generateQuestions();
+  };
+
+  const handleRestartQuiz = async () => {
+    if (window.confirm('האם אתה בטוח שברצונך להתחיל תרגול חדש? ההתקדמות הנוכחית תימחק.')) {
+      setCompleted(false);
+      setCurrentIndex(0);
+      setSelectedAnswer(null);
+      setShowResult(false);
+      setIsCorrect(false);
+      setRetryUsed(false);
+      setScore({ correct: 0, total: 0 });
+      // Pass true to reset used words and get fresh words
+      await generateQuestions(true);
+    }
+  };
+
   if (completed) {
     const percentage = Math.round((score.correct / score.total) * 100);
     return (
@@ -206,16 +267,20 @@ export default function QuizExtra({ childId }: QuizExtraProps) {
           {score.correct} מתוך {score.total} נכונים
         </p>
         <p className="text-2xl font-bold text-green-600 mb-6">{percentage}%</p>
-        <button
-          onClick={() => {
-            setQuestions([]);
-            setCompleted(false);
-            setScore({ correct: 0, total: 0 });
-          }}
-          className="bg-green-600 text-white px-8 py-3 rounded-lg text-lg font-medium"
-        >
-          תרגול נוסף
-        </button>
+        <div className="space-y-3">
+          <button
+            onClick={handleNewQuiz}
+            className="w-full bg-green-600 text-white px-8 py-3 rounded-lg text-lg font-medium"
+          >
+            חידון חדש עם מילים אחרות 🎯
+          </button>
+          <button
+            onClick={() => router.push('/progress')}
+            className="w-full bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-medium"
+          >
+            צפה בהתקדמות
+          </button>
+        </div>
       </div>
     );
   }
@@ -226,9 +291,18 @@ export default function QuizExtra({ childId }: QuizExtraProps) {
   return (
     <div className="p-4">
       <div className="mb-4">
-        <div className="flex justify-between text-sm text-gray-600 mb-1">
-          <span>{currentIndex + 1} מתוך {questions.length}</span>
-          <span>{Math.round(progress)}%</span>
+        <div className="flex justify-between items-center mb-2">
+          <div className="flex justify-between text-sm text-gray-600 flex-1">
+            <span>{currentIndex + 1} מתוך {questions.length}</span>
+            <span>{Math.round(progress)}%</span>
+          </div>
+          <button
+            onClick={handleRestartQuiz}
+            className="ml-4 text-sm text-gray-600 hover:text-gray-800 underline"
+            title="התחל תרגול חדש"
+          >
+            🔄 החלף תרגול
+          </button>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
@@ -285,7 +359,7 @@ export default function QuizExtra({ childId }: QuizExtraProps) {
 
             return (
               <button
-                key={idx}
+                key={`${question.word.id}-answer-${idx}`}
                 onClick={() => handleAnswerSelect(answer)}
                 className={buttonClass}
                 disabled={showResult}

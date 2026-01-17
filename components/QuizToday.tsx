@@ -22,6 +22,8 @@ export default function QuizToday({ childId, todayPlan }: QuizTodayProps) {
   const [retryUsed, setRetryUsed] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [score, setScore] = useState({ correct: 0, total: 0 });
+  const [usedWordIds, setUsedWordIds] = useState<Set<string>>(new Set());
+  const [useAllWords, setUseAllWords] = useState(false); // Track if we should use all words
   const router = useRouter();
 
   const words = todayPlan?.words?.map((w: any) => w.word) || [];
@@ -30,14 +32,34 @@ export default function QuizToday({ childId, todayPlan }: QuizTodayProps) {
     generateQuestions();
   }, [todayPlan]);
 
-  const generateQuestions = async () => {
-    if (words.length === 0) return;
-
+  const generateQuestions = async (resetUsedWords: boolean = false, useAllAvailableWords: boolean = false) => {
     const settings = await getSettings();
     const allWords = await getAllWords();
     const questionList: any[] = [];
 
-    for (const word of words) {
+    // Determine which word pool to use
+    // If restarting and we want variety, use all words instead of just today's plan
+    const wordPool = (useAllAvailableWords && allWords.length > 0) ? allWords : words;
+    
+    if (wordPool.length === 0) return;
+
+    // Use fresh word IDs if resetting, otherwise use current state
+    const currentUsedWordIds = resetUsedWords ? new Set<string>() : usedWordIds;
+
+    // Get words that haven't been used yet, or all words if we've used them all
+    const availableWords = wordPool.filter((w: any) => !currentUsedWordIds.has(w.id));
+    const wordsToUse = availableWords.length > 0 ? availableWords : wordPool;
+    
+    // Shuffle to get different words each time
+    const shuffledWords = [...wordsToUse].sort(() => Math.random() - 0.5);
+    const wordsForQuiz = shuffledWords.slice(0, Math.min(wordPool.length, settings.quizLength || 10));
+
+    // Update used word IDs
+    const newUsedWordIds = resetUsedWords ? new Set<string>() : new Set(currentUsedWordIds);
+    wordsForQuiz.forEach((w: any) => newUsedWordIds.add(w.id));
+    setUsedWordIds(newUsedWordIds);
+
+    for (const word of wordsForQuiz) {
       const questionTypes: string[] = [];
       if (settings.questionTypes.enToHe) questionTypes.push('EN_TO_HE');
       if (settings.questionTypes.heToEn) questionTypes.push('HE_TO_EN');
@@ -47,21 +69,37 @@ export default function QuizToday({ childId, todayPlan }: QuizTodayProps) {
 
       const questionType = questionTypes[Math.floor(Math.random() * questionTypes.length)];
       
-      // Generate wrong answers
-      const wrongAnswers = allWords
-        .filter((w) => w.id !== word.id)
-        .sort(() => Math.random() - 0.5)
+      // Use a seeded random to ensure consistent wrong answers for the same word
+      const seed = word.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      
+      // Generate wrong answers with consistent selection
+      const availableWords = allWords.filter((w) => w.id !== word.id);
+      // Sort by a hash based on word id and seed to get consistent order
+      const sortedWords = [...availableWords].sort((a, b) => {
+        const hashA = (a.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + seed) % 1000;
+        const hashB = (b.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + seed) % 1000;
+        return hashA - hashB;
+      });
+      
+      const wrongAnswers = sortedWords
         .slice(0, 3)
         .map((w) => questionType === 'EN_TO_HE' ? w.hebrewTranslation : w.englishWord);
 
       const correctAnswer = questionType === 'EN_TO_HE' ? word.hebrewTranslation : word.englishWord;
-      const allAnswers = [correctAnswer, ...wrongAnswers].sort(() => Math.random() - 0.5);
+      
+      // Shuffle answers with consistent order for the same word
+      const allAnswers = [correctAnswer, ...wrongAnswers];
+      const shuffledAnswers = [...allAnswers].sort((a, b) => {
+        const hashA = a.split('').reduce((acc, char) => acc + char.charCodeAt(0), seed);
+        const hashB = b.split('').reduce((acc, char) => acc + char.charCodeAt(0), seed);
+        return hashA - hashB;
+      });
 
       questionList.push({
         word,
         questionType,
         correctAnswer,
-        answers: allAnswers,
+        answers: shuffledAnswers,
       });
     }
 
@@ -144,6 +182,34 @@ export default function QuizToday({ childId, todayPlan }: QuizTodayProps) {
     );
   }
 
+  const handleNewQuiz = async () => {
+    setCompleted(false);
+    setCurrentIndex(0);
+    setSelectedAnswer(null);
+    setShowResult(false);
+    setIsCorrect(false);
+    setRetryUsed(false);
+    setScore({ correct: 0, total: 0 });
+    setUseAllWords(true); // Use all words for variety
+    // Use all words for new quiz to get variety
+    await generateQuestions(true, true);
+  };
+
+  const handleRestartQuiz = async () => {
+    if (window.confirm('האם אתה בטוח שברצונך להתחיל חידון חדש? ההתקדמות הנוכחית תימחק.')) {
+      setCompleted(false);
+      setCurrentIndex(0);
+      setSelectedAnswer(null);
+      setShowResult(false);
+      setIsCorrect(false);
+      setRetryUsed(false);
+      setScore({ correct: 0, total: 0 });
+      setUseAllWords(true); // Use all words for variety
+      // Pass true to reset used words and use all available words for variety
+      await generateQuestions(true, true);
+    }
+  };
+
   if (completed) {
     const percentage = Math.round((score.correct / score.total) * 100);
     return (
@@ -154,12 +220,20 @@ export default function QuizToday({ childId, todayPlan }: QuizTodayProps) {
           {score.correct} מתוך {score.total} נכונים
         </p>
         <p className="text-2xl font-bold text-blue-600 mb-6">{percentage}%</p>
-        <button
-          onClick={() => router.push('/progress')}
-          className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-medium"
-        >
-          צפה בהתקדמות
-        </button>
+        <div className="space-y-3">
+          <button
+            onClick={handleNewQuiz}
+            className="w-full bg-green-600 text-white px-8 py-3 rounded-lg text-lg font-medium"
+          >
+            חידון חדש עם מילים אחרות 🎯
+          </button>
+          <button
+            onClick={() => router.push('/progress')}
+            className="w-full bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-medium"
+          >
+            צפה בהתקדמות
+          </button>
+        </div>
       </div>
     );
   }
@@ -170,9 +244,18 @@ export default function QuizToday({ childId, todayPlan }: QuizTodayProps) {
   return (
     <div className="p-4">
       <div className="mb-4">
-        <div className="flex justify-between text-sm text-gray-600 mb-1">
-          <span>{currentIndex + 1} מתוך {questions.length}</span>
-          <span>{Math.round(progress)}%</span>
+        <div className="flex justify-between items-center mb-2">
+          <div className="flex justify-between text-sm text-gray-600 flex-1">
+            <span>{currentIndex + 1} מתוך {questions.length}</span>
+            <span>{Math.round(progress)}%</span>
+          </div>
+          <button
+            onClick={handleRestartQuiz}
+            className="ml-4 text-sm text-gray-600 hover:text-gray-800 underline"
+            title="התחל חידון חדש"
+          >
+            🔄 החלף חידון
+          </button>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
@@ -229,7 +312,7 @@ export default function QuizToday({ childId, todayPlan }: QuizTodayProps) {
 
             return (
               <button
-                key={idx}
+                key={`${question.word.id}-answer-${idx}`}
                 onClick={() => handleAnswerSelect(answer)}
                 className={buttonClass}
                 disabled={showResult}

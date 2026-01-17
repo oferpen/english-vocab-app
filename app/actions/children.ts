@@ -2,23 +2,45 @@
 
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { getCurrentParentAccount } from '@/lib/auth';
+import { getAuthSession } from '@/lib/auth-helper';
 
 export async function getActiveChild() {
-  const parentAccount = await prisma.parentAccount.findFirst();
-  if (!parentAccount?.lastActiveChildId) {
+  // First check if there's a Google session
+  const session = await getAuthSession();
+  if (!session?.user?.email) {
+    // No Google session - don't return any child
+    // This ensures that children must explicitly select themselves
     return null;
   }
-  return prisma.childProfile.findUnique({
-    where: { id: parentAccount.lastActiveChildId },
-  });
+  
+  const parentAccount = await getCurrentParentAccount();
+  
+  if (parentAccount?.lastActiveChildId) {
+    // If parent is logged in, return their active child
+    return prisma.childProfile.findUnique({
+      where: { id: parentAccount.lastActiveChildId },
+    });
+  }
+  
+  return null;
 }
 
 export async function getAllChildren() {
-  const parentAccount = await prisma.parentAccount.findFirst();
-  if (!parentAccount) return [];
+  const parentAccount = await getCurrentParentAccount();
   
+  if (parentAccount) {
+    // If parent is logged in, return only their children
+    return prisma.childProfile.findMany({
+      where: { parentAccountId: parentAccount.id },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+  
+  // If no session, return all children in the system
+  // This allows child login screen to work without parent being logged in
+  // Note: This assumes single-family usage. For multi-family, consider adding child-level PINs
   return prisma.childProfile.findMany({
-    where: { parentAccountId: parentAccount.id },
     orderBy: { createdAt: 'desc' },
   });
 }
@@ -29,7 +51,7 @@ export async function createChild(data: {
   age?: number;
   grade?: string;
 }) {
-  const parentAccount = await prisma.parentAccount.findFirst();
+  const parentAccount = await getCurrentParentAccount();
   if (!parentAccount) {
     throw new Error('Parent account not found');
   }
@@ -58,6 +80,7 @@ export async function createChild(data: {
     },
   });
 
+  revalidatePath('/');
   revalidatePath('/parent');
   return child;
 }
@@ -84,15 +107,44 @@ export async function deleteChild(id: string) {
 }
 
 export async function setActiveChild(childId: string) {
-  const parentAccount = await prisma.parentAccount.findFirst();
-  if (!parentAccount) {
-    throw new Error('Parent account not found');
+  const parentAccount = await getCurrentParentAccount();
+  
+  if (parentAccount) {
+    // Verify that the child belongs to this parent account
+    const child = await prisma.childProfile.findUnique({
+      where: { id: childId },
+      select: { parentAccountId: true },
+    });
+    
+    if (!child) {
+      throw new Error('Child not found');
+    }
+    
+    if (child.parentAccountId !== parentAccount.id) {
+      throw new Error('Child does not belong to this parent account');
+    }
+    
+    // If parent is logged in, update their active child
+    await prisma.parentAccount.update({
+      where: { id: parentAccount.id },
+      data: { lastActiveChildId: childId },
+    });
+  } else {
+    // If no session, find the child's parent and update their active child
+    const child = await prisma.childProfile.findUnique({
+      where: { id: childId },
+      select: { parentAccountId: true },
+    });
+    
+    if (!child) {
+      throw new Error('Child not found');
+    }
+    
+    await prisma.parentAccount.update({
+      where: { id: child.parentAccountId },
+      data: { lastActiveChildId: childId },
+    });
   }
-
-  await prisma.parentAccount.update({
-    where: { id: parentAccount.id },
-    data: { lastActiveChildId: childId },
-  });
 
   revalidatePath('/');
   revalidatePath('/learn');

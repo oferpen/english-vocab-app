@@ -2,7 +2,6 @@
 
 import { prisma } from '@/lib/prisma';
 import { getTodayDate } from '@/lib/utils';
-import { revalidatePath } from 'next/cache';
 
 export async function getDailyPlan(childId: string, date: string) {
   return prisma.dailyPlan.findUnique({
@@ -65,9 +64,9 @@ export async function createDailyPlan(childId: string, date: string, wordIds: st
     },
   });
 
-  revalidatePath('/learn');
-  revalidatePath('/quiz');
-  revalidatePath('/parent');
+  // Note: revalidatePath cannot be called during render in Next.js 16
+  // Since pages using this are already marked as 'force-dynamic', 
+  // they will automatically re-render on next request
   return plan;
 }
 

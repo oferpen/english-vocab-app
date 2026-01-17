@@ -24,23 +24,6 @@ export default function LearnToday({ childId, todayPlan }: LearnTodayProps) {
     }
   }, [words.length]);
 
-  const handleNext = async () => {
-    if (currentIndex < words.length - 1) {
-      const word = words[currentIndex];
-      await markWordSeen(childId, word.id);
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      // Last word
-      const word = words[currentIndex];
-      await markWordSeen(childId, word.id);
-      setCompleted(true);
-      
-      // Update mission progress
-      await updateMissionProgress(childId, 'DAILY', 'learn_words', words.length, 1);
-      await addXP(childId, words.length * 5);
-    }
-  };
-
   const handleMarkLearned = async () => {
     const word = words[currentIndex];
     await markWordSeen(childId, word.id);
@@ -130,20 +113,12 @@ export default function LearnToday({ childId, todayPlan }: LearnTodayProps) {
         </div>
       </div>
 
-      <div className="flex gap-3">
-        <button
-          onClick={handleNext}
-          className="flex-1 bg-gray-200 text-gray-800 py-4 rounded-lg text-lg font-medium"
-        >
-          הבא
-        </button>
-        <button
-          onClick={handleMarkLearned}
-          className="flex-1 bg-blue-600 text-white py-4 rounded-lg text-lg font-medium"
-        >
-          למדתי ✓
-        </button>
-      </div>
+      <button
+        onClick={handleMarkLearned}
+        className="w-full bg-green-600 text-white py-4 rounded-lg text-lg font-medium"
+      >
+        למדתי
+      </button>
     </div>
   );
 }

@@ -1,15 +1,13 @@
-import { hasPIN } from '@/app/actions/auth';
-import { redirect } from 'next/navigation';
+// Parent panel page
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth-config';
 import ParentPanel from '@/components/ParentPanel';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ParentPage() {
-  const pinExists = await hasPIN();
-  
-  if (!pinExists) {
-    redirect('/parent/setup');
-  }
+  const session = await getServerSession(authOptions);
 
-  return <ParentPanel />;
+  // Always show ParentPanel - it will handle PIN/Google auth internally
+  return <ParentPanel session={session} />;
 }

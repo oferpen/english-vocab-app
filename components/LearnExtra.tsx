@@ -39,18 +39,6 @@ export default function LearnExtra({ childId }: LearnExtraProps) {
     setLoading(false);
   };
 
-  const handleNext = async () => {
-    if (currentIndex < words.length - 1) {
-      const word = words[currentIndex];
-      await markWordSeen(childId, word.id);
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      const word = words[currentIndex];
-      await markWordSeen(childId, word.id);
-      router.push('/progress');
-    }
-  };
-
   const handleMarkLearned = async () => {
     const word = words[currentIndex];
     await markWordSeen(childId, word.id);
@@ -152,20 +140,12 @@ export default function LearnExtra({ childId }: LearnExtraProps) {
         </div>
       </div>
 
-      <div className="flex gap-3">
-        <button
-          onClick={handleNext}
-          className="flex-1 bg-gray-200 text-gray-800 py-4 rounded-lg text-lg font-medium"
-        >
-          הבא
-        </button>
-        <button
-          onClick={handleMarkLearned}
-          className="flex-1 bg-green-600 text-white py-4 rounded-lg text-lg font-medium"
-        >
-          למדתי ✓
-        </button>
-      </div>
+      <button
+        onClick={handleMarkLearned}
+        className="w-full bg-green-600 text-white py-4 rounded-lg text-lg font-medium"
+      >
+        למדתי
+      </button>
     </div>
   );
 }

@@ -130,6 +130,128 @@ async function main() {
     { englishWord: 'water', hebrewTranslation: 'מים', category: 'Food', difficulty: 1, exampleEn: 'I drink water', exampleHe: 'אני שותה מים' },
     { englishWord: 'egg', hebrewTranslation: 'ביצה', category: 'Food', difficulty: 1, exampleEn: 'Eat an egg', exampleHe: 'אכול ביצה' },
     { englishWord: 'cheese', hebrewTranslation: 'גבינה', category: 'Food', difficulty: 1, exampleEn: 'I like cheese', exampleHe: 'אני אוהב גבינה' },
+    { englishWord: 'orange', hebrewTranslation: 'תפוז', category: 'Food', difficulty: 1, exampleEn: 'The orange is sweet', exampleHe: 'התפוז מתוק' },
+    { englishWord: 'tomato', hebrewTranslation: 'עגבניה', category: 'Food', difficulty: 1, exampleEn: 'Red tomato', exampleHe: 'עגבניה אדומה' },
+    { englishWord: 'carrot', hebrewTranslation: 'גזר', category: 'Food', difficulty: 1, exampleEn: 'Rabbits eat carrots', exampleHe: 'ארנבים אוכלים גזר' },
+    { englishWord: 'chicken', hebrewTranslation: 'עוף', category: 'Food', difficulty: 1, exampleEn: 'I eat chicken', exampleHe: 'אני אוכל עוף' },
+    { englishWord: 'rice', hebrewTranslation: 'אורז', category: 'Food', difficulty: 1, exampleEn: 'Rice is white', exampleHe: 'אורז לבן' },
+    { englishWord: 'pasta', hebrewTranslation: 'פסטה', category: 'Food', difficulty: 1, exampleEn: 'I love pasta', exampleHe: 'אני אוהב פסטה' },
+    { englishWord: 'cake', hebrewTranslation: 'עוגה', category: 'Food', difficulty: 1, exampleEn: 'Happy birthday cake', exampleHe: 'עוגת יום הולדת' },
+    { englishWord: 'cookie', hebrewTranslation: 'עוגייה', category: 'Food', difficulty: 1, exampleEn: 'Chocolate cookie', exampleHe: 'עוגיית שוקולד' },
+    { englishWord: 'juice', hebrewTranslation: 'מיץ', category: 'Food', difficulty: 1, exampleEn: 'Orange juice', exampleHe: 'מיץ תפוזים' },
+    { englishWord: 'sandwich', hebrewTranslation: 'כריך', category: 'Food', difficulty: 1, exampleEn: 'I make a sandwich', exampleHe: 'אני מכין כריך' },
+    { englishWord: 'pizza', hebrewTranslation: 'פיצה', category: 'Food', difficulty: 1, exampleEn: 'I like pizza', exampleHe: 'אני אוהב פיצה' },
+    { englishWord: 'ice cream', hebrewTranslation: 'גלידה', category: 'Food', difficulty: 1, exampleEn: 'Cold ice cream', exampleHe: 'גלידה קרה' },
+
+    // More Animals
+    { englishWord: 'cow', hebrewTranslation: 'פרה', category: 'Animals', difficulty: 1, exampleEn: 'The cow gives milk', exampleHe: 'הפרה נותנת חלב' },
+    { englishWord: 'sheep', hebrewTranslation: 'כבשה', category: 'Animals', difficulty: 1, exampleEn: 'White sheep', exampleHe: 'כבשה לבנה' },
+    { englishWord: 'pig', hebrewTranslation: 'חזיר', category: 'Animals', difficulty: 1, exampleEn: 'The pig is pink', exampleHe: 'החזיר ורוד' },
+    { englishWord: 'duck', hebrewTranslation: 'ברווז', category: 'Animals', difficulty: 1, exampleEn: 'The duck swims', exampleHe: 'הברווז שוחה' },
+    { englishWord: 'chicken', hebrewTranslation: 'תרנגולת', category: 'Animals', difficulty: 1, exampleEn: 'The chicken lays eggs', exampleHe: 'התרנגולת מטילה ביצים' },
+    { englishWord: 'mouse', hebrewTranslation: 'עכבר', category: 'Animals', difficulty: 1, exampleEn: 'The mouse is small', exampleHe: 'העכבר קטן' },
+    { englishWord: 'bear', hebrewTranslation: 'דוב', category: 'Animals', difficulty: 2, exampleEn: 'The bear is big', exampleHe: 'הדוב גדול' },
+    { englishWord: 'tiger', hebrewTranslation: 'נמר', category: 'Animals', difficulty: 2, exampleEn: 'The tiger has stripes', exampleHe: 'לנמר יש פסים' },
+    { englishWord: 'monkey', hebrewTranslation: 'קוף', category: 'Animals', difficulty: 2, exampleEn: 'The monkey climbs', exampleHe: 'הקוף מטפס' },
+    { englishWord: 'giraffe', hebrewTranslation: 'ג\'ירף', category: 'Animals', difficulty: 2, exampleEn: 'The giraffe is tall', exampleHe: 'הג\'ירף גבוה' },
+
+    // More Colors
+    { englishWord: 'pink', hebrewTranslation: 'ורוד', category: 'Colors', difficulty: 1, exampleEn: 'Pink flowers', exampleHe: 'פרחים ורודים' },
+    { englishWord: 'brown', hebrewTranslation: 'חום', category: 'Colors', difficulty: 1, exampleEn: 'Brown bear', exampleHe: 'דוב חום' },
+    { englishWord: 'gray', hebrewTranslation: 'אפור', category: 'Colors', difficulty: 1, exampleEn: 'Gray clouds', exampleHe: 'עננים אפורים' },
+
+    // Body Parts
+    { englishWord: 'head', hebrewTranslation: 'ראש', category: 'Body', difficulty: 1, exampleEn: 'My head hurts', exampleHe: 'הראש שלי כואב' },
+    { englishWord: 'eye', hebrewTranslation: 'עין', category: 'Body', difficulty: 1, exampleEn: 'I have two eyes', exampleHe: 'יש לי שתי עיניים' },
+    { englishWord: 'nose', hebrewTranslation: 'אף', category: 'Body', difficulty: 1, exampleEn: 'I smell with my nose', exampleHe: 'אני מריח עם האף שלי' },
+    { englishWord: 'mouth', hebrewTranslation: 'פה', category: 'Body', difficulty: 1, exampleEn: 'Open your mouth', exampleHe: 'פתח את הפה' },
+    { englishWord: 'hand', hebrewTranslation: 'יד', category: 'Body', difficulty: 1, exampleEn: 'Raise your hand', exampleHe: 'הרם את היד' },
+    { englishWord: 'foot', hebrewTranslation: 'רגל', category: 'Body', difficulty: 1, exampleEn: 'I walk with my feet', exampleHe: 'אני הולך עם הרגליים' },
+    { englishWord: 'arm', hebrewTranslation: 'זרוע', category: 'Body', difficulty: 1, exampleEn: 'My arm is strong', exampleHe: 'הזרוע שלי חזקה' },
+    { englishWord: 'leg', hebrewTranslation: 'רגל', category: 'Body', difficulty: 1, exampleEn: 'I run with my legs', exampleHe: 'אני רץ עם הרגליים' },
+    { englishWord: 'finger', hebrewTranslation: 'אצבע', category: 'Body', difficulty: 1, exampleEn: 'I have ten fingers', exampleHe: 'יש לי עשר אצבעות' },
+    { englishWord: 'tooth', hebrewTranslation: 'שן', category: 'Body', difficulty: 1, exampleEn: 'Brush your teeth', exampleHe: 'צחצח שיניים' },
+
+    // Family
+    { englishWord: 'mother', hebrewTranslation: 'אמא', category: 'Family', difficulty: 1, exampleEn: 'I love my mother', exampleHe: 'אני אוהב את אמא שלי' },
+    { englishWord: 'father', hebrewTranslation: 'אבא', category: 'Family', difficulty: 1, exampleEn: 'My father is tall', exampleHe: 'אבא שלי גבוה' },
+    { englishWord: 'sister', hebrewTranslation: 'אחות', category: 'Family', difficulty: 1, exampleEn: 'My sister is nice', exampleHe: 'האחות שלי נחמדה' },
+    { englishWord: 'brother', hebrewTranslation: 'אח', category: 'Family', difficulty: 1, exampleEn: 'My brother plays soccer', exampleHe: 'האח שלי משחק כדורגל' },
+    { englishWord: 'grandmother', hebrewTranslation: 'סבתא', category: 'Family', difficulty: 1, exampleEn: 'Grandmother bakes cookies', exampleHe: 'סבתא אופה עוגיות' },
+    { englishWord: 'grandfather', hebrewTranslation: 'סבא', category: 'Family', difficulty: 1, exampleEn: 'Grandfather tells stories', exampleHe: 'סבא מספר סיפורים' },
+    { englishWord: 'baby', hebrewTranslation: 'תינוק', category: 'Family', difficulty: 1, exampleEn: 'The baby is sleeping', exampleHe: 'התינוק ישן' },
+
+    // Actions/Verbs
+    { englishWord: 'run', hebrewTranslation: 'לרוץ', category: 'Actions', difficulty: 1, exampleEn: 'I run fast', exampleHe: 'אני רץ מהר' },
+    { englishWord: 'jump', hebrewTranslation: 'לקפוץ', category: 'Actions', difficulty: 1, exampleEn: 'Jump high', exampleHe: 'קפוץ גבוה' },
+    { englishWord: 'walk', hebrewTranslation: 'ללכת', category: 'Actions', difficulty: 1, exampleEn: 'I walk to school', exampleHe: 'אני הולך לבית ספר' },
+    { englishWord: 'sit', hebrewTranslation: 'לשבת', category: 'Actions', difficulty: 1, exampleEn: 'Sit down', exampleHe: 'שב' },
+    { englishWord: 'stand', hebrewTranslation: 'לעמוד', category: 'Actions', difficulty: 1, exampleEn: 'Stand up', exampleHe: 'עמוד' },
+    { englishWord: 'eat', hebrewTranslation: 'לאכול', category: 'Actions', difficulty: 1, exampleEn: 'I eat breakfast', exampleHe: 'אני אוכל ארוחת בוקר' },
+    { englishWord: 'drink', hebrewTranslation: 'לשתות', category: 'Actions', difficulty: 1, exampleEn: 'Drink water', exampleHe: 'שתה מים' },
+    { englishWord: 'sleep', hebrewTranslation: 'לישון', category: 'Actions', difficulty: 1, exampleEn: 'I sleep at night', exampleHe: 'אני ישן בלילה' },
+    { englishWord: 'play', hebrewTranslation: 'לשחק', category: 'Actions', difficulty: 1, exampleEn: 'I play outside', exampleHe: 'אני משחק בחוץ' },
+    { englishWord: 'read', hebrewTranslation: 'לקרוא', category: 'Actions', difficulty: 1, exampleEn: 'I read books', exampleHe: 'אני קורא ספרים' },
+    { englishWord: 'write', hebrewTranslation: 'לכתוב', category: 'Actions', difficulty: 1, exampleEn: 'Write your name', exampleHe: 'כתוב את השם שלך' },
+    { englishWord: 'draw', hebrewTranslation: 'לצייר', category: 'Actions', difficulty: 1, exampleEn: 'I draw pictures', exampleHe: 'אני מצייר תמונות' },
+    { englishWord: 'sing', hebrewTranslation: 'לשיר', category: 'Actions', difficulty: 1, exampleEn: 'Sing a song', exampleHe: 'שיר שיר' },
+    { englishWord: 'dance', hebrewTranslation: 'לרקוד', category: 'Actions', difficulty: 1, exampleEn: 'I love to dance', exampleHe: 'אני אוהב לרקוד' },
+
+    // Nature
+    { englishWord: 'tree', hebrewTranslation: 'עץ', category: 'Nature', difficulty: 1, exampleEn: 'The tree is tall', exampleHe: 'העץ גבוה' },
+    { englishWord: 'flower', hebrewTranslation: 'פרח', category: 'Nature', difficulty: 1, exampleEn: 'Beautiful flower', exampleHe: 'פרח יפה' },
+    { englishWord: 'grass', hebrewTranslation: 'דשא', category: 'Nature', difficulty: 1, exampleEn: 'Green grass', exampleHe: 'דשא ירוק' },
+    { englishWord: 'sun', hebrewTranslation: 'שמש', category: 'Nature', difficulty: 1, exampleEn: 'The sun is bright', exampleHe: 'השמש בוהקת' },
+    { englishWord: 'moon', hebrewTranslation: 'ירח', category: 'Nature', difficulty: 1, exampleEn: 'The moon is round', exampleHe: 'הירח עגול' },
+    { englishWord: 'star', hebrewTranslation: 'כוכב', category: 'Nature', difficulty: 1, exampleEn: 'Stars in the sky', exampleHe: 'כוכבים בשמיים' },
+    { englishWord: 'cloud', hebrewTranslation: 'ענן', category: 'Nature', difficulty: 1, exampleEn: 'White cloud', exampleHe: 'ענן לבן' },
+    { englishWord: 'rain', hebrewTranslation: 'גשם', category: 'Nature', difficulty: 1, exampleEn: 'It is raining', exampleHe: 'יורד גשם' },
+    { englishWord: 'snow', hebrewTranslation: 'שלג', category: 'Nature', difficulty: 1, exampleEn: 'White snow', exampleHe: 'שלג לבן' },
+    { englishWord: 'wind', hebrewTranslation: 'רוח', category: 'Nature', difficulty: 1, exampleEn: 'Strong wind', exampleHe: 'רוח חזקה' },
+
+    // Numbers
+    { englishWord: 'one', hebrewTranslation: 'אחד', category: 'Numbers', difficulty: 1, exampleEn: 'One apple', exampleHe: 'תפוח אחד' },
+    { englishWord: 'two', hebrewTranslation: 'שניים', category: 'Numbers', difficulty: 1, exampleEn: 'Two books', exampleHe: 'שני ספרים' },
+    { englishWord: 'three', hebrewTranslation: 'שלושה', category: 'Numbers', difficulty: 1, exampleEn: 'Three cats', exampleHe: 'שלושה חתולים' },
+    { englishWord: 'four', hebrewTranslation: 'ארבעה', category: 'Numbers', difficulty: 1, exampleEn: 'Four chairs', exampleHe: 'ארבעה כיסאות' },
+    { englishWord: 'five', hebrewTranslation: 'חמישה', category: 'Numbers', difficulty: 1, exampleEn: 'Five fingers', exampleHe: 'חמש אצבעות' },
+    { englishWord: 'ten', hebrewTranslation: 'עשרה', category: 'Numbers', difficulty: 1, exampleEn: 'Ten students', exampleHe: 'עשרה תלמידים' },
+
+    // Time
+    { englishWord: 'morning', hebrewTranslation: 'בוקר', category: 'Time', difficulty: 1, exampleEn: 'Good morning', exampleHe: 'בוקר טוב' },
+    { englishWord: 'afternoon', hebrewTranslation: 'צהריים', category: 'Time', difficulty: 1, exampleEn: 'Good afternoon', exampleHe: 'צהריים טובים' },
+    { englishWord: 'evening', hebrewTranslation: 'ערב', category: 'Time', difficulty: 1, exampleEn: 'Good evening', exampleHe: 'ערב טוב' },
+    { englishWord: 'night', hebrewTranslation: 'לילה', category: 'Time', difficulty: 1, exampleEn: 'Good night', exampleHe: 'לילה טוב' },
+    { englishWord: 'today', hebrewTranslation: 'היום', category: 'Time', difficulty: 1, exampleEn: 'Today is Monday', exampleHe: 'היום יום שני' },
+    { englishWord: 'tomorrow', hebrewTranslation: 'מחר', category: 'Time', difficulty: 1, exampleEn: 'See you tomorrow', exampleHe: 'נתראה מחר' },
+    { englishWord: 'yesterday', hebrewTranslation: 'אתמול', category: 'Time', difficulty: 1, exampleEn: 'Yesterday was fun', exampleHe: 'אתמול היה כיף' },
+
+    // Clothing
+    { englishWord: 'shirt', hebrewTranslation: 'חולצה', category: 'Clothing', difficulty: 1, exampleEn: 'Blue shirt', exampleHe: 'חולצה כחולה' },
+    { englishWord: 'pants', hebrewTranslation: 'מכנסיים', category: 'Clothing', difficulty: 1, exampleEn: 'Black pants', exampleHe: 'מכנסיים שחורים' },
+    { englishWord: 'shoes', hebrewTranslation: 'נעליים', category: 'Clothing', difficulty: 1, exampleEn: 'New shoes', exampleHe: 'נעליים חדשות' },
+    { englishWord: 'hat', hebrewTranslation: 'כובע', category: 'Clothing', difficulty: 1, exampleEn: 'Wear a hat', exampleHe: 'חבוש כובע' },
+    { englishWord: 'dress', hebrewTranslation: 'שמלה', category: 'Clothing', difficulty: 1, exampleEn: 'Beautiful dress', exampleHe: 'שמלה יפה' },
+    { englishWord: 'socks', hebrewTranslation: 'גרביים', category: 'Clothing', difficulty: 1, exampleEn: 'Warm socks', exampleHe: 'גרביים חמות' },
+
+    // Sports
+    { englishWord: 'ball', hebrewTranslation: 'כדור', category: 'Sports', difficulty: 1, exampleEn: 'Kick the ball', exampleHe: 'בעוט בכדור' },
+    { englishWord: 'soccer', hebrewTranslation: 'כדורגל', category: 'Sports', difficulty: 1, exampleEn: 'I play soccer', exampleHe: 'אני משחק כדורגל' },
+    { englishWord: 'basketball', hebrewTranslation: 'כדורסל', category: 'Sports', difficulty: 1, exampleEn: 'Basketball is fun', exampleHe: 'כדורסל זה כיף' },
+    { englishWord: 'swim', hebrewTranslation: 'לשחות', category: 'Sports', difficulty: 1, exampleEn: 'I swim in the pool', exampleHe: 'אני שוחה בבריכה' },
+    { englishWord: 'bike', hebrewTranslation: 'אופניים', category: 'Sports', difficulty: 1, exampleEn: 'Ride a bike', exampleHe: 'רכב על אופניים' },
+
+    // More Home items
+    { englishWord: 'pillow', hebrewTranslation: 'כרית', category: 'Home', difficulty: 1, exampleEn: 'Soft pillow', exampleHe: 'כרית רכה' },
+    { englishWord: 'blanket', hebrewTranslation: 'שמיכה', category: 'Home', difficulty: 1, exampleEn: 'Warm blanket', exampleHe: 'שמיכה חמה' },
+    { englishWord: 'mirror', hebrewTranslation: 'מראה', category: 'Home', difficulty: 1, exampleEn: 'Look in the mirror', exampleHe: 'הסתכל במראה' },
+    { englishWord: 'clock', hebrewTranslation: 'שעון', category: 'Home', difficulty: 1, exampleEn: 'What time is it?', exampleHe: 'מה השעה?' },
+    { englishWord: 'key', hebrewTranslation: 'מפתח', category: 'Home', difficulty: 1, exampleEn: 'House key', exampleHe: 'מפתח בית' },
+    { englishWord: 'box', hebrewTranslation: 'קופסה', category: 'Home', difficulty: 1, exampleEn: 'Big box', exampleHe: 'קופסה גדולה' },
+    { englishWord: 'bag', hebrewTranslation: 'תיק', category: 'Home', difficulty: 1, exampleEn: 'Shopping bag', exampleHe: 'תיק קניות' },
+    { englishWord: 'bottle', hebrewTranslation: 'בקבוק', category: 'Home', difficulty: 1, exampleEn: 'Water bottle', exampleHe: 'בקבוק מים' },
+    { englishWord: 'knife', hebrewTranslation: 'סכין', category: 'Home', difficulty: 1, exampleEn: 'Sharp knife', exampleHe: 'סכין חדה' },
+    { englishWord: 'scissors', hebrewTranslation: 'מספריים', category: 'Home', difficulty: 1, exampleEn: 'Cut with scissors', exampleHe: 'גזור עם מספריים' },
   ];
 
   for (const wordData of words) {

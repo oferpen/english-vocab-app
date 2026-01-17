@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { getCurrentParentAccount } from '@/lib/auth';
 
 export interface AppSettings {
   questionTypes: {
@@ -16,7 +17,7 @@ export interface AppSettings {
 }
 
 export async function getSettings(): Promise<AppSettings> {
-  const parentAccount = await prisma.parentAccount.findFirst();
+  const parentAccount = await getCurrentParentAccount();
   if (!parentAccount) {
     return getDefaultSettings();
   }
@@ -29,7 +30,7 @@ export async function getSettings(): Promise<AppSettings> {
 }
 
 export async function updateSettings(settings: Partial<AppSettings>) {
-  const parentAccount = await prisma.parentAccount.findFirst();
+  const parentAccount = await getCurrentParentAccount();
   if (!parentAccount) {
     throw new Error('Parent account not found');
   }

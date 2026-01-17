@@ -21,6 +21,7 @@ export default function ParentPanel({ session: initialSession }: ParentPanelProp
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'children' | 'words' | 'plan' | 'dashboard' | 'settings'>('children');
   const [pinVerified, setPinVerified] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
 
   // Always require PIN verification, regardless of Google session
   // Wait for session to load before showing PINGate
@@ -39,13 +40,20 @@ export default function ParentPanel({ session: initialSession }: ParentPanelProp
     return <PINGate onVerified={() => setPinVerified(true)} />;
   }
 
+  // Hide content immediately when exiting
+  if (isExiting) {
+    return null;
+  }
+
   const handleSignOut = async () => {
     await signOut({ callbackUrl: '/' });
   };
 
   const handleExit = () => {
-    // Navigate immediately without resetting state to avoid flash
-    router.replace('/');
+    // Hide content immediately for instant feedback
+    setIsExiting(true);
+    // Use window.location for instant navigation without React delay
+    window.location.href = '/';
   };
 
   return (

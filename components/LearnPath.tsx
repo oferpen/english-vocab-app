@@ -355,14 +355,30 @@ export default function LearnPath({ childId, levelState: propLevelState, progres
 
       // Starter category in Level 1 (right after letters)
       // Use propAllWords if available, otherwise fetch
-      let starterWords: any[];
+      let starterWords: any[] = [];
       if (propAllWords && propAllWords.length > 0) {
         // Filter propAllWords for difficulty 1 (level 2)
         starterWords = propAllWords.filter((w: any) => w.difficulty === 1);
       } else {
-        starterWords = await getAllWords(2);
+        // Fallback: fetch words if propAllWords is not available
+        try {
+          starterWords = await getAllWords(2);
+        } catch (error) {
+          console.error('Error fetching starter words:', error);
+          starterWords = [];
+        }
       }
       const starterCategoryWords = starterWords.filter((w: any) => w.category === 'Starter');
+      
+      // Debug logging
+      console.log('[LearnPath] Starter words check:', {
+        propAllWordsLength: propAllWords?.length || 0,
+        starterWordsLength: starterWords.length,
+        starterCategoryWordsLength: starterCategoryWords.length,
+        sampleStarterWords: starterCategoryWords.slice(0, 3).map((w: any) => w.englishWord)
+      });
+      
+      // Always show Starter section if words exist
       if (starterCategoryWords.length > 0) {
         const starterLessons: PathLesson[] = starterCategoryWords.map((word: any) => {
           const wordProgress = progressMap.get(word.id);

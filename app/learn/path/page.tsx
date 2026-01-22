@@ -42,6 +42,14 @@ export default async function LearnPathPage() {
         getStreak(child.id),
         getAllWords(), // Fetch all words without level filter
       ]);
+      
+      // Debug logging
+      console.log('[LearnPathPage] Fetched data:', {
+        progressCount: progress.length,
+        streak,
+        allWordsCount: allWords.length,
+        starterWordsCount: allWords.filter((w: any) => w.category === 'Starter' && w.difficulty === 1).length
+      });
     } catch (error: any) {
       console.error('Error loading progress/streak/words:', error);
       // Use defaults - empty arrays/0

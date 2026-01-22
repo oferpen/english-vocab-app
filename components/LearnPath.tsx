@@ -607,7 +607,9 @@ export default function LearnPath({ childId, levelState: propLevelState, progres
         }
       }
       // For word sections, navigate to learn page with category
-      const url = `/learn?category=${encodeURIComponent(englishCategory)}${section.level > 1 ? `&level=${section.level}` : ''}`;
+      // Always pass level parameter - use section.level, but for Starter (level 1), use level 2 since Starter words are difficulty 1
+      const levelToPass = section.level === 1 && englishCategory === 'Starter' ? 2 : section.level;
+      const url = `/learn?category=${encodeURIComponent(englishCategory)}${levelToPass > 1 ? `&level=${levelToPass}` : ''}`;
       // Navigate immediately without any async operations
       window.location.assign(url);
     } else {

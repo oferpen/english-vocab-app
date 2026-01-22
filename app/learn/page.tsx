@@ -88,13 +88,22 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
     }
     
     // Use requested level if provided, otherwise use child's current level
-    const levelToUse = requestedLevel || levelState.level;
+    let levelToUse = requestedLevel || levelState.level;
+    
+    // Special case: Starter category words have difficulty 1 (level 2), but are shown at level 1
+    // If user is at level 1 and clicks Starter, we need to fetch difficulty 1 words
+    if (category === 'Starter' && levelToUse === 1) {
+      levelToUse = 2; // Starter words are difficulty 1, which corresponds to level 2
+    }
     
     // For quiz mode, fetch all words in category without level filtering
     // For learn mode, filter by level
     categoryWords = mode === 'quiz' 
       ? await getWordsByCategory(category)
       : await getWordsByCategory(category, levelToUse);
+    
+    // Debug logging
+    console.log('[LearnPage] Category:', category, 'Level:', levelToUse, 'Mode:', mode, 'Words found:', categoryWords.length);
     
     if (categoryWords.length === 0) {
       return (

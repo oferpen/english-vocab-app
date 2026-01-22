@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 
 export default function BottomNav() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const router = useRouter();
   
   // Get category and mode from current URL (works for both learn and quiz pages)
   const category = searchParams?.get('category');
@@ -27,18 +28,34 @@ export default function BottomNav() {
   // Build quiz URL with category if available
   const quizHref = category ? `/learn?mode=quiz&category=${encodeURIComponent(category)}${level ? `&level=${level}` : ''}` : '/learn?mode=quiz';
 
+  // Handle mode switching on learn page (client-side navigation to avoid full page reload)
+  const handleModeSwitch = (newMode: 'learn' | 'quiz') => {
+    if (pathname === '/learn' && category) {
+      // Use client-side navigation for mode switching on learn page
+      const params = new URLSearchParams(searchParams?.toString() || '');
+      params.set('mode', newMode);
+      if (category) params.set('category', category);
+      if (level) params.set('level', level);
+      router.replace(`/learn?${params.toString()}`, { scroll: false });
+    } else {
+      // Use regular navigation for other cases
+      const url = newMode === 'learn' ? learnHref : quizHref;
+      router.push(url);
+    }
+  };
+
   // Quiz page footer design - more action-oriented with gradient (positioned at top)
   if (isQuizPage) {
     return (
       <nav className="fixed top-0 left-0 right-0 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 shadow-2xl z-50">
         <div className="flex justify-around items-center h-20 md:h-24 px-4">
-          <Link
-            href={learnHref}
+          <button
+            onClick={() => handleModeSwitch('learn')}
             className="flex flex-col items-center justify-center px-6 py-3 bg-white/20 backdrop-blur-sm rounded-2xl transition-all duration-200 hover:bg-white/30 hover:scale-105 active:scale-95"
           >
             <span className="text-3xl md:text-4xl mb-1">📚</span>
             <span className="text-sm md:text-base font-bold text-white drop-shadow-lg">ללמוד</span>
-          </Link>
+          </button>
           <div className="flex-1"></div>
           <Link
             href="/learn/path"
@@ -57,8 +74,8 @@ export default function BottomNav() {
     return (
       <nav className="fixed top-0 left-0 right-0 bg-gradient-to-br from-blue-50 to-indigo-100 border-b-2 border-blue-200 shadow-xl z-50">
         <div className="flex justify-around items-center h-20 md:h-20 px-4">
-          <Link
-            href={learnHref}
+          <button
+            onClick={() => handleModeSwitch('learn')}
             className={`flex flex-col items-center justify-center flex-1 h-full transition-all duration-200 ${
               (pathname === '/learn' && mode !== 'quiz') || pathname?.startsWith('/learn/')
                 ? 'text-blue-600 scale-110' 
@@ -67,9 +84,9 @@ export default function BottomNav() {
           >
             <span className="text-2xl md:text-3xl mb-1 transition-transform duration-200">📖</span>
             <span className={`text-xs md:text-sm font-semibold ${(pathname === '/learn' && mode !== 'quiz') || pathname?.startsWith('/learn/') ? 'font-bold' : ''}`}>ללמוד</span>
-          </Link>
-          <Link
-            href={quizHref}
+          </button>
+          <button
+            onClick={() => handleModeSwitch('quiz')}
             className={`flex flex-col items-center justify-center flex-1 h-full transition-all duration-200 ${
               isQuizPage
                 ? 'text-purple-600 scale-110' 
@@ -78,7 +95,7 @@ export default function BottomNav() {
           >
             <span className="text-2xl md:text-3xl mb-1 transition-transform duration-200">✏️</span>
             <span className={`text-xs md:text-sm font-semibold ${isQuizPage ? 'font-bold' : ''}`}>חידון</span>
-          </Link>
+          </button>
           <Link
             href="/learn/path"
             className={`flex flex-col items-center justify-center flex-1 h-full transition-all duration-200 ${

@@ -389,9 +389,9 @@ export default function LearnPath({ childId, levelState: propLevelState, progres
         });
       }
 
-      // Level 2+: Words Sections (show all unlocked levels)
-      // Show Level 2 words if user has reached level 2
-      if (level.level >= 2) {
+      // Level 2+: Words Sections (show all levels for all users)
+      // Show Level 2 words for all users (not just level 2+)
+      {
         // Use propAllWords if available, otherwise fetch
         let level2Words: any[];
         if (propAllWords) {
@@ -459,8 +459,8 @@ export default function LearnPath({ childId, levelState: propLevelState, progres
         });
       }
 
-      // Show Level 3 words if user has reached level 3
-      if (level.level >= 3) {
+      // Show Level 3 words for all users (not just level 3+)
+      {
         // Use propAllWords if available, otherwise fetch
         let level3Words: any[];
         if (propAllWords) {

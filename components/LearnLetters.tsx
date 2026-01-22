@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { markLetterSeen, getAllLetters, getUnmasteredLetters } from '@/app/actions/letters';
 import { addXP } from '@/app/actions/levels';
 import { useRouter } from 'next/navigation';
@@ -20,6 +20,7 @@ export default function LearnLetters({ childId, letterId }: LearnLettersProps) {
   const [showConfetti, setShowConfetti] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   useEffect(() => {
@@ -97,36 +98,51 @@ export default function LearnLetters({ childId, letterId }: LearnLettersProps) {
     }
   };
 
-  const handleMarkLearned = async (correct: boolean) => {
+  const handleMarkLearned = async (correct: boolean, e?: React.MouseEvent) => {
+    // Prevent any default behavior that might cause page refresh
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     const letter = letters[currentIndex];
-    await markLetterSeen(childId, letter.id, correct);
+    const currentIdx = currentIndex;
     
-    // Play success sound if correct
-    if (correct) {
-      playSuccessSound();
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 1500);
+    // Update UI optimistically first (before server call) - move to next letter immediately
+    if (currentIdx < letters.length - 1) {
+      setCurrentIndex(currentIdx + 1);
     }
     
-    if (currentIndex < letters.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      // Check if level 1 is complete
-      const { checkLevel1Complete } = await import('@/app/actions/letters');
-      const level1Complete = await checkLevel1Complete(childId);
+    // Use startTransition to mark server action as non-urgent, preventing blocking updates
+    startTransition(async () => {
+      await markLetterSeen(childId, letter.id, correct);
       
-      if (level1Complete) {
-        // Unlock level 2
-        const { checkAndUnlockLevel2 } = await import('@/app/actions/levels');
-        await checkAndUnlockLevel2(childId);
-        await addXP(childId, 50); // Award XP for completing level 1
-        setShowCelebration(true);
-      } else {
-        // Reload letters to get next batch
-        await loadLetters();
-        setCurrentIndex(0);
+      // Play success sound if correct
+      if (correct) {
+        playSuccessSound();
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 1500);
       }
-    }
+      
+      // Handle completion logic (only if we were at the last letter)
+      if (currentIdx >= letters.length - 1) {
+        // Check if level 1 is complete
+        const { checkLevel1Complete } = await import('@/app/actions/letters');
+        const level1Complete = await checkLevel1Complete(childId);
+        
+        if (level1Complete) {
+          // Unlock level 2
+          const { checkAndUnlockLevel2 } = await import('@/app/actions/levels');
+          await checkAndUnlockLevel2(childId);
+          await addXP(childId, 50); // Award XP for completing level 1
+          setShowCelebration(true);
+        } else {
+          // Reload letters to get next batch
+          await loadLetters();
+          setCurrentIndex(0);
+        }
+      }
+    });
   };
 
   const speakLetter = (text: string, lang: string = 'en-US') => {
@@ -253,13 +269,15 @@ export default function LearnLetters({ childId, letterId }: LearnLettersProps) {
         {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-4">
           <button
-            onClick={() => handleMarkLearned(false)}
+            type="button"
+            onClick={(e) => handleMarkLearned(false, e)}
             className="bg-gray-200 hover:bg-gray-300 text-gray-700 py-5 md:py-6 rounded-xl text-lg md:text-xl font-bold shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95"
           >
             לא יודע ❌
           </button>
           <button
-            onClick={() => handleMarkLearned(true)}
+            type="button"
+            onClick={(e) => handleMarkLearned(true, e)}
             className="bg-gradient-to-r from-success-500 to-success-600 hover:from-success-600 hover:to-success-700 text-white py-5 md:py-6 rounded-xl text-lg md:text-xl font-bold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 active:scale-95"
           >
             יודע! ✓

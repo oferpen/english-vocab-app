@@ -91,8 +91,18 @@ export async function recordQuizAttempt(
   revalidatePath('/learn/path');
 }
 
-export const getAllProgress = cache(async (childId: string) => {
-  return prisma.progress.findMany({
+// Global promise cache to prevent duplicate calls - checked BEFORE React's cache
+const progressCache = new Map<string, Promise<any[]>>();
+
+// This function is called BEFORE React's cache wrapper
+function getAllProgressWithCache(childId: string): Promise<any[]> {
+  // Check if there's already a pending promise for this childId
+  if (progressCache.has(childId)) {
+    return progressCache.get(childId)!;
+  }
+  
+  // Create the promise and cache it IMMEDIATELY
+  const promise = prisma.progress.findMany({
     where: { childId },
     include: {
       word: true,
@@ -103,7 +113,22 @@ export const getAllProgress = cache(async (childId: string) => {
       { lastSeenAt: 'desc' },
     ],
   });
-});
+  
+  // Cache the promise IMMEDIATELY before any async operations
+  progressCache.set(childId, promise);
+  
+  // Clean up the cache after the promise resolves (keep for 5 seconds to handle React Strict Mode)
+  promise.finally(() => {
+    setTimeout(() => {
+      progressCache.delete(childId);
+    }, 5000);
+  });
+  
+  return promise;
+}
+
+// Export directly - promise cache handles deduplication
+export const getAllProgress = getAllProgressWithCache;
 
 export async function getWordsNeedingReview(childId: string, level?: number) {
   const where: any = {

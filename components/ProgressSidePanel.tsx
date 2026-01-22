@@ -10,13 +10,20 @@ import CircularProgress from './CircularProgress';
 interface ProgressSidePanelProps {
   childId: string;
   levelState?: any; // Optional - if provided, don't fetch it again
+  progress?: any[]; // Optional - if provided, don't fetch it again
+  streak?: number; // Optional - if provided, don't fetch it again
 }
 
-export default function ProgressSidePanel({ childId, levelState: propLevelState }: ProgressSidePanelProps) {
-  const [progress, setProgress] = useState<any[]>([]);
-  const [streak, setStreak] = useState(0);
+export default function ProgressSidePanel({ 
+  childId, 
+  levelState: propLevelState,
+  progress: propProgress,
+  streak: propStreak,
+}: ProgressSidePanelProps) {
+  const [progress, setProgress] = useState<any[]>(propProgress || []);
+  const [streak, setStreak] = useState(propStreak || 0);
   const [levelState, setLevelState] = useState<any>(propLevelState || null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!propProgress || !propLevelState); // Only loading if data not provided
   const [isOpen, setIsOpen] = useState(false);
   const isLoadingRef = useRef(false);
 
@@ -24,12 +31,21 @@ export default function ProgressSidePanel({ childId, levelState: propLevelState 
     if (propLevelState) {
       setLevelState(propLevelState);
     }
-    // Prevent multiple simultaneous loads
-    if (!isLoadingRef.current) {
+    if (propProgress) {
+      setProgress(propProgress);
+    }
+    if (propStreak !== undefined) {
+      setStreak(propStreak);
+    }
+    
+    // Only fetch if data not provided as props
+    if ((!propProgress || !propLevelState || propStreak === undefined) && !isLoadingRef.current) {
       loadProgress();
+    } else {
+      setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [childId]); // Only depend on childId to prevent multiple calls
+  }, [childId, propProgress, propLevelState, propStreak]); // Depend on props to update when they change
 
   const loadProgress = async () => {
     // Prevent multiple simultaneous calls
@@ -38,22 +54,26 @@ export default function ProgressSidePanel({ childId, levelState: propLevelState 
     try {
       isLoadingRef.current = true;
       setLoading(true);
-          // Fetch progress and streak
-          const [progressData, streakData] = await Promise.all([
-            getAllProgress(childId),
-            getStreak(childId),
-          ]);
-          
-          setProgress(progressData);
-          setStreak(streakData);
-          
-          // Only fetch levelState if not provided as prop
-          if (!propLevelState) {
-            const levelStateData = await getLevelState(childId);
-            setLevelState(levelStateData);
-          }
+      
+      // Only fetch what's missing
+      const promises: Promise<any>[] = [];
+      
+      if (!propProgress) {
+        promises.push(getAllProgress(childId).then(setProgress));
+      }
+      
+      if (propStreak === undefined) {
+        promises.push(getStreak(childId).then(setStreak));
+      }
+      
+      if (!propLevelState) {
+        promises.push(getLevelState(childId).then(setLevelState));
+      }
+      
+      await Promise.all(promises);
     } catch (error) {
       // Error loading progress
+      console.error('Error loading progress:', error);
     } finally {
       setLoading(false);
       isLoadingRef.current = false;

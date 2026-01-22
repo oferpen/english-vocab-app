@@ -1,6 +1,7 @@
 'use server';
 
 import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
@@ -29,53 +30,79 @@ export async function canAccessLevel(childLevel: number, requiredLevel: number):
   return childLevel >= requiredLevel;
 }
 
-export const getLevelState = cache(async (childId: string) => {
+// Global promise cache to prevent duplicate calls - checked BEFORE React's cache
+const levelStateCache = new Map<string, Promise<any>>();
+
+// This function is called BEFORE React's cache wrapper
+function getLevelStateWithCache(childId: string): Promise<any> {
   // Validate input
   if (!childId || typeof childId !== 'string') {
     console.warn('getLevelState: Invalid childId', childId);
-    return { id: '', childId: childId || '', level: 1, xp: 0, updatedAt: new Date() };
+    return Promise.resolve({ id: '', childId: childId || '', level: 1, xp: 0, updatedAt: new Date() });
   }
 
-  try {
-    let levelState = await prisma.levelState.findUnique({
-      where: { childId },
-    });
+  // Check if there's already a pending promise for this childId
+  if (levelStateCache.has(childId)) {
+    return levelStateCache.get(childId)!;
+  }
 
-    if (!levelState) {
-      try {
-        levelState = await prisma.levelState.create({
-          data: {
-            childId,
-            level: 1,
-            xp: 0,
-          },
-        });
-      } catch (createError: any) {
-        // If table doesn't exist or creation fails, return a default object
-        if (createError?.code === 'P2021' || createError?.message?.includes('does not exist')) {
+  // Create the promise and cache it IMMEDIATELY
+  const promise = (async () => {
+    try {
+      let levelState = await prisma.levelState.findUnique({
+        where: { childId },
+      });
+
+      if (!levelState) {
+        try {
+          levelState = await prisma.levelState.create({
+            data: {
+              childId,
+              level: 1,
+              xp: 0,
+            },
+          });
+        } catch (createError: any) {
+          // If table doesn't exist or creation fails, return a default object
+          if (createError?.code === 'P2021' || createError?.message?.includes('does not exist')) {
+            return { id: '', childId, level: 1, xp: 0, updatedAt: new Date() };
+          }
+          // Log error but return default instead of throwing
+          console.error('Error creating levelState:', createError);
           return { id: '', childId, level: 1, xp: 0, updatedAt: new Date() };
         }
-        // Log error but return default instead of throwing
-        console.error('Error creating levelState:', createError);
+      }
+
+      return levelState;
+    } catch (error: any) {
+      // If table doesn't exist, return a default object
+      if (error?.code === 'P2021' || error?.message?.includes('does not exist')) {
         return { id: '', childId, level: 1, xp: 0, updatedAt: new Date() };
       }
-    }
-
-    return levelState;
-  } catch (error: any) {
-    // If table doesn't exist, return a default object
-    if (error?.code === 'P2021' || error?.message?.includes('does not exist')) {
+      // Log error but return default instead of throwing to prevent revalidation failures
+      console.error('Error in getLevelState:', {
+        error: error?.message || error,
+        code: error?.code,
+        childId,
+      });
       return { id: '', childId, level: 1, xp: 0, updatedAt: new Date() };
     }
-    // Log error but return default instead of throwing to prevent revalidation failures
-    console.error('Error in getLevelState:', {
-      error: error?.message || error,
-      code: error?.code,
-      childId,
-    });
-    return { id: '', childId, level: 1, xp: 0, updatedAt: new Date() };
-  }
-});
+  })();
+
+  levelStateCache.set(childId, promise);
+
+  // Clean up the cache after the promise resolves
+  promise.finally(() => {
+    setTimeout(() => {
+      levelStateCache.delete(childId);
+    }, 5000);
+  });
+
+  return promise;
+}
+
+// Export directly - promise cache handles deduplication
+export const getLevelState = getLevelStateWithCache;
 
 export async function addXP(childId: string, amount: number) {
   const levelState = await getLevelState(childId);

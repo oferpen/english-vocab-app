@@ -8,8 +8,15 @@ import { getAllLetters, getAllLetterProgress } from '@/app/actions/letters';
 import { getLevelState } from '@/app/actions/levels';
 import { getAllProgress } from '@/app/actions/progress';
 
+// Module-level cache to persist across React Strict Mode unmounts/remounts
+const loadedChildIds = new Set<string>();
+const loadingChildIds = new Set<string>();
+
 interface LearnPathProps {
   childId: string;
+  levelState?: any; // Optional - if provided, don't fetch it again
+  progress?: any[]; // Optional - if provided, don't fetch it again
+  allWords?: any[]; // Optional - if provided, don't fetch words again
 }
 
 interface PathSection {
@@ -31,7 +38,7 @@ interface PathLesson {
   locked: boolean;
 }
 
-export default function LearnPath({ childId }: LearnPathProps) {
+export default function LearnPath({ childId, levelState: propLevelState, progress: propProgress, allWords: propAllWords }: LearnPathProps) {
   const router = useRouter();
   const [sections, setSections] = useState<PathSection[]>([]);
   const [loading, setLoading] = useState(true);
@@ -133,8 +140,29 @@ export default function LearnPath({ childId }: LearnPathProps) {
   };
 
   useEffect(() => {
+    // Clear cache if childId changes (allows reloading when switching children)
+    // But keep cache for same childId to prevent React Strict Mode double calls
+    const previousChildId = Array.from(loadedChildIds)[0];
+    if (previousChildId && previousChildId !== childId) {
+      loadedChildIds.clear();
+      loadingChildIds.clear();
+    }
+    
+    // Use module-level cache to prevent multiple calls even with React Strict Mode
+    // Set loading flag IMMEDIATELY (synchronously) to prevent race conditions
+    if (loadingChildIds.has(childId)) {
+      return;
+    }
+    if (loadedChildIds.has(childId)) {
+      setLoading(false);
+      return;
+    }
+    
+    // Mark as loading immediately before calling loadPath
+    loadingChildIds.add(childId);
     loadPath();
-  }, [childId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [childId]); // Only depend on childId to prevent multiple calls
 
   // Reload path when returning from quiz to update completion status
   // Disabled to prevent interference with clicks during scroll animation
@@ -230,24 +258,50 @@ export default function LearnPath({ childId }: LearnPathProps) {
   }, [loading, sections]);
 
   const loadPath = async () => {
+    // Double-check cache (loading flag should already be set by useEffect)
+    if (loadedChildIds.has(childId)) {
+      loadingChildIds.delete(childId); // Clean up if already loaded
+      setLoading(false);
+      return;
+    }
+    
     try {
       setLoading(true);
       
       // Wrap each call individually to prevent one failure from breaking everything
-      let level: any;
-      let progress: any[] = [];
-      try {
-        level = await getLevelState(childId);
-      } catch (error: any) {
-        console.error('Error loading level state:', error);
-        level = { level: 1, xp: 0, id: '', childId, updatedAt: new Date() };
+      let level: any = propLevelState; // Use prop if available
+      let progress: any[] = propProgress || []; // Use prop if available
+      
+      // Only fetch levelState if not provided as prop
+      if (!propLevelState) {
+        try {
+          level = await getLevelState(childId);
+        } catch (error: any) {
+          console.error('Error loading level state:', error);
+          level = { level: 1, xp: 0, id: '', childId, updatedAt: new Date() };
+        }
       }
       
-      try {
-        progress = await getAllProgress(childId);
-      } catch (error: any) {
-        console.error('Error loading progress:', error);
-        progress = [];
+      // Only fetch progress if not provided as prop
+      if (!propProgress) {
+        try {
+          // Mark as loaded BEFORE the server call to prevent race conditions
+          // This ensures that even if another component tries to call the same action,
+          // it will see that we're already loading/loaded
+          if (loadedChildIds.has(childId)) {
+            console.log('[LearnPath] Skipping getAllProgress - already loaded');
+            // Return early if already loaded
+            loadingChildIds.delete(childId);
+            setLoading(false);
+            return;
+          }
+          console.log('[LearnPath] Calling getAllProgress for childId:', childId);
+          progress = await getAllProgress(childId);
+          console.log('[LearnPath] getAllProgress completed, got', progress.length, 'items');
+        } catch (error: any) {
+          console.error('Error loading progress:', error);
+          progress = [];
+        }
       }
 
       setLevelState(level);
@@ -268,6 +322,11 @@ export default function LearnPath({ childId }: LearnPathProps) {
       }
       
       try {
+        // Double-check cache before each server call
+        if (loadedChildIds.has(childId)) {
+          console.log('[LearnPath] Skipping getAllLetterProgress - already loaded');
+          return;
+        }
         letterProgress = await getAllLetterProgress(childId);
       } catch (error: any) {
         console.error('Error loading letter progress:', error);
@@ -295,7 +354,14 @@ export default function LearnPath({ childId }: LearnPathProps) {
       });
 
       // Starter category in Level 1 (right after letters)
-      const starterWords = await getAllWords(2);
+      // Use propAllWords if available, otherwise fetch
+      let starterWords: any[];
+      if (propAllWords && propAllWords.length > 0) {
+        // Filter propAllWords for difficulty 1 (level 2)
+        starterWords = propAllWords.filter((w: any) => w.difficulty === 1);
+      } else {
+        starterWords = await getAllWords(2);
+      }
       const starterCategoryWords = starterWords.filter((w: any) => w.category === 'Starter');
       if (starterCategoryWords.length > 0) {
         const starterLessons: PathLesson[] = starterCategoryWords.map((word: any) => {
@@ -326,7 +392,14 @@ export default function LearnPath({ childId }: LearnPathProps) {
       // Level 2+: Words Sections (show all unlocked levels)
       // Show Level 2 words if user has reached level 2
       if (level.level >= 2) {
-        const level2Words = await getAllWords(2);
+        // Use propAllWords if available, otherwise fetch
+        let level2Words: any[];
+        if (propAllWords) {
+          // Filter propAllWords for difficulty 1 (level 2)
+          level2Words = propAllWords.filter((w: any) => w.difficulty === 1);
+        } else {
+          level2Words = await getAllWords(2);
+        }
         
         // Group words by category for level 2 (excluding Starter)
         const wordsByCategory2 = new Map<string, any[]>();
@@ -388,7 +461,14 @@ export default function LearnPath({ childId }: LearnPathProps) {
 
       // Show Level 3 words if user has reached level 3
       if (level.level >= 3) {
-        const level3Words = await getAllWords(3);
+        // Use propAllWords if available, otherwise fetch
+        let level3Words: any[];
+        if (propAllWords) {
+          // Filter propAllWords for difficulty 2+ (level 3)
+          level3Words = propAllWords.filter((w: any) => w.difficulty >= 2);
+        } else {
+          level3Words = await getAllWords(3);
+        }
         
         // Group words by category for level 3
         const wordsByCategory3 = new Map<string, any[]>();
@@ -457,6 +537,8 @@ export default function LearnPath({ childId }: LearnPathProps) {
       setSections([]);
     } finally {
       setLoading(false);
+      loadingChildIds.delete(childId); // Remove from loading set
+      loadedChildIds.add(childId); // Mark as loaded
     }
   };
 

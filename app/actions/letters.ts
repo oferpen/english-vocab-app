@@ -1,9 +1,10 @@
 'use server';
 
+import { cache } from 'react';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
-export async function getAllLetters() {
+export const getAllLetters = cache(async () => {
   try {
     return await prisma.letter.findMany({
       where: { active: true },
@@ -16,7 +17,7 @@ export async function getAllLetters() {
     }
     throw error;
   }
-}
+});
 
 export async function getLetter(id: string) {
   return prisma.letter.findUnique({
@@ -38,54 +39,80 @@ export async function getLetterProgress(childId: string, letterId: string) {
   });
 }
 
-export async function getAllLetterProgress(childId: string) {
+// Global promise cache to prevent duplicate calls - checked BEFORE React's cache
+const letterProgressCache = new Map<string, Promise<any[]>>();
+
+// This function is called BEFORE React's cache wrapper
+function getAllLetterProgressWithCache(childId: string): Promise<any[]> {
   // Validate input
   if (!childId || typeof childId !== 'string') {
     console.warn('getAllLetterProgress: Invalid childId', childId);
-    return [];
+    return Promise.resolve([]);
   }
 
-  try {
-    const progress = await prisma.letterProgress.findMany({
-      where: { childId },
-      include: {
-        letter: {
-          select: {
-            id: true,
-            letter: true,
-            name: true,
-            order: true,
-            active: true,
+  // Check if there's already a pending promise for this childId
+  if (letterProgressCache.has(childId)) {
+    return letterProgressCache.get(childId)!;
+  }
+
+  // Create the promise and cache it IMMEDIATELY
+  const promise = (async () => {
+    try {
+      const progress = await prisma.letterProgress.findMany({
+        where: { childId },
+        include: {
+          letter: {
+            select: {
+              id: true,
+              letter: true,
+              name: true,
+              order: true,
+              active: true,
+            },
           },
         },
-      },
-    });
-    
-    // Filter out any progress entries with null letters and sort by letter order
-    const validProgress = progress
-      .filter((p) => p.letter !== null && p.letter !== undefined)
-      .sort((a, b) => {
-        const orderA = a.letter?.order ?? 0;
-        const orderB = b.letter?.order ?? 0;
-        return orderA - orderB;
       });
-    
-    return validProgress;
-  } catch (error: any) {
-    // If table doesn't exist yet, return empty array
-    if (error?.code === 'P2021' || error?.message?.includes('does not exist')) {
+      
+      // Filter out any progress entries with null letters and sort by letter order
+      const validProgress = progress
+        .filter((p) => p.letter !== null && p.letter !== undefined)
+        .sort((a, b) => {
+          const orderA = a.letter?.order ?? 0;
+          const orderB = b.letter?.order ?? 0;
+          return orderA - orderB;
+        });
+      
+      return validProgress;
+    } catch (error: any) {
+      // If table doesn't exist yet, return empty array
+      if (error?.code === 'P2021' || error?.message?.includes('does not exist')) {
+        return [];
+      }
+      // Log the error for debugging but return empty array to prevent revalidation failures
+      console.error('Error in getAllLetterProgress:', {
+        error: error?.message || error,
+        code: error?.code,
+        childId,
+      });
+      // Return empty array instead of throwing to prevent 500 errors during revalidation
       return [];
     }
-    // Log the error for debugging but return empty array to prevent revalidation failures
-    console.error('Error in getAllLetterProgress:', {
-      error: error?.message || error,
-      code: error?.code,
-      childId,
-    });
-    // Return empty array instead of throwing to prevent 500 errors during revalidation
-    return [];
-  }
+  })();
+  
+  letterProgressCache.set(childId, promise);
+  
+  // Clean up the cache after the promise resolves
+  promise.finally(() => {
+    setTimeout(() => {
+      letterProgressCache.delete(childId);
+    }, 5000);
+  });
+  
+  return promise;
 }
+
+// Export directly - promise cache handles deduplication
+export const getAllLetterProgress = getAllLetterProgressWithCache;
 
 export async function markLetterSeen(childId: string, letterId: string, correct: boolean) {
   const existing = await prisma.letterProgress.findUnique({

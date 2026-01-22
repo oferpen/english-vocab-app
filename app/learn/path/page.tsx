@@ -1,11 +1,18 @@
 import { getCurrentChild } from '@/lib/auth-nextauth';
 import { getLevelState } from '@/app/actions/levels';
+import { getAllProgress } from '@/app/actions/progress';
+import { getStreak } from '@/app/actions/streak';
+import { getAllWords } from '@/app/actions/words';
 import LearnPath from '@/components/LearnPath';
 import GoogleSignIn from '@/components/auth/GoogleSignIn';
 import PageHeader from '@/components/PageHeader';
 import ProgressSidePanel from '@/components/ProgressSidePanel';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0; // Allow caching but still be dynamic
+
+// Disable React Strict Mode for this page to prevent double renders
+export const experimental_ppr = false;
 
 export default async function LearnPathPage() {
   try {
@@ -15,22 +22,38 @@ export default async function LearnPathPage() {
       return <GoogleSignIn />;
     }
 
-    // Get child's level to determine what to show
+    // Fetch all data server-side to avoid duplicate HTTP requests from client components
     let levelState;
+    let progress: any[] = [];
+    let streak = 0;
+    let allWords: any[] = [];
+    
     try {
       levelState = await getLevelState(child.id);
     } catch (error: any) {
       // Default to level 1 if there's an error
       levelState = { level: 1, xp: 0, id: '', childId: child.id, updatedAt: new Date() };
     }
+    
+    try {
+      // Fetch progress, streak, and all words in parallel
+      [progress, streak, allWords] = await Promise.all([
+        getAllProgress(child.id),
+        getStreak(child.id),
+        getAllWords(), // Fetch all words without level filter
+      ]);
+    } catch (error: any) {
+      console.error('Error loading progress/streak/words:', error);
+      // Use defaults - empty arrays/0
+    }
 
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-2xl mx-auto bg-white min-h-screen">
           <PageHeader title="" childName={child.name} avatar={child.avatar} currentChildId={child.id} showParentPanel={true} />
-          <LearnPath childId={child.id} />
+          <LearnPath childId={child.id} levelState={levelState} progress={progress} allWords={allWords} />
         </div>
-        <ProgressSidePanel childId={child.id} levelState={levelState} />
+        <ProgressSidePanel childId={child.id} levelState={levelState} progress={progress} streak={streak} />
       </div>
     );
   } catch (error: any) {

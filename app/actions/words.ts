@@ -4,7 +4,7 @@ import { cache } from 'react';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
-export async function getAllWords(level?: number) {
+export const getAllWords = cache(async (level?: number) => {
   const where: any = { active: true };
   
   // Filter by level if specified
@@ -23,7 +23,7 @@ export async function getAllWords(level?: number) {
       { englishWord: 'asc' },
     ],
   });
-}
+});
 
 export async function getWord(id: string) {
   return prisma.word.findUnique({

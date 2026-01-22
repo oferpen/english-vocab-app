@@ -1,22 +1,111 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  
+  // Get category and mode from current URL (works for both learn and quiz pages)
+  const category = searchParams?.get('category');
+  const level = searchParams?.get('level');
+  const mode = searchParams?.get('mode');
+  
+  // Determine if we're on quiz or learn page
+  const isQuizPage = pathname === '/quiz' || (pathname === '/learn' && mode === 'quiz');
+  const isLearnPage = pathname === '/learn' || pathname?.startsWith('/learn/');
+  
+  // Build learn URL:
+  // - If on learn page with category, stay there with mode=learn
+  // - If on quiz page with category, go to learn page with same category
+  // - Otherwise, go to path
+  const learnHref = category 
+    ? `/learn?mode=learn&category=${encodeURIComponent(category)}${level ? `&level=${level}` : ''}`
+    : '/learn/path';
+  
+  // Build quiz URL with category if available
+  const quizHref = category ? `/learn?mode=quiz&category=${encodeURIComponent(category)}${level ? `&level=${level}` : ''}` : '/learn?mode=quiz';
 
+  // Quiz page footer design - more action-oriented with gradient (positioned at top)
+  if (isQuizPage) {
+    return (
+      <nav className="fixed top-0 left-0 right-0 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 shadow-2xl z-50">
+        <div className="flex justify-around items-center h-20 md:h-24 px-4">
+          <Link
+            href={learnHref}
+            className="flex flex-col items-center justify-center px-6 py-3 bg-white/20 backdrop-blur-sm rounded-2xl transition-all duration-200 hover:bg-white/30 hover:scale-105 active:scale-95"
+          >
+            <span className="text-3xl md:text-4xl mb-1">📚</span>
+            <span className="text-sm md:text-base font-bold text-white drop-shadow-lg">ללמוד</span>
+          </Link>
+          <div className="flex-1"></div>
+          <Link
+            href="/learn/path"
+            className="flex flex-col items-center justify-center px-6 py-3 bg-white/20 backdrop-blur-sm rounded-2xl transition-all duration-200 hover:bg-white/30 hover:scale-105 active:scale-95"
+          >
+            <span className="text-3xl md:text-4xl mb-1">🏠</span>
+            <span className="text-sm md:text-base font-bold text-white drop-shadow-lg">נתיב</span>
+          </Link>
+        </div>
+      </nav>
+    );
+  }
+
+  // Learn page footer design - cleaner, more navigation-focused (positioned at top)
+  if (isLearnPage) {
+    return (
+      <nav className="fixed top-0 left-0 right-0 bg-gradient-to-br from-blue-50 to-indigo-100 border-b-2 border-blue-200 shadow-xl z-50">
+        <div className="flex justify-around items-center h-20 md:h-20 px-4">
+          <Link
+            href={learnHref}
+            className={`flex flex-col items-center justify-center flex-1 h-full transition-all duration-200 ${
+              (pathname === '/learn' && mode !== 'quiz') || pathname?.startsWith('/learn/')
+                ? 'text-blue-600 scale-110' 
+                : 'text-gray-600 hover:text-blue-500 hover:scale-105'
+            }`}
+          >
+            <span className="text-2xl md:text-3xl mb-1 transition-transform duration-200">📖</span>
+            <span className={`text-xs md:text-sm font-semibold ${(pathname === '/learn' && mode !== 'quiz') || pathname?.startsWith('/learn/') ? 'font-bold' : ''}`}>ללמוד</span>
+          </Link>
+          <Link
+            href={quizHref}
+            className={`flex flex-col items-center justify-center flex-1 h-full transition-all duration-200 ${
+              isQuizPage
+                ? 'text-purple-600 scale-110' 
+                : 'text-gray-600 hover:text-purple-500 hover:scale-105'
+            }`}
+          >
+            <span className="text-2xl md:text-3xl mb-1 transition-transform duration-200">✏️</span>
+            <span className={`text-xs md:text-sm font-semibold ${isQuizPage ? 'font-bold' : ''}`}>חידון</span>
+          </Link>
+          <Link
+            href="/learn/path"
+            className={`flex flex-col items-center justify-center flex-1 h-full transition-all duration-200 ${
+              pathname === '/learn/path'
+                ? 'text-indigo-600 scale-110' 
+                : 'text-gray-600 hover:text-indigo-500 hover:scale-105'
+            }`}
+          >
+            <span className="text-2xl md:text-3xl mb-1 transition-transform duration-200">🗺️</span>
+            <span className={`text-xs md:text-sm font-semibold ${pathname === '/learn/path' ? 'font-bold' : ''}`}>נתיב</span>
+          </Link>
+        </div>
+      </nav>
+    );
+  }
+
+  // Default footer design (for other pages like path, progress, etc.)
   const navItems = [
-    { href: '/learn', label: 'ללמוד', icon: '📚' },
-    { href: '/quiz', label: 'חידון', icon: '✏️' },
-    { href: '/progress', label: 'התקדמות', icon: '⭐' },
+    { href: learnHref, label: 'ללמוד', icon: '📚' },
+    { href: quizHref, label: 'חידון', icon: '✏️' },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-50">
+    <nav className="fixed top-0 left-0 right-0 bg-white border-b-2 border-gray-200 shadow-2xl z-50">
       <div className="flex justify-around items-center h-16 md:h-20">
         {navItems.map((item) => {
-          const isActive = pathname === item.href || (item.href === '/learn' && pathname === '/');
+          const isActive = pathname === item.href || pathname?.startsWith(item.href) || (item.href === '/learn/path' && (pathname === '/learn' || pathname === '/'));
           return (
             <Link
               key={item.href}

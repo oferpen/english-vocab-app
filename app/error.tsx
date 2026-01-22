@@ -9,7 +9,7 @@ export default function Error({
 }) {
   // Log error details for debugging (only in development)
   if (process.env.NODE_ENV === 'development') {
-    console.error('Error details:', error);
+    // Error details logged
   }
 
   return (

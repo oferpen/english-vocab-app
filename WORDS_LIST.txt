@@ -1,0 +1,419 @@
+
+📚 ALL WORDS IN THE DATABASE
+======================================================================
+
+======================================================================
+📁 Starter
+======================================================================
+
+Level 2 (Basic - 14 words):
+   1. Big                       - גדול
+   2. Come                      - לבוא
+   3. Drink                     - לשתות
+   4. Eat                       - לאכול
+   5. Go                        - ללכת
+   6. Happy                     - שמח
+   7. I                         - אני
+   8. Me                        - אותי/אותי
+   9. No                        - לא
+  10. Play                      - לשחק
+  11. Sad                       - עצוב
+  12. Small                     - קטן
+  13. Yes                       - כן
+  14. You                       - אתה/את
+
+Level 3 (Advanced - 0 words):
+
+======================================================================
+📁 Home
+======================================================================
+
+Level 2 (Basic - 0 words):
+
+Level 3 (Advanced - 20 words):
+   1. blanket                   - שמיכה
+   2. cushion                   - כרית
+   3. decoration                - קישוט
+   4. drawer                    - מגירה
+   5. fence                     - גדר
+   6. frame                     - מסגרת
+   7. furniture                 - ריהוט
+   8. garage                    - מוסך
+   9. gate                      - שער
+  10. mirror                    - מראה
+  11. pillow                    - כרית
+  12. porch                     - מרפסת כניסה
+  13. shed                      - סככה
+  14. shelf                     - מדף
+  15. sofa                      - ספה
+  16. spoon                     - כף
+  17. table                     - שולחן
+  18. television                - טלוויזיה
+  19. towel                     - מגבת
+  20. vase                      - אגרטל
+
+======================================================================
+📁 School
+======================================================================
+
+Level 2 (Basic - 0 words):
+
+Level 3 (Advanced - 20 words):
+   1. auditorium                - אולם
+   2. bag                       - תיק
+   3. binder                    - קלסר
+   4. board                     - לוח
+   5. book                      - ספר
+   6. cafeteria                 - קפיטריה
+   7. chair                     - כיסא
+   8. chalk                     - גיר
+   9. clip                      - קליפ
+  10. compass                   - מחוגה
+  11. counselor                 - יועץ
+  12. crayon                    - צבעוני
+  13. curriculum                - תכנית לימודים
+  14. desk                      - שולחן
+  15. diploma                   - תעודה
+  16. dissertation              - דוקטורט
+  17. dormitory                 - מעונות
+  18. essay                     - חיבור
+  19. folder                    - תיקייה
+  20. glue                      - דבק
+
+======================================================================
+📁 Animals
+======================================================================
+
+Level 2 (Basic - 20 words):
+   1. bear                      - דוב
+   2. bird                      - ציפור
+   3. bunny                     - ארנבון
+   4. cat                       - חתול
+   5. cow                       - פרה
+   6. deer                      - צבי
+   7. dog                       - כלב
+   8. duck                      - ברווז
+   9. fish                      - דג
+  10. fox                       - שועל
+  11. giraffe                   - ג'ירף
+  12. horse                     - סוס
+  13. monkey                    - קוף
+  14. mouse                     - עכבר
+  15. pig                       - חזיר
+  16. rabbit                    - ארנב
+  17. sheep                     - כבשה
+  18. tiger                     - נמר
+  19. wolf                      - זאב
+  20. zebra                     - זברה
+
+Level 3 (Advanced - 0 words):
+
+======================================================================
+📁 Colors
+======================================================================
+
+Level 2 (Basic - 11 words):
+   1. black                     - שחור
+   2. blue                      - כחול
+   3. brown                     - חום
+   4. gray                      - אפור
+   5. green                     - ירוק
+   6. orange                    - כתום
+   7. pink                      - ורוד
+   8. purple                    - סגול
+   9. red                       - אדום
+  10. white                     - לבן
+  11. yellow                    - צהוב
+
+Level 3 (Advanced - 0 words):
+
+======================================================================
+📁 Food
+======================================================================
+
+Level 2 (Basic - 20 words):
+   1. Apple                     - תפוח
+   2. Banana                    - בננה
+   3. Bread                     - לחם
+   4. Cake                      - עוגה
+   5. Carrot                    - גזר
+   6. Cheese                    - גבינה
+   7. Chicken                   - עוף
+   8. Egg                       - ביצה
+   9. Fish                      - דג
+  10. Food                      - אוכל
+  11. Grapes                    - ענבים
+  12. Meat                      - בשר
+  13. Milk                      - חלב
+  14. Onion                     - בצל
+  15. Orange                    - תפוז
+  16. Potato                    - תפוח אדמה
+  17. Rice                      - אורז
+  18. Soup                      - מרק
+  19. Tomato                    - עגבניה
+  20. Water                     - מים
+
+Level 3 (Advanced - 20 words):
+   1. cake                      - עוגה
+   2. candy                     - ממתק
+   3. caramelize                - לקרמל
+   4. cereal                    - דגנים
+   5. cookie                    - עוגייה
+   6. cuisine                   - מטבח
+   7. dessert                   - קינוח
+   8. entree                    - מנה עיקרית
+   9. ferment                   - לתסוס
+  10. fries                     - צ'יפס
+  11. garnish                   - קישוט
+  12. grill                     - לצלות על האש
+  13. herb                      - עשב תיבול
+  14. honey                     - דבש
+  15. ingredient                - מרכיב
+  16. jam                       - ריבה
+  17. juice                     - מיץ
+  18. marinate                  - להשרות
+  19. oil                       - שמן
+  20. pepper                    - פלפל
+
+======================================================================
+📁 Body
+======================================================================
+
+Level 2 (Basic - 20 words):
+   1. Arm                       - זרוע
+   2. Back                      - גב
+   3. Chest                     - חזה
+   4. Ear                       - אוזן
+   5. Eye                       - עין
+   6. Face                      - פנים
+   7. Finger                    - אצבע
+   8. Foot                      - רגל
+   9. Hair                      - שיער
+  10. Hand                      - יד
+  11. Head                      - ראש
+  12. Knee                      - ברך
+  13. Leg                       - רגל
+  14. Mouth                     - פה
+  15. Neck                      - צוואר
+  16. Nose                      - אף
+  17. Shoulder                  - כתף
+  18. Stomach                   - בטן
+  19. Toe                       - בוהן
+  20. Tooth                     - שן
+
+Level 3 (Advanced - 0 words):
+
+======================================================================
+📁 Family
+======================================================================
+
+Level 2 (Basic - 18 words):
+   1. Aunt                      - דודה
+   2. Baby                      - תינוק
+   3. Brother                   - אח
+   4. Child                     - ילד
+   5. Cousin                    - בן דוד
+   6. Daughter                  - בת
+   7. Family                    - משפחה
+   8. Father                    - אבא
+   9. Grandfather               - סבא
+  10. Grandmother               - סבתא
+  11. Grandparents              - סבא וסבתא
+  12. Husband                   - בעל
+  13. Mother                    - אמא
+  14. Parents                   - הורים
+  15. Sister                    - אחות
+  16. Son                       - בן
+  17. Uncle                     - דוד
+  18. Wife                      - אישה
+
+Level 3 (Advanced - 0 words):
+
+======================================================================
+📁 Clothes
+======================================================================
+
+Level 2 (Basic - 15 words):
+   1. Boots                     - מגפיים
+   2. Clothes                   - בגדים
+   3. Coat                      - מעיל
+   4. Dress                     - שמלה
+   5. Hat                       - כובע
+   6. Jacket                    - מעיל
+   7. Jeans                     - ג'ינס
+   8. Pants                     - מכנסיים
+   9. Shirt                     - חולצה
+  10. Shoes                     - נעליים
+  11. Skirt                     - חצאית
+  12. Socks                     - גרביים
+  13. Sweater                   - סוודר
+  14. T-shirt                   - חולצת טי
+  15. Underwear                 - תחתונים
+
+Level 3 (Advanced - 0 words):
+
+======================================================================
+📁 Nature
+======================================================================
+
+Level 2 (Basic - 0 words):
+
+Level 3 (Advanced - 20 words):
+   1. fjord                     - פיורד
+   2. flower                    - פרח
+   3. glacier                   - קרחון
+   4. grass                     - דשא
+   5. island                    - אי
+   6. lagoon                    - לגונה
+   7. meadow                    - אחו
+   8. moss                      - טחב
+   9. peninsula                 - חצי אי
+  10. petal                     - עלה כותרת
+  11. prairie                   - ערבה
+  12. reef                      - שונית
+  13. root                      - שורש
+  14. seed                      - זרע
+  15. sprout                    - נבט
+  16. stem                      - גבעול
+  17. swamp                     - ביצה
+  18. thorn                     - קוץ
+  19. tide                      - גאות
+  20. tree                      - עץ
+
+======================================================================
+📁 Transportation
+======================================================================
+
+Level 2 (Basic - 15 words):
+   1. Airplane                  - מטוס
+   2. Bike                      - אופניים
+   3. Boat                      - סירה
+   4. Bus                       - אוטובוס
+   5. Car                       - מכונית
+   6. Ferry                     - מעבורת
+   7. Motorcycle                - אופנוע
+   8. Scooter                   - קורקינט
+   9. Subway                    - רכבת תחתית
+  10. Taxi                      - מונית
+  11. Train                     - רכבת
+  12. Tram                      - חשמלית
+  13. Transportation            - תחבורה
+  14. Truck                     - משאית
+  15. Walking                   - הליכה
+
+Level 3 (Advanced - 0 words):
+
+======================================================================
+📁 Sports
+======================================================================
+
+Level 2 (Basic - 20 words):
+   1. agility                   - זריזות
+   2. ball                      - כדור
+   3. basketball                - כדורסל
+   4. coach                     - מאמן
+   5. exercise                  - אימון
+   6. field                     - מגרש
+   7. game                      - משחק
+   8. goal                      - שער
+   9. jump                      - קפיצה
+  10. medal                     - מדליה
+  11. player                    - שחקן
+  12. race                      - מירוץ
+  13. running                   - ריצה
+  14. soccer                    - כדורגל
+  15. stadium                   - אצטדיון
+  16. swim                      - לשחות
+  17. swimming                  - שחייה
+  18. team                      - קבוצה
+  19. tennis                    - טניס
+  20. winner                    - מנצח
+
+Level 3 (Advanced - 0 words):
+
+======================================================================
+📁 Weather
+======================================================================
+
+Level 2 (Basic - 10 words):
+   1. Cloud                     - ענן
+   2. Cold                      - קר
+   3. Hot                       - חם
+   4. Rain                      - גשם
+   5. Snow                      - שלג
+   6. Storm                     - סערה
+   7. Sun                       - שמש
+   8. Warm                      - חמים
+   9. Weather                   - מזג אוויר
+  10. Wind                      - רוח
+
+Level 3 (Advanced - 0 words):
+
+======================================================================
+📁 Feelings
+======================================================================
+
+Level 2 (Basic - 18 words):
+   1. Angry                     - כועס
+   2. Brave                     - אמיץ
+   3. Calm                      - רגוע
+   4. Confused                  - מבולבל
+   5. Excited                   - מתרגש
+   6. Friendly                  - ידידותי
+   7. Hate                      - שנאה
+   8. Hungry                    - רעב
+   9. Lonely                    - בודד
+  10. Love                      - אהבה
+  11. Nervous                   - עצבני
+  12. Proud                     - גאה
+  13. Scared                    - מפחד
+  14. Shy                       - ביישן
+  15. Surprised                 - מופתע
+  16. Thirsty                   - צמא
+  17. Tired                     - עייף
+  18. Worried                   - דואג
+
+Level 3 (Advanced - 0 words):
+
+======================================================================
+📁 Numbers
+======================================================================
+
+Level 2 (Basic - 10 words):
+   1. Eight                     - שמונה
+   2. Five                      - חמישה
+   3. Four                      - ארבעה
+   4. Nine                      - תשעה
+   5. One                       - אחד
+   6. Seven                     - שבעה
+   7. Six                       - שישה
+   8. Ten                       - עשרה
+   9. Three                     - שלושה
+  10. Two                       - שניים
+
+Level 3 (Advanced - 0 words):
+
+======================================================================
+📁 Actions
+======================================================================
+
+Level 2 (Basic - 13 words):
+   1. dance                     - לרקוד
+   2. draw                      - לצייר
+   3. drink                     - לשתות
+   4. eat                       - לאכול
+   5. play                      - לשחק
+   6. read                      - לקרוא
+   7. run                       - לרוץ
+   8. sing                      - לשיר
+   9. sit                       - לשבת
+  10. sleep                     - לישון
+  11. stand                     - לעמוד
+  12. walk                      - ללכת
+  13. write                     - לכתוב
+
+Level 3 (Advanced - 0 words):
+
+======================================================================
+Total: 291 words
+======================================================================

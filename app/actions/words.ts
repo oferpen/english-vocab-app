@@ -1,11 +1,23 @@
 'use server';
 
+import { cache } from 'react';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
-export async function getAllWords() {
+export async function getAllWords(level?: number) {
+  const where: any = { active: true };
+  
+  // Filter by level if specified
+  // Level 2 = basic words (difficulty 1)
+  // Level 3 = less basic words (difficulty 2+)
+  if (level === 2) {
+    where.difficulty = 1;
+  } else if (level === 3) {
+    where.difficulty = { gte: 2 };
+  }
+  
   return prisma.word.findMany({
-    where: { active: true },
+    where,
     orderBy: [
       { category: 'asc' },
       { englishWord: 'asc' },
@@ -66,12 +78,32 @@ export async function deleteWord(id: string) {
   revalidatePath('/parent');
 }
 
-export async function getWordsByCategory(category: string) {
+export const getWordsByCategory = cache(async (category: string, level?: number) => {
+  const where: any = {
+    category,
+    active: true,
+  };
+  
+  // Filter by level if specified
+  // Level 2 = basic words (difficulty 1)
+  // Level 3 = less basic words (difficulty 2+)
+  if (level === 2) {
+    where.difficulty = 1;
+  } else if (level === 3) {
+    where.difficulty = { gte: 2 };
+  }
+  
   return prisma.word.findMany({
-    where: {
-      category,
-      active: true,
-    },
+    where,
     orderBy: { englishWord: 'asc' },
   });
+});
+
+export async function getAllCategories() {
+  const categories = await prisma.word.findMany({
+    where: { active: true },
+    select: { category: true },
+    distinct: ['category'],
+  });
+  return categories.map(c => c.category).filter(Boolean) as string[];
 }

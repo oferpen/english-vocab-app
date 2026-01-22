@@ -71,10 +71,6 @@ export async function createChild(data: {
               heToEn: true,
               audioToEn: true,
             },
-            quizLength: 10,
-            extraLearningStrategy: 'unseen',
-            streakRule: 'either',
-            rewardIntensity: 'normal',
           }),
         },
       });

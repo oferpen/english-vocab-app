@@ -8,7 +8,7 @@ export async function GET() {
     execSync('npx prisma db push --accept-data-loss', { stdio: 'inherit' });
     return NextResponse.json({ success: true, message: 'Database setup complete' });
   } catch (error: any) {
-    console.error('Database setup error:', error);
+    // Database setup error
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

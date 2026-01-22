@@ -51,7 +51,7 @@ export default function SignInForm({ initialError }: SignInFormProps) {
     setMessage('');
 
     try {
-      console.log('[SignInForm] Sending magic link to:', email);
+      // Sending magic link
       const { error, data } = await supabase.auth.signInWithOtp({
         email,
         options: {
@@ -60,14 +60,14 @@ export default function SignInForm({ initialError }: SignInFormProps) {
       });
 
       if (error) {
-        console.error('[SignInForm] Magic link error:', error);
+        // Magic link error
         throw error;
       }
 
-      console.log('[SignInForm] Magic link sent successfully');
+      // Magic link sent successfully
       setMessage('נשלח קישור לאימייל שלך! בדוק את תיבת הדואר הנכנס.');
     } catch (error: any) {
-      console.error('[SignInForm] Error:', error);
+      // Error
       setMessage(`שגיאה: ${error.message}`);
     } finally {
       setLoading(false);
@@ -77,7 +77,7 @@ export default function SignInForm({ initialError }: SignInFormProps) {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
-      console.log('[SignInForm] Initiating Google OAuth');
+      // Initiating Google OAuth
       const { error, data } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -86,14 +86,14 @@ export default function SignInForm({ initialError }: SignInFormProps) {
       });
 
       if (error) {
-        console.error('[SignInForm] Google OAuth error:', error);
+        // Google OAuth error
         throw error;
       }
 
-      console.log('[SignInForm] Google OAuth initiated, redirecting...');
+      // Google OAuth initiated, redirecting
       // Note: This will redirect, so we won't reach here
     } catch (error: any) {
-      console.error('[SignInForm] Google sign-in error:', error);
+      // Google sign-in error
       setMessage(`שגיאה: ${error.message}`);
       setLoading(false);
     }

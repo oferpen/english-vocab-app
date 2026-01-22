@@ -14,7 +14,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="he" dir="rtl">
-      <body>
+      <body style={{ margin: 0, padding: 0 }}>
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -71,23 +71,55 @@ export async function createDailyPlan(childId: string, date: string, wordIds: st
 }
 
 export async function generateStarterPack(childId: string, date: string, count: number = 10) {
-  // Get Home + School words with difficulty 1
-  const words = await prisma.word.findMany({
+  // Get child's level to determine which words to show
+  const { getLevelState } = await import('./levels');
+  const levelState = await getLevelState(childId);
+  
+  // Level 2 = basic words (difficulty 1), Level 3 = less basic (difficulty 2+)
+  // For Level 2, only use difficulty 1 words
+  // For Level 3+, use difficulty 2+ words
+  const where: any = {
+    active: true,
+  };
+  
+  if (levelState.level === 2) {
+    where.difficulty = 1;
+  } else if (levelState.level >= 3) {
+    where.difficulty = { gte: 2 };
+  } else {
+    // Level 1 (letters) - shouldn't happen, but default to difficulty 1
+    where.difficulty = 1;
+  }
+  
+  // Prefer Starter category for Level 2, or basic categories
+  const preferredCategories = levelState.level === 2 
+    ? ['Starter', 'Colors', 'Animals', 'Body', 'Family'] 
+    : ['Home', 'School', 'Nature'];
+  
+  const preferredWords = await prisma.word.findMany({
     where: {
-      active: true,
-      difficulty: 1,
+      ...where,
       category: {
-        in: ['Home', 'School'],
+        in: preferredCategories,
       },
     },
     take: count,
   });
 
-  if (words.length === 0) {
+  // If not enough words in preferred categories, get from all categories with same difficulty
+  if (preferredWords.length < count) {
+    const additionalWords = await prisma.word.findMany({
+      where,
+      take: count - preferredWords.length,
+    });
+    preferredWords.push(...additionalWords);
+  }
+
+  if (preferredWords.length === 0) {
     throw new Error('No words found for starter pack');
   }
 
-  return createDailyPlan(childId, date, words.map((w) => w.id));
+  return createDailyPlan(childId, date, preferredWords.map((w) => w.id));
 }
 
 export async function autoGeneratePlan(

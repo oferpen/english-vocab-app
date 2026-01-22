@@ -128,7 +128,7 @@ export default function ProgressDashboard() {
                     <th className="text-right p-2">מילה</th>
                     <th className="text-right p-2">שליטה</th>
                     <th className="text-right p-2">נכונים/ניסיונות</th>
-                    <th className="text-right p-2">נראה</th>
+                    <th className="text-right p-2">פעמים שנראה</th>
                     <th className="text-right p-2">צריך חיזוק</th>
                   </tr>
                 </thead>

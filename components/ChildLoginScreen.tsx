@@ -18,7 +18,7 @@ export default function ChildLoginScreen() {
       const kids = await getAllChildren();
       setChildren(kids);
     } catch (error) {
-      console.error('Error loading children:', error);
+      // Error loading children
     } finally {
       setLoading(false);
     }
@@ -30,7 +30,7 @@ export default function ChildLoginScreen() {
       router.push('/');
       router.refresh();
     } catch (error) {
-      console.error('Error selecting child:', error);
+      // Error selecting child
     }
   };
 

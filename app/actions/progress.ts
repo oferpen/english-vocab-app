@@ -1,5 +1,6 @@
 'use server';
 
+import { cache } from 'react';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
@@ -45,6 +46,7 @@ export async function markWordSeen(childId: string, wordId: string) {
 
   revalidatePath('/learn');
   revalidatePath('/progress');
+  revalidatePath('/learn/path');
 }
 
 export async function recordQuizAttempt(
@@ -86,9 +88,10 @@ export async function recordQuizAttempt(
 
   revalidatePath('/quiz');
   revalidatePath('/progress');
+  revalidatePath('/learn/path');
 }
 
-export async function getAllProgress(childId: string) {
+export const getAllProgress = cache(async (childId: string) => {
   return prisma.progress.findMany({
     where: { childId },
     include: {
@@ -100,21 +103,32 @@ export async function getAllProgress(childId: string) {
       { lastSeenAt: 'desc' },
     ],
   });
-}
+});
 
-export async function getWordsNeedingReview(childId: string) {
+export async function getWordsNeedingReview(childId: string, level?: number) {
+  const where: any = {
+    childId,
+    needsReview: true,
+  };
+  
+  // Filter by level if specified
+  if (level !== undefined) {
+    if (level === 2) {
+      where.word = { difficulty: 1 };
+    } else if (level === 3) {
+      where.word = { difficulty: { gte: 2 } };
+    }
+  }
+  
   return prisma.progress.findMany({
-    where: {
-      childId,
-      needsReview: true,
-    },
+    where,
     include: {
       word: true,
     },
   });
 }
 
-export async function getUnseenWords(childId: string) {
+export async function getUnseenWords(childId: string, level?: number) {
   const progress = await prisma.progress.findMany({
     where: { childId },
     select: { wordId: true },
@@ -122,12 +136,23 @@ export async function getUnseenWords(childId: string) {
 
   const seenWordIds = new Set(progress.map((p) => p.wordId));
 
-  return prisma.word.findMany({
-    where: {
-      active: true,
-      id: {
-        notIn: Array.from(seenWordIds),
-      },
+  const where: any = {
+    active: true,
+    id: {
+      notIn: Array.from(seenWordIds),
     },
+  };
+  
+  // Filter by level if specified
+  if (level !== undefined) {
+    if (level === 2) {
+      where.difficulty = 1;
+    } else if (level === 3) {
+      where.difficulty = { gte: 2 };
+    }
+  }
+
+  return prisma.word.findMany({
+    where,
   });
 }

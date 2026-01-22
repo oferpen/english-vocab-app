@@ -22,9 +22,9 @@ export function playSuccessSound() {
     
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.3);
-  } catch (error) {
-    console.error('Error playing success sound:', error);
-  }
+    } catch (error) {
+      // Error playing success sound
+    }
 }
 
 export function playFailureSound() {
@@ -48,9 +48,9 @@ export function playFailureSound() {
     
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.2);
-  } catch (error) {
-    console.error('Error playing failure sound:', error);
-  }
+    } catch (error) {
+      // Error playing failure sound
+    }
 }
 
 export function playLevelUpSound() {
@@ -77,9 +77,9 @@ export function playLevelUpSound() {
       oscillator.start(audioContext.currentTime + index * 0.1);
       oscillator.stop(audioContext.currentTime + index * 0.1 + 0.2);
     });
-  } catch (error) {
-    console.error('Error playing level up sound:', error);
-  }
+    } catch (error) {
+      // Error playing level up sound
+    }
 }
 
 export function playClickSound() {
@@ -100,7 +100,7 @@ export function playClickSound() {
     
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.05);
-  } catch (error) {
-    console.error('Error playing click sound:', error);
-  }
+    } catch (error) {
+      // Error playing click sound
+    }
 }

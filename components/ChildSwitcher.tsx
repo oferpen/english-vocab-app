@@ -7,9 +7,10 @@ import { getAllChildren, setActiveChild } from '@/app/actions/children';
 interface ChildSwitcherProps {
   currentChildId?: string;
   currentChildName?: string;
+  onChildSwitched?: () => void;
 }
 
-export default function ChildSwitcher({ currentChildId, currentChildName }: ChildSwitcherProps) {
+export default function ChildSwitcher({ currentChildId, currentChildName, onChildSwitched }: ChildSwitcherProps) {
   const [showSwitcher, setShowSwitcher] = useState(false);
   const [children, setChildren] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -33,9 +34,9 @@ export default function ChildSwitcher({ currentChildId, currentChildName }: Chil
       const kids = await getAllChildren();
       setChildren(kids);
       setHasMultipleChildren(kids.length > 1);
-    } catch (error) {
-      console.error('Error loading children:', error);
-    } finally {
+      } catch (error) {
+        // Error loading children
+      } finally {
       setLoading(false);
     }
   };
@@ -49,10 +50,13 @@ export default function ChildSwitcher({ currentChildId, currentChildName }: Chil
     try {
       await setActiveChild(childId);
       setShowSwitcher(false);
+      if (onChildSwitched) {
+        onChildSwitched();
+      }
       router.refresh();
-    } catch (error) {
-      console.error('Error switching child:', error);
-    }
+      } catch (error) {
+        // Error switching child
+      }
   };
 
   // Don't show switcher if there's only one child or no children

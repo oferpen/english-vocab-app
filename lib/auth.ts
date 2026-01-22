@@ -30,22 +30,17 @@ export async function verifyPIN(pin: string): Promise<boolean> {
       where: { pinHash: { not: null } },
     });
     
-    console.log('verifyPIN: Found', accounts.length, 'accounts with PIN');
-    
     for (const account of accounts) {
       if (account.pinHash) {
         const match = await bcrypt.compare(pin, account.pinHash);
-        console.log('verifyPIN: Checking account', account.id, '- match:', match);
         if (match) {
           return true;
         }
       }
     }
     
-    console.log('verifyPIN: No matching PIN found');
     return false;
   } catch (error) {
-    console.error('verifyPIN error:', error);
     return false;
   }
 }
@@ -79,10 +74,6 @@ export async function setPIN(pin: string): Promise<void> {
           heToEn: true,
           audioToEn: true,
         },
-        quizLength: 10,
-        extraLearningStrategy: 'unseen',
-        streakRule: 'either',
-        rewardIntensity: 'normal',
       }),
     },
   });

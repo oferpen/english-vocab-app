@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import LogoutButton from './LogoutButton';
-import ChildSwitcher from './ChildSwitcher';
 
 interface WelcomeScreenProps {
   childName: string;
@@ -25,7 +23,7 @@ export default function WelcomeScreen({ childName, avatar, level, streak, isPare
     setShowWelcome(false);
     if (pathname === '/') {
       if (childName && childName.trim()) {
-        router.push('/learn');
+        router.push('/learn/path');
       } else {
         // If no child is logged in, show child selection screen
         // This will be handled by the parent component
@@ -83,13 +81,6 @@ export default function WelcomeScreen({ childName, avatar, level, streak, isPare
           </div>
         )}
         
-        {childName && childName.trim() && (
-          <div className="mb-6 flex flex-col items-center gap-2">
-            <ChildSwitcher currentChildId={currentChildId} currentChildName={childName} />
-            <LogoutButton />
-          </div>
-        )}
-
         {childName && childName.trim() && (
           <button
             onClick={handleStart}

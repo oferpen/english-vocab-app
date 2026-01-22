@@ -3,7 +3,6 @@ import { getAllProgress } from '@/app/actions/progress';
 import { getStreak } from '@/app/actions/streak';
 import { getLevelState, getXPForNextLevel, getXPForLevel } from '@/app/actions/levels';
 import { getAllMissions } from '@/app/actions/missions';
-import { getTodayPlan } from '@/app/actions/plans';
 import ProgressDisplay from '@/components/ProgressDisplay';
 import BottomNav from '@/components/BottomNav';
 import GoogleSignIn from '@/components/auth/GoogleSignIn';
@@ -22,16 +21,14 @@ export default async function ProgressPage() {
   const streak = await getStreak(child.id);
   const levelState = await getLevelState(child.id);
   const missions = await getAllMissions(child.id);
-  const todayPlan = await getTodayPlan(child.id);
 
   const masteredWords = progress.filter((p) => p.masteryScore >= 80).length;
   const totalLearned = progress.filter((p) => p.timesSeenInLearn > 0).length;
   const needsReview = progress.filter((p) => p.needsReview).length;
 
-  const todayWords = todayPlan?.words?.map((w: any) => w.word) || [];
+  // Track words learned today by lastSeenAt date (daily plans removed)
   const todayLearned = progress.filter((p) => {
-    const wordId = p.wordId;
-    return todayWords.some((w: any) => w.id === wordId) && p.lastSeenAt && 
+    return p.lastSeenAt && 
            new Date(p.lastSeenAt).toISOString().split('T')[0] === new Date().toISOString().split('T')[0];
   }).length;
 
@@ -42,25 +39,27 @@ export default async function ProgressPage() {
     : 100;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="max-w-2xl mx-auto bg-white min-h-screen">
-        <PageHeader title="התקדמות" childName={child.name} avatar={child.avatar} currentChildId={child.id} />
-        <ProgressDisplay
-          child={child}
-          progress={progress}
-          streak={streak}
-          levelState={levelState}
-          missions={missions}
-          masteredWords={masteredWords}
-          totalLearned={totalLearned}
-          needsReview={needsReview}
-          todayLearned={todayLearned}
-          todayTotal={todayWords.length}
-          xpProgress={xpProgress}
-          xpForNext={xpForNext}
-        />
-      </div>
+    <div className="min-h-screen bg-gray-50">
       <BottomNav />
+      <div className="pt-16 md:pt-20">
+        <div className="max-w-2xl mx-auto bg-white min-h-screen">
+          <PageHeader title="התקדמות" childName={child.name} avatar={child.avatar} currentChildId={child.id} />
+          <ProgressDisplay
+            child={child}
+            progress={progress}
+            streak={streak}
+            levelState={levelState}
+            missions={missions}
+            masteredWords={masteredWords}
+            totalLearned={totalLearned}
+            needsReview={needsReview}
+            todayLearned={todayLearned}
+            todayTotal={0}
+            xpProgress={xpProgress}
+            xpForNext={xpForNext}
+          />
+        </div>
+      </div>
     </div>
   );
 }

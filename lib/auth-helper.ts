@@ -5,7 +5,7 @@ export async function getAuthSession() {
   try {
     return await getServerSession(authOptions);
   } catch (error) {
-    console.error('Error getting auth session:', error);
+    // Error getting auth session
     return null;
   }
 }

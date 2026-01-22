@@ -34,7 +34,7 @@ export default function SettingsPanel() {
   const questionTypes = settings.questionTypes || {
     enToHe: true,
     heToEn: true,
-    audioToEn: true,
+    audioToEn: false, // Not default - user can enable if they want
   };
 
   return (
@@ -84,58 +84,6 @@ export default function SettingsPanel() {
             <span>שמיעה → אנגלית</span>
           </label>
         </div>
-      </div>
-
-      <div className="bg-white rounded-lg shadow p-6 mb-4">
-        <h3 className="text-lg font-bold mb-4">אורך חידון</h3>
-        <input
-          type="number"
-          value={settings.quizLength}
-          onChange={(e) => handleUpdate({ quizLength: parseInt(e.target.value) })}
-          className="w-full p-2 border rounded-lg"
-          min="5"
-          max="50"
-        />
-      </div>
-
-      <div className="bg-white rounded-lg shadow p-6 mb-4">
-        <h3 className="text-lg font-bold mb-4">אסטרטגיית למידה נוספת</h3>
-        <select
-          value={settings.extraLearningStrategy}
-          onChange={(e) => handleUpdate({ extraLearningStrategy: e.target.value })}
-          className="w-full p-2 border rounded-lg"
-        >
-          <option value="unseen">מילים שלא נראו</option>
-          <option value="needsReview">צריך חיזוק</option>
-          <option value="nextPlanned">הבא בתוכנית</option>
-        </select>
-      </div>
-
-      <div className="bg-white rounded-lg shadow p-6 mb-4">
-        <h3 className="text-lg font-bold mb-4">כלל רצף ימים</h3>
-        <select
-          value={settings.streakRule}
-          onChange={(e) => handleUpdate({ streakRule: e.target.value })}
-          className="w-full p-2 border rounded-lg"
-        >
-          <option value="learn">רק למידה</option>
-          <option value="quiz">רק חידון</option>
-          <option value="either">אחד מהם</option>
-          <option value="both">שניהם</option>
-        </select>
-      </div>
-
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-bold mb-4">עוצמת פרסים</h3>
-        <select
-          value={settings.rewardIntensity}
-          onChange={(e) => handleUpdate({ rewardIntensity: e.target.value })}
-          className="w-full p-2 border rounded-lg"
-        >
-          <option value="low">נמוכה</option>
-          <option value="normal">רגילה</option>
-          <option value="high">גבוהה</option>
-        </select>
       </div>
     </div>
   );

@@ -1,67 +1,37 @@
 import { getCurrentChild } from '@/lib/auth-nextauth';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-config';
-import WelcomeScreen from '@/components/WelcomeScreen';
 import GoogleSignIn from '@/components/auth/GoogleSignIn';
 import CreateChildProfile from '@/components/CreateChildProfile';
-import { getLevelState } from '@/app/actions/levels';
-import { getStreak } from '@/app/actions/streak';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
   try {
     const session = await getServerSession(authOptions);
-    const child = await getCurrentChild();
-
-    console.log('[Home] Session:', session?.user?.email ? 'Logged in' : 'Not logged in');
-    console.log('[Home] Child:', child ? `Found: ${child.name}` : 'No child');
-
+    
     // If not logged in, show sign-in screen
     if (!session?.user?.email) {
       return <GoogleSignIn />;
     }
 
+    // If logged in, check for child profile
+    const child = await getCurrentChild();
+
     // If logged in but no child profile, show creation screen
     if (!child) {
-      console.log('[Home] Showing CreateChildProfile screen');
       return <CreateChildProfile />;
     }
 
-    // Fetch level and streak with error handling
-    let levelState = null;
-    let streak = 0;
-    
-    try {
-      levelState = await getLevelState(child.id);
-    } catch (error) {
-      console.error('Error fetching level state:', error);
+    // If logged in with child, skip welcome screen and redirect to learning path
+    redirect('/learn/path');
+  } catch (error: any) {
+    // If redirect throws (which is expected), let it propagate
+    if (error?.message?.includes('NEXT_REDIRECT')) {
+      throw error;
     }
-    
-    try {
-      streak = await getStreak(child.id) || 0;
-    } catch (error) {
-      console.error('Error fetching streak:', error);
-    }
-
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-2xl mx-auto">
-          <WelcomeScreen 
-            childName={child.name}
-            avatar={child.avatar || undefined}
-            level={levelState?.level || 1}
-            streak={streak}
-            isParentLoggedIn={true}
-            showProgress={true}
-            currentChildId={child.id}
-          />
-        </div>
-      </div>
-    );
-  } catch (error) {
-    console.error('Error in Home page:', error);
-    // Show login screen on any error
+    // For other errors, show sign-in screen
     return <GoogleSignIn />;
   }
 }

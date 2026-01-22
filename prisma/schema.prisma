@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -41,6 +41,7 @@ model ChildProfile {
   quizAttempts     QuizAttempt[]
   missionStates    MissionState[]
   levelState       LevelState?
+  letterProgress   LetterProgress[]
   
   @@map("child_profiles")
 }
@@ -146,11 +147,47 @@ model MissionState {
 model LevelState {
   id        String   @id @default(cuid())
   childId   String   @unique
-  level     Int      @default(1) // 1-10
+  level     Int      @default(1) // 1 = Letters, 2 = Basic words, 3 = Less basic words
   xp        Int      @default(0)
   updatedAt DateTime @default(now())
   
   child     ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
   
   @@map("level_states")
+}
+
+model Letter {
+  id               String   @id @default(cuid())
+  letter           String   // Single letter: A, B, C, etc.
+  name             String   // Letter name: "A", "Bee", "Cee"
+  hebrewName       String?  // Hebrew name if applicable
+  sound            String?  // Phonetic sound
+  imageUrl         String?
+  audioUrl         String?
+  order            Int      // Order for learning sequence
+  active           Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  
+  letterProgress   LetterProgress[]
+  
+  @@unique([letter])
+  @@map("letters")
+}
+
+model LetterProgress {
+  id              String   @id @default(cuid())
+  childId         String
+  letterId        String
+  timesSeen       Int      @default(0)
+  timesCorrect    Int      @default(0)
+  mastered        Boolean  @default(false)
+  lastSeenAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now())
+  
+  child           ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
+  letter          Letter       @relation(fields: [letterId], references: [id], onDelete: Cascade)
+  
+  @@unique([childId, letterId])
+  @@map("letter_progress")
 }

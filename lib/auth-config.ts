@@ -23,7 +23,14 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 
 // Ensure we have at least one provider or NextAuth will fail
 if (providers.length === 0) {
-  console.warn('Warning: No OAuth providers configured. Google login will not be available.');
+  // Add a dummy provider to prevent NextAuth from crashing
+  // This will show an error when trying to sign in, but won't crash the app
+  providers.push(
+    GoogleProvider({
+      clientId: 'dummy',
+      clientSecret: 'dummy',
+    })
+  );
 }
 
 export const authOptions: NextAuthOptions = {
@@ -54,10 +61,6 @@ export const authOptions: NextAuthOptions = {
                     heToEn: true,
                     audioToEn: true,
                   },
-                  quizLength: 10,
-                  extraLearningStrategy: 'unseen',
-                  streakRule: 'either',
-                  rewardIntensity: 'normal',
                 }),
               },
             });
@@ -78,7 +81,6 @@ export const authOptions: NextAuthOptions = {
         }
         return true;
       } catch (error) {
-        console.error('Error in signIn callback:', error);
         // Still allow sign in even if database operation fails
         return true;
       }
@@ -96,8 +98,7 @@ export const authOptions: NextAuthOptions = {
             token.parentAccountId = parentAccount.id;
           }
         } catch (error) {
-          console.error('Error finding parent account in jwt callback:', error);
-          // Don't throw - just log the error
+          // Don't throw - continue without parent account ID
         }
       }
       // Always return token, even if no user (for existing sessions)
@@ -116,7 +117,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: '/parent',
+    signIn: '/',
   },
   session: {
     strategy: 'jwt',

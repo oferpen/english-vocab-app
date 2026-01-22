@@ -1,5 +1,6 @@
 'use server';
 
+import { cache } from 'react';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { getCurrentParentAccount } from '@/lib/auth';
@@ -10,13 +11,9 @@ export interface AppSettings {
     heToEn: boolean;
     audioToEn: boolean;
   };
-  quizLength: number;
-  extraLearningStrategy: 'unseen' | 'needsReview' | 'nextPlanned';
-  streakRule: 'learn' | 'quiz' | 'either' | 'both';
-  rewardIntensity: 'low' | 'normal' | 'high';
 }
 
-export async function getSettings(): Promise<AppSettings> {
+export const getSettings = cache(async (): Promise<AppSettings> => {
   const parentAccount = await getCurrentParentAccount();
   if (!parentAccount) {
     return getDefaultSettings();
@@ -33,15 +30,11 @@ export async function getSettings(): Promise<AppSettings> {
         heToEn: parsed.questionTypes?.heToEn ?? defaults.questionTypes.heToEn,
         audioToEn: parsed.questionTypes?.audioToEn ?? defaults.questionTypes.audioToEn,
       },
-      quizLength: parsed.quizLength ?? defaults.quizLength,
-      extraLearningStrategy: parsed.extraLearningStrategy ?? defaults.extraLearningStrategy,
-      streakRule: parsed.streakRule ?? defaults.streakRule,
-      rewardIntensity: parsed.rewardIntensity ?? defaults.rewardIntensity,
     };
   } catch {
     return getDefaultSettings();
   }
-}
+});
 
 export async function updateSettings(settings: Partial<AppSettings>) {
   const parentAccount = await getCurrentParentAccount();
@@ -68,11 +61,7 @@ function getDefaultSettings(): AppSettings {
     questionTypes: {
       enToHe: true,
       heToEn: true,
-      audioToEn: true,
+      audioToEn: false, // Not default - user can enable if they want
     },
-    quizLength: 10,
-    extraLearningStrategy: 'unseen',
-    streakRule: 'either',
-    rewardIntensity: 'normal',
   };
 }

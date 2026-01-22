@@ -1,39 +1,32 @@
 import { getCurrentChild } from '@/lib/auth-nextauth';
-import { getTodayPlan } from '@/app/actions/plans';
-import QuizTabs from '@/components/QuizTabs';
-import BottomNav from '@/components/BottomNav';
+import { getLevelState } from '@/app/actions/levels';
+import { getWordsByCategory } from '@/app/actions/words';
+import { getTodayDate } from '@/lib/utils';
+import QuizToday from '@/components/QuizToday';
 import GoogleSignIn from '@/components/auth/GoogleSignIn';
 import PageHeader from '@/components/PageHeader';
+import ProgressSidePanel from '@/components/ProgressSidePanel';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
-export default async function QuizPage() {
-  const child = await getCurrentChild();
-  
-  if (!child) {
-    return <GoogleSignIn />;
-  }
+interface QuizPageProps {
+  searchParams: Promise<{
+    category?: string;
+    level?: string;
+  }>;
+}
 
-  let todayPlan = await getTodayPlan(child.id);
+export default async function QuizPage({ searchParams }: QuizPageProps) {
+  const params = await searchParams;
+  const category = params?.category;
+  const level = params?.level;
   
-  // Auto-generate plan if none exists for today
-  if (!todayPlan) {
-    const { generateStarterPack } = await import('@/app/actions/plans');
-    const { getTodayDate } = await import('@/lib/utils');
-    try {
-      todayPlan = await generateStarterPack(child.id, getTodayDate(), 10);
-    } catch (error) {
-      console.error('Failed to auto-generate plan:', error);
-    }
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="max-w-2xl mx-auto bg-white min-h-screen">
-        <PageHeader title="חידון" childName={child.name} avatar={child.avatar} currentChildId={child.id} />
-        <QuizTabs childId={child.id} todayPlan={todayPlan} />
-      </div>
-      <BottomNav />
-    </div>
-  );
+  // Redirect to /learn with mode=quiz
+  const redirectUrl = category 
+    ? `/learn?mode=quiz&category=${encodeURIComponent(category)}${level ? `&level=${level}` : ''}`
+    : '/learn?mode=quiz';
+  
+  redirect(redirectUrl);
 }

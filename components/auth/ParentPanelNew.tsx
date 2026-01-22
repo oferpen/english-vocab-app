@@ -29,7 +29,7 @@ export default function ParentPanelNew({ user }: ParentPanelNewProps) {
       if (error) throw error;
       setChildren(data || []);
     } catch (error) {
-      console.error('Error loading children:', error);
+      // Error loading children
     } finally {
       setLoading(false);
     }

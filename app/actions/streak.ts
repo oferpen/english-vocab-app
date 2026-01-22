@@ -1,10 +1,11 @@
 'use server';
 
+import { cache } from 'react';
 import { prisma } from '@/lib/prisma';
 import { getTodayDate } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
 
-export async function getStreak(childId: string): Promise<number> {
+export const getStreak = cache(async (childId: string): Promise<number> => {
   // Get all quiz attempts and learn sessions
   const today = getTodayDate();
   
@@ -49,52 +50,34 @@ export async function getStreak(childId: string): Promise<number> {
   }
 
   return streak;
-}
+});
 
 export async function checkDailyCompletion(childId: string, type: 'learn' | 'quiz'): Promise<boolean> {
   const today = getTodayDate();
-  const plan = await prisma.dailyPlan.findUnique({
-    where: {
-      childId_date: {
-        childId,
-        date: today,
-      },
-    },
-    include: {
-      words: true,
-    },
-  });
-
-  if (!plan) return false;
+  const todayStart = new Date(today + 'T00:00:00');
 
   if (type === 'learn') {
-    // Check if all words were seen today
-    const progress = await prisma.progress.findMany({
+    // Check if any words were learned today (lastSeenAt is today)
+    const progress = await prisma.progress.findFirst({
       where: {
         childId,
-        wordId: {
-          in: plan.words.map((w) => w.wordId),
-        },
         lastSeenAt: {
-          gte: new Date(today + 'T00:00:00'),
+          gte: todayStart,
         },
       },
     });
-    return progress.length >= plan.words.length;
+    return !!progress;
   } else {
-    // Check if quiz was completed today
-    const attempts = await prisma.quizAttempt.findMany({
+    // Check if any quiz was completed today (any quiz attempt today)
+    const attempts = await prisma.quizAttempt.findFirst({
       where: {
         childId,
-        wordId: {
-          in: plan.words.map((w) => w.wordId),
-        },
         isExtra: false,
         createdAt: {
-          gte: new Date(today + 'T00:00:00'),
+          gte: todayStart,
         },
       },
     });
-    return attempts.length >= plan.words.length;
+    return !!attempts;
   }
 }

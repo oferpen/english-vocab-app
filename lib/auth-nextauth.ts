@@ -8,46 +8,55 @@ export async function getCurrentChild() {
     const session = await getServerSession(authOptions);
     
     if (!session?.user?.email) {
-      console.log('[getCurrentChild] No session');
       return null;
     }
 
-    console.log('[getCurrentChild] Checking for child for email:', session.user.email);
-
     // Find child profile linked to this Google email
     // First, find parent account by email
-    const parentAccount = await prisma.parentAccount.findUnique({
-      where: { email: session.user.email },
-      include: {
-        children: {
-          orderBy: { createdAt: 'desc' },
+    let parentAccount;
+    try {
+      parentAccount = await prisma.parentAccount.findUnique({
+        where: { email: session.user.email },
+        include: {
+          children: {
+            orderBy: { createdAt: 'desc' },
+          },
         },
-      },
-    });
-
-    console.log('[getCurrentChild] Parent account:', parentAccount ? `Found (${parentAccount.children.length} children)` : 'Not found');
+      });
+    } catch (dbError: any) {
+      // If database table doesn't exist, return null
+      if (dbError?.code === 'P2021' || dbError?.message?.includes('does not exist')) {
+        return null;
+      }
+      throw dbError;
+    }
 
     // If no parent account exists, create one (but don't create child automatically)
     if (!parentAccount) {
-      console.log('[getCurrentChild] Creating parent account only');
-      // Create parent account only
-      await prisma.parentAccount.create({
-        data: {
-          email: session.user.email,
-          googleId: session.user.email, // Use email as identifier
-          name: session.user.name || null,
-          image: session.user.image || null,
-        },
-      });
+      try {
+        // Create parent account only
+        await prisma.parentAccount.create({
+          data: {
+            email: session.user.email,
+            googleId: session.user.email, // Use email as identifier
+            name: session.user.name || null,
+            image: session.user.image || null,
+          },
+        });
+      } catch (createError: any) {
+        // If table doesn't exist, return null
+        if (createError?.code === 'P2021' || createError?.message?.includes('does not exist')) {
+          return null;
+        }
+        throw createError;
+      }
 
       // Return null so user can create child profile
-      console.log('[getCurrentChild] Returning null - should show CreateChildProfile');
       return null;
     }
 
     // If parent exists but no children, return null so user can create child profile
     if (parentAccount.children.length === 0) {
-      console.log('[getCurrentChild] No children found - returning null');
       return null;
     }
 
@@ -57,7 +66,6 @@ export async function getCurrentChild() {
         child => child.id === parentAccount.lastActiveChildId
       );
       if (activeChild) {
-        console.log('[getCurrentChild] Returning active child:', activeChild.name);
         return activeChild;
       }
     }
@@ -69,13 +77,11 @@ export async function getCurrentChild() {
         where: { id: parentAccount.id },
         data: { lastActiveChildId: firstChild.id },
       });
-      console.log('[getCurrentChild] Returning first child (set as active):', firstChild.name);
       return firstChild;
     }
 
     return null;
   } catch (error) {
-    console.error('[getCurrentChild] Error:', error);
     // Return null on error so the page can still render (showing login screen)
     return null;
   }

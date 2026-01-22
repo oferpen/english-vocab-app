@@ -4,13 +4,13 @@ import { useState, useEffect } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { verifyPIN } from '@/app/actions/auth';
+import { getActiveChild } from '@/app/actions/children';
 import PINGate from './PINGate';
 import ParentNav from './ParentNav';
 import ChildrenManagement from './ChildrenManagement';
-import WordsManagement from './WordsManagement';
-import DailyPlanManagement from './DailyPlanManagement';
 import ProgressDashboard from './ProgressDashboard';
 import SettingsPanel from './SettingsPanel';
+import ChildSwitcher from './ChildSwitcher';
 
 interface ParentPanelProps {
   session?: any;
@@ -19,22 +19,48 @@ interface ParentPanelProps {
 export default function ParentPanel({ session: initialSession }: ParentPanelProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'children' | 'words' | 'plan' | 'dashboard' | 'settings'>('children');
+  const [activeTab, setActiveTab] = useState<'children' | 'dashboard' | 'settings'>('children');
   const [pinVerified, setPinVerified] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
+  const [activeChild, setActiveChild] = useState<any>(null);
 
   // Store referrer when component mounts (before PIN gate)
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const referrer = document.referrer;
-      const currentOrigin = window.location.origin;
+      // Check if we already have a stored return path (set before navigation)
+      const storedReturnTo = sessionStorage.getItem('parentPanelReturnTo');
       
-      // Only store if referrer is from our app and not the parent panel itself
-      if (referrer && referrer.startsWith(currentOrigin) && !referrer.includes('/parent')) {
-        sessionStorage.setItem('parentPanelReturnTo', referrer.replace(currentOrigin, ''));
+      // If we don't have a stored path, try to use referrer
+      if (!storedReturnTo) {
+        const referrer = document.referrer;
+        const currentOrigin = window.location.origin;
+        
+        // Only store if referrer is from our app and not the parent panel itself
+        if (referrer && referrer.startsWith(currentOrigin) && !referrer.includes('/parent')) {
+          sessionStorage.setItem('parentPanelReturnTo', referrer.replace(currentOrigin, ''));
+        } else {
+          // Fallback: if no referrer, default to learn path
+          sessionStorage.setItem('parentPanelReturnTo', '/learn/path');
+        }
       }
     }
   }, []);
+
+  // Load active child when PIN is verified
+  useEffect(() => {
+    if (pinVerified) {
+      loadActiveChild();
+    }
+  }, [pinVerified]);
+
+  const loadActiveChild = async () => {
+    try {
+      const child = await getActiveChild();
+      setActiveChild(child);
+      } catch (error) {
+        // Error loading active child
+      }
+  };
 
   // Always require PIN verification, regardless of Google session
   // Wait for session to load before showing PINGate
@@ -115,11 +141,18 @@ export default function ParentPanel({ session: initialSession }: ParentPanelProp
           </div>
         )}
       </header>
+      {pinVerified && activeChild && (
+        <div className="bg-white border-b border-gray-200 px-4 py-3">
+          <ChildSwitcher 
+            currentChildId={activeChild.id} 
+            currentChildName={activeChild.name}
+            onChildSwitched={loadActiveChild}
+          />
+        </div>
+      )}
       <ParentNav activeTab={activeTab} onTabChange={setActiveTab} />
       <div className="pb-20">
         {activeTab === 'children' && <ChildrenManagement />}
-        {activeTab === 'words' && <WordsManagement />}
-        {activeTab === 'plan' && <DailyPlanManagement />}
         {activeTab === 'dashboard' && <ProgressDashboard />}
         {activeTab === 'settings' && <SettingsPanel />}
       </div>

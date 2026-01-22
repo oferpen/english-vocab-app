@@ -36,7 +36,7 @@ export default function ProfilePicker() {
       if (error) throw error;
       setChildren(data || []);
     } catch (error) {
-      console.error('Error loading children:', error);
+      // Error loading children
     } finally {
       setLoading(false);
     }
@@ -62,7 +62,7 @@ export default function ProfilePicker() {
       router.push('/');
       router.refresh();
     } catch (error) {
-      console.error('Error selecting child:', error);
+      // Error selecting child
     }
   };
 

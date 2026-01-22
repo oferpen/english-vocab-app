@@ -1,15 +1,13 @@
 'use client';
 
 interface ParentNavProps {
-  activeTab: 'children' | 'words' | 'plan' | 'dashboard' | 'settings';
-  onTabChange: (tab: 'children' | 'words' | 'plan' | 'dashboard' | 'settings') => void;
+  activeTab: 'children' | 'dashboard' | 'settings';
+  onTabChange: (tab: 'children' | 'dashboard' | 'settings') => void;
 }
 
 export default function ParentNav({ activeTab, onTabChange }: ParentNavProps) {
   const tabs = [
     { id: 'children' as const, label: 'ילדים', icon: '👶' },
-    { id: 'words' as const, label: 'ניהול מילים', icon: '📚' },
-    { id: 'plan' as const, label: 'תוכנית יומית', icon: '📅' },
     { id: 'dashboard' as const, label: 'דשבורד התקדמות', icon: '📊' },
     { id: 'settings' as const, label: 'הגדרות', icon: '⚙️' },
   ];

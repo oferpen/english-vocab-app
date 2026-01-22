@@ -368,14 +368,38 @@ export default function LearnPath({ childId, levelState: propLevelState, progres
           starterWords = [];
         }
       }
-      const starterCategoryWords = starterWords.filter((w: any) => w.category === 'Starter');
+      // Filter for Starter category - handle both string and null/undefined cases
+      let starterCategoryWords = starterWords.filter((w: any) => {
+        const category = w.category;
+        return category === 'Starter' || category === 'starter' || (category === null && w.englishWord && ['Happy', 'Sad', 'I', 'You', 'Me'].includes(w.englishWord));
+      });
+      
+      // If no Starter words found but we have difficulty 1 words, try fetching directly
+      if (starterCategoryWords.length === 0 && starterWords.length > 0) {
+        console.warn('[LearnPath] No Starter words found in propAllWords, attempting direct fetch...');
+        try {
+          const directStarterWords = await getAllWords(2);
+          starterCategoryWords = directStarterWords.filter((w: any) => w.category === 'Starter');
+          console.log('[LearnPath] Direct fetch found', starterCategoryWords.length, 'Starter words');
+        } catch (error) {
+          console.error('[LearnPath] Error fetching Starter words directly:', error);
+        }
+      }
       
       // Debug logging
+      const sampleWords = starterWords.slice(0, 5);
       console.log('[LearnPath] Starter words check:', {
         propAllWordsLength: propAllWords?.length || 0,
         starterWordsLength: starterWords.length,
         starterCategoryWordsLength: starterCategoryWords.length,
-        sampleStarterWords: starterCategoryWords.slice(0, 3).map((w: any) => w.englishWord)
+        sampleStarterWords: starterCategoryWords.slice(0, 3).map((w: any) => w.englishWord),
+        sampleDifficulty1Words: sampleWords.map((w: any) => ({ 
+          word: w.englishWord, 
+          category: w.category, 
+          difficulty: w.difficulty,
+          hasCategory: !!w.category,
+          categoryType: typeof w.category
+        }))
       });
       
       // Always show Starter section if words exist

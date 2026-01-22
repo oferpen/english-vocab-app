@@ -44,11 +44,23 @@ export default async function LearnPathPage() {
       ]);
       
       // Debug logging
+      const starterWords = allWords.filter((w: any) => w.category === 'Starter' && w.difficulty === 1);
       console.log('[LearnPathPage] Fetched data:', {
         progressCount: progress.length,
         streak,
         allWordsCount: allWords.length,
-        starterWordsCount: allWords.filter((w: any) => w.category === 'Starter' && w.difficulty === 1).length
+        starterWordsCount: starterWords.length,
+        sampleStarterWords: starterWords.slice(0, 3).map((w: any) => ({ 
+          word: w.englishWord, 
+          category: w.category, 
+          difficulty: w.difficulty 
+        })),
+        allWordsSample: allWords.slice(0, 3).map((w: any) => ({ 
+          word: w.englishWord, 
+          category: w.category, 
+          difficulty: w.difficulty,
+          hasCategory: !!w.category
+        }))
       });
     } catch (error: any) {
       console.error('Error loading progress/streak/words:', error);

@@ -432,6 +432,22 @@ async function main() {
     { englishWord: 'beach', hebrewTranslation: 'חוף', category: 'Nature', difficulty: 1, exampleEn: 'I play on the beach', exampleHe: 'אני משחק בחוף' },
     { englishWord: 'sky', hebrewTranslation: 'שמיים', category: 'Nature', difficulty: 1, exampleEn: 'Blue sky', exampleHe: 'שמיים כחולים' },
 
+    // Starter category (14 words) - Basic words for beginners
+    { englishWord: 'Big', hebrewTranslation: 'גדול', category: 'Starter', difficulty: 1, exampleEn: 'Big house', exampleHe: 'בית גדול' },
+    { englishWord: 'Come', hebrewTranslation: 'לבוא', category: 'Starter', difficulty: 1, exampleEn: 'Come here', exampleHe: 'בוא לכאן' },
+    { englishWord: 'Drink', hebrewTranslation: 'לשתות', category: 'Starter', difficulty: 1, exampleEn: 'Drink water', exampleHe: 'שתה מים' },
+    { englishWord: 'Eat', hebrewTranslation: 'לאכול', category: 'Starter', difficulty: 1, exampleEn: 'Eat food', exampleHe: 'אכול אוכל' },
+    { englishWord: 'Go', hebrewTranslation: 'ללכת', category: 'Starter', difficulty: 1, exampleEn: 'Go home', exampleHe: 'לך הביתה' },
+    { englishWord: 'Happy', hebrewTranslation: 'שמח', category: 'Starter', difficulty: 1, exampleEn: 'I am happy', exampleHe: 'אני שמח' },
+    { englishWord: 'I', hebrewTranslation: 'אני', category: 'Starter', difficulty: 1, exampleEn: 'I am here', exampleHe: 'אני כאן' },
+    { englishWord: 'Me', hebrewTranslation: 'אותי', category: 'Starter', difficulty: 1, exampleEn: 'Look at me', exampleHe: 'תסתכל עליי' },
+    { englishWord: 'No', hebrewTranslation: 'לא', category: 'Starter', difficulty: 1, exampleEn: 'No, thank you', exampleHe: 'לא, תודה' },
+    { englishWord: 'Play', hebrewTranslation: 'לשחק', category: 'Starter', difficulty: 1, exampleEn: 'Play with me', exampleHe: 'שחק איתי' },
+    { englishWord: 'Sad', hebrewTranslation: 'עצוב', category: 'Starter', difficulty: 1, exampleEn: 'I am sad', exampleHe: 'אני עצוב' },
+    { englishWord: 'Small', hebrewTranslation: 'קטן', category: 'Starter', difficulty: 1, exampleEn: 'Small cat', exampleHe: 'חתול קטן' },
+    { englishWord: 'Yes', hebrewTranslation: 'כן', category: 'Starter', difficulty: 1, exampleEn: 'Yes, please', exampleHe: 'כן, בבקשה' },
+    { englishWord: 'You', hebrewTranslation: 'אתה', category: 'Starter', difficulty: 1, exampleEn: 'You are nice', exampleHe: 'אתה נחמד' },
+
     // Numbers
     { englishWord: 'one', hebrewTranslation: 'אחד', category: 'Numbers', difficulty: 1, exampleEn: 'One apple', exampleHe: 'תפוח אחד' },
     { englishWord: 'two', hebrewTranslation: 'שניים', category: 'Numbers', difficulty: 1, exampleEn: 'Two books', exampleHe: 'שני ספרים' },

@@ -370,6 +370,7 @@ export default function LearnPath({ childId, levelState: propLevelState, progres
       }
       // Debug logging BEFORE filtering
       const sampleWords = starterWords.slice(0, 10);
+      const allCategories = [...new Set(starterWords.map((w: any) => w.category).filter(Boolean))];
       console.log('[LearnPath] Before filtering Starter words:', {
         propAllWordsLength: propAllWords?.length || 0,
         starterWordsLength: starterWords.length,
@@ -381,7 +382,10 @@ export default function LearnPath({ childId, levelState: propLevelState, progres
           categoryType: typeof w.category,
           allKeys: Object.keys(w)
         })),
-        allCategoriesInDifficulty1: [...new Set(starterWords.map((w: any) => w.category).filter(Boolean))]
+        allCategoriesInDifficulty1: allCategories,
+        allCategoriesCount: allCategories.length,
+        hasStarterCategory: allCategories.includes('Starter'),
+        hasStarterLowercase: allCategories.includes('starter')
       });
       
       // Filter for Starter category - handle both string and null/undefined cases

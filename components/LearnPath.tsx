@@ -368,10 +368,26 @@ export default function LearnPath({ childId, levelState: propLevelState, progres
           starterWords = [];
         }
       }
+      // Debug logging BEFORE filtering
+      const sampleWords = starterWords.slice(0, 10);
+      console.log('[LearnPath] Before filtering Starter words:', {
+        propAllWordsLength: propAllWords?.length || 0,
+        starterWordsLength: starterWords.length,
+        sampleDifficulty1Words: sampleWords.map((w: any) => ({ 
+          word: w.englishWord, 
+          category: w.category, 
+          difficulty: w.difficulty,
+          hasCategory: !!w.category,
+          categoryType: typeof w.category,
+          allKeys: Object.keys(w)
+        })),
+        allCategoriesInDifficulty1: [...new Set(starterWords.map((w: any) => w.category).filter(Boolean))]
+      });
+      
       // Filter for Starter category - handle both string and null/undefined cases
       let starterCategoryWords = starterWords.filter((w: any) => {
         const category = w.category;
-        return category === 'Starter' || category === 'starter' || (category === null && w.englishWord && ['Happy', 'Sad', 'I', 'You', 'Me'].includes(w.englishWord));
+        return category === 'Starter' || category === 'starter';
       });
       
       // If no Starter words found but we have difficulty 1 words, try fetching directly
@@ -379,6 +395,16 @@ export default function LearnPath({ childId, levelState: propLevelState, progres
         console.warn('[LearnPath] No Starter words found in propAllWords, attempting direct fetch...');
         try {
           const directStarterWords = await getAllWords(2);
+          console.log('[LearnPath] Direct fetch result:', {
+            totalWords: directStarterWords.length,
+            sampleWords: directStarterWords.slice(0, 5).map((w: any) => ({
+              word: w.englishWord,
+              category: w.category,
+              difficulty: w.difficulty,
+              allKeys: Object.keys(w)
+            })),
+            starterWords: directStarterWords.filter((w: any) => w.category === 'Starter').length
+          });
           starterCategoryWords = directStarterWords.filter((w: any) => w.category === 'Starter');
           console.log('[LearnPath] Direct fetch found', starterCategoryWords.length, 'Starter words');
         } catch (error) {
@@ -386,20 +412,12 @@ export default function LearnPath({ childId, levelState: propLevelState, progres
         }
       }
       
-      // Debug logging
-      const sampleWords = starterWords.slice(0, 5);
+      // Final debug logging
       console.log('[LearnPath] Starter words check:', {
         propAllWordsLength: propAllWords?.length || 0,
         starterWordsLength: starterWords.length,
         starterCategoryWordsLength: starterCategoryWords.length,
-        sampleStarterWords: starterCategoryWords.slice(0, 3).map((w: any) => w.englishWord),
-        sampleDifficulty1Words: sampleWords.map((w: any) => ({ 
-          word: w.englishWord, 
-          category: w.category, 
-          difficulty: w.difficulty,
-          hasCategory: !!w.category,
-          categoryType: typeof w.category
-        }))
+        sampleStarterWords: starterCategoryWords.slice(0, 3).map((w: any) => w.englishWord)
       });
       
       // Always show Starter section if words exist

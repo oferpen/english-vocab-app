@@ -30,6 +30,7 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
   const [showCelebration, setShowCelebration] = useState(false);
   const [xpGained, setXpGained] = useState(0);
   const [isSwitching, setIsSwitching] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false); // Prevent multiple navigations
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -100,6 +101,8 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
           showConfetti={showCelebration}
           actionLabel="המשך לחידון →"
           onAction={() => {
+            if (isNavigating) return; // Prevent multiple calls
+            setIsNavigating(true);
             setShowCelebration(false);
             setCompleted(true);
             // Use category prop if available, otherwise try to extract from plan ID
@@ -107,9 +110,14 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
             const levelToUse = level || todayPlan?.id?.match(/level-(\d+)/)?.[1];
             if (categoryToUse) {
               const quizUrl = `/learn?mode=quiz&category=${encodeURIComponent(categoryToUse)}${levelToUse ? `&level=${levelToUse}` : ''}`;
-              router.replace(quizUrl); // Use replace instead of push to avoid history stack
+              // Use startTransition to mark navigation as non-urgent
+              startTransition(() => {
+                router.replace(quizUrl);
+              });
             } else {
-              router.replace('/learn?mode=quiz');
+              startTransition(() => {
+                router.replace('/learn?mode=quiz');
+              });
             }
           }}
           onClose={() => {

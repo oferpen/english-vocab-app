@@ -1,15 +1,24 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function SessionChecker() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [hasChecked, setHasChecked] = useState(false);
+  
+  // Only show checker if we're coming from OAuth callback (has callbackUrl param)
+  const isFromCallback = searchParams.get('callbackUrl') !== null;
 
   useEffect(() => {
+    // Only run if we're coming from OAuth callback
+    if (!isFromCallback) {
+      return;
+    }
+
     // Wait for session to be loaded
     if (status === 'loading') {
       return; // Still loading
@@ -38,11 +47,15 @@ export default function SessionChecker() {
         }
       }, 500);
     }
-  }, [session, status, router, hasChecked]);
+  }, [session, status, router, hasChecked, isFromCallback]);
 
-  // Show loading state while checking session
+  // Only show loading state if we're coming from callback
+  if (!isFromCallback) {
+    return null;
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center z-50">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
         <p className="text-gray-600">מתחבר...</p>

@@ -84,10 +84,15 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
       setShowCelebration(true);
       
       // Use combined server action to reduce HTTP requests from 3 to 1
-      startTransition(async () => {
-        await completeLearningSession(childId, word.id, words.length, xp);
-        setIsProcessing(false);
-      });
+      // Call directly without startTransition to prevent duplicate calls
+      completeLearningSession(childId, word.id, words.length, xp)
+        .then(() => {
+          setIsProcessing(false);
+        })
+        .catch((error) => {
+          console.error('Error completing learning session:', error);
+          setIsProcessing(false);
+        });
     }
   };
 

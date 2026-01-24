@@ -51,7 +51,9 @@ export default function LearnQuizWrapper({
   };
 
   // Render based on mode - keep components mounted to preserve state
-  if (levelState.level === 1) {
+  // Only show letters for level 1 if no category is provided
+  // If category is provided (e.g., Starter), show words even for level 1 users
+  if (levelState.level === 1 && !category && !todayPlan) {
     return (
       <>
         <LearnLetters childId={childId} letterId={letterId} />

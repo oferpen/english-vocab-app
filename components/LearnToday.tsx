@@ -31,7 +31,6 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
   const [xpGained, setXpGained] = useState(0);
   const [isSwitching, setIsSwitching] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false); // Prevent multiple navigations
-  const navigationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 

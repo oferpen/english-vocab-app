@@ -78,15 +78,14 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
     );
   }
 
-  // Load words for word learning/quiz (level 2+)
+  // Load words for word learning/quiz
+  // Allow category requests for level 1 users (especially Starter category)
   let todayPlan = null;
   let categoryWords: any[] = [];
-  if (levelState.level >= 2) {
-    // Require category for level 2+ - redirect to path if not provided
-    if (!category) {
-      redirect('/learn/path');
-    }
-    
+  
+  // If category is provided, load words regardless of user level
+  // This allows level 1 users to learn Starter category words
+  if (category) {
     // Use requested level if provided, otherwise use child's current level
     let levelToUse = requestedLevel || levelState.level;
     
@@ -136,6 +135,9 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
       date: getTodayDate(),
       words: categoryWords.map(word => ({ word })),
     };
+  } else if (levelState.level >= 2) {
+    // For level 2+ without category, redirect to path
+    redirect('/learn/path');
   }
 
   return (

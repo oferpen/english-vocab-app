@@ -50,9 +50,15 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
     }
   }, [wordId, words.length]);
 
-  const handleMarkLearned = async () => {
+  const handleMarkLearned = async (e?: React.MouseEvent) => {
     // Prevent multiple calls
     if (isProcessing) return;
+    
+    // Prevent default behavior that might cause multiple calls
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     
     const word = words[currentIndex];
     

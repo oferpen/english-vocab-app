@@ -30,6 +30,7 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
   const [xpGained, setXpGained] = useState(0);
   const [isSwitching, setIsSwitching] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false); // Prevent multiple navigations
+  const [isProcessing, setIsProcessing] = useState(false); // Prevent multiple processing
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -50,12 +51,17 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
   }, [wordId, words.length]);
 
   const handleMarkLearned = async () => {
+    // Prevent multiple calls
+    if (isProcessing) return;
+    
     const word = words[currentIndex];
     
     if (currentIndex < words.length - 1) {
       // For non-final words, just mark as seen (non-blocking)
+      setIsProcessing(true);
       startTransition(async () => {
         await markWordSeen(childId, word.id);
+        setIsProcessing(false);
       });
       
       // Play success sound
@@ -67,6 +73,8 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
       setCurrentIndex(currentIndex + 1);
     } else {
       // For final word, batch all updates together to reduce revalidations
+      setIsProcessing(true);
+      
       // Play success sound first
       playSuccessSound();
       
@@ -78,6 +86,7 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
       // Use combined server action to reduce HTTP requests from 3 to 1
       startTransition(async () => {
         await completeLearningSession(childId, word.id, words.length, xp);
+        setIsProcessing(false);
       });
     }
   };

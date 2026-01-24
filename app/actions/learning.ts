@@ -176,8 +176,9 @@ export async function completeLearningSession(
         }),
       ]);
 
-      // Only revalidate progress page once
-      revalidatePath('/progress');
+      // Don't revalidate - let the UI update optimistically
+      // Revalidation causes page re-renders which trigger additional server calls
+      // revalidatePath('/progress');
       
       return { 
         success: true,

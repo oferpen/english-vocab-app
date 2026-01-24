@@ -33,21 +33,57 @@ export async function getOrCreateProgress(childId: string, wordId: string) {
   return progress;
 }
 
-export async function markWordSeen(childId: string, wordId: string, skipRevalidate: boolean = false) {
-  const progress = await getOrCreateProgress(childId, wordId);
-  
-  await prisma.progress.update({
-    where: { id: progress.id },
-    data: {
-      timesSeenInLearn: progress.timesSeenInLearn + 1,
-      lastSeenAt: new Date(),
-    },
-  });
+// Module-level promise cache to prevent duplicate calls (e.g., from React Strict Mode)
+const markWordSeenCache = new Map<string, Promise<void>>();
 
-  // Only revalidate if not called from combined action
-  if (!skipRevalidate) {
-    revalidatePath('/progress');
+export async function markWordSeen(childId: string, wordId: string, skipRevalidate: boolean = false) {
+  // Create session key for deduplication
+  const sessionKey = `${childId}-${wordId}`;
+  
+  // Check if we're already processing this session
+  const existingPromise = markWordSeenCache.get(sessionKey);
+  if (existingPromise) {
+    // Already processing, return the existing promise
+    console.log('[markWordSeen] Returning cached promise for', sessionKey);
+    return existingPromise;
   }
+  
+  console.log('[markWordSeen] Creating new promise for', sessionKey);
+  
+  // Create promise and cache it IMMEDIATELY (synchronously)
+  const promise = (async () => {
+    try {
+      const progress = await getOrCreateProgress(childId, wordId);
+      
+      await prisma.progress.update({
+        where: { id: progress.id },
+        data: {
+          timesSeenInLearn: progress.timesSeenInLearn + 1,
+          lastSeenAt: new Date(),
+        },
+      });
+
+      // Don't revalidate - let the UI update optimistically
+      // Revalidation causes page re-renders which trigger additional server calls
+      // if (!skipRevalidate) {
+      //   revalidatePath('/progress');
+      // }
+    } catch (error) {
+      // Remove from cache on error
+      markWordSeenCache.delete(sessionKey);
+      throw error;
+    } finally {
+      // Clean up after 1 second (keep promise cached briefly to handle React Strict Mode)
+      setTimeout(() => {
+        markWordSeenCache.delete(sessionKey);
+      }, 1000);
+    }
+  })();
+  
+  // Cache the promise IMMEDIATELY before any async operations
+  markWordSeenCache.set(sessionKey, promise);
+  
+  return promise;
 }
 
 export async function recordQuizAttempt(

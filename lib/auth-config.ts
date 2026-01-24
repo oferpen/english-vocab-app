@@ -37,7 +37,26 @@ export const authOptions: NextAuthOptions = {
   providers,
   secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-development-only',
   debug: process.env.NODE_ENV === 'development',
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
+  },
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      // After successful login, redirect to home page
+      // The home page will check session and redirect to /learn/path if child exists
+      if (url.startsWith(baseUrl)) {
+        return `${baseUrl}/`;
+      }
+      return baseUrl;
+    },
     async signIn({ user, account }) {
       try {
         if (account?.provider === 'google' && user.email) {

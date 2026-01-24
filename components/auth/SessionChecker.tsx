@@ -1,21 +1,21 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function SessionChecker() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const [hasChecked, setHasChecked] = useState(false);
   
-  // Only show checker if we're coming from OAuth callback (has callbackUrl param)
-  const isFromCallback = searchParams.get('callbackUrl') !== null;
+  // Only run on home page
+  const isHomePage = pathname === '/';
 
   useEffect(() => {
-    // Only run if we're coming from OAuth callback
-    if (!isFromCallback) {
+    // Only run on home page
+    if (!isHomePage) {
       return;
     }
 
@@ -37,28 +37,31 @@ export default function SessionChecker() {
         router.replace('/learn/path');
       }, 100);
     } else if (status === 'unauthenticated') {
-      // If no session after loading, check again after a short delay
-      // This handles the case where the cookie is being set
-      setTimeout(() => {
+      // If no session after loading, wait a bit and check again
+      // This handles the case where the cookie is being set after OAuth redirect
+      const timeoutId = setTimeout(() => {
         if (!hasChecked) {
           setHasChecked(true);
-          // Refresh the page to check session again
+          // Refresh the page to check session again (server-side will have the cookie)
           window.location.reload();
         }
-      }, 500);
+      }, 1000); // Wait 1 second for cookie to be set
+      
+      return () => clearTimeout(timeoutId);
     }
-  }, [session, status, router, hasChecked, isFromCallback]);
+  }, [session, status, router, hasChecked, isHomePage]);
 
-  // Only show loading state if we're coming from callback
-  if (!isFromCallback) {
+  // Only show loading overlay if we're on home page and checking session
+  if (!isHomePage || hasChecked || status === 'authenticated') {
     return null;
   }
 
+  // Show subtle loading indicator (don't block the UI completely)
   return (
-    <div className="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center z-50">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">מתחבר...</p>
+    <div className="fixed bottom-4 right-4 bg-white shadow-lg rounded-lg p-3 z-50 border border-gray-200">
+      <div className="flex items-center gap-2">
+        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
+        <p className="text-sm text-gray-600">בודק התחברות...</p>
       </div>
     </div>
   );

@@ -107,23 +107,15 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
             const levelToUse = level || todayPlan?.id?.match(/level-(\d+)/)?.[1];
             if (categoryToUse) {
               const quizUrl = `/learn?mode=quiz&category=${encodeURIComponent(categoryToUse)}${levelToUse ? `&level=${levelToUse}` : ''}`;
-              router.push(quizUrl);
+              router.replace(quizUrl); // Use replace instead of push to avoid history stack
             } else {
-              router.push('/learn?mode=quiz');
+              router.replace('/learn?mode=quiz');
             }
           }}
           onClose={() => {
+            // Only close, don't navigate - navigation is handled by onAction
             setShowCelebration(false);
             setCompleted(true);
-            // Use category prop if available, otherwise try to extract from plan ID
-            const categoryToUse = category || todayPlan?.id?.match(/category-(.+?)-level/)?.[1];
-            const levelToUse = level || todayPlan?.id?.match(/level-(\d+)/)?.[1];
-            if (categoryToUse) {
-              const quizUrl = `/learn?mode=quiz&category=${encodeURIComponent(categoryToUse)}${levelToUse ? `&level=${levelToUse}` : ''}`;
-              router.push(quizUrl);
-            } else {
-              router.push('/learn?mode=quiz');
-            }
           }}
         />
       </>

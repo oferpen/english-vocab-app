@@ -31,9 +31,19 @@ export default function CelebrationScreen({
     return () => clearTimeout(timer);
   }, []);
 
+  const [hasActed, setHasActed] = useState(false);
+
   const handleClose = () => {
+    if (hasActed) return; // Prevent multiple calls
     setShow(false);
     onClose?.();
+  };
+
+  const handleAction = () => {
+    if (hasActed) return; // Prevent multiple calls
+    setHasActed(true);
+    setShow(false);
+    onAction?.(); // Only call onAction, not onClose
   };
 
   if (!show) return null;
@@ -54,16 +64,13 @@ export default function CelebrationScreen({
           </p>
           {actionLabel && onAction && (
             <button
-              onClick={() => {
-                handleClose();
-                onAction();
-              }}
+              onClick={handleAction}
               className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-4 rounded-xl text-lg md:text-xl font-bold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 active:scale-95 mb-3"
             >
               {actionLabel}
             </button>
           )}
-          {onClose && (
+          {onClose && !actionLabel && (
             <button
               onClick={handleClose}
               className="w-full text-gray-600 hover:text-gray-800 py-3 rounded-xl text-base font-medium transition-colors"

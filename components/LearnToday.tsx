@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useTransition, useRef } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { markWordSeen } from '@/app/actions/progress';
 import { updateMissionProgress } from '@/app/actions/missions';
 import { addXP } from '@/app/actions/levels';

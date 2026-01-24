@@ -26,31 +26,28 @@ async function addStarterWords() {
   let updated = 0;
   
   for (const wordData of starterWords) {
-    const result = await prisma.word.upsert({
-      where: {
-        id: `word-${wordData.englishWord}`,
-      },
-      update: {
-        ...wordData,
-        active: true,
-      },
-      create: {
-        id: `word-${wordData.englishWord}`,
-        ...wordData,
-        active: true,
-      },
+    const existing = await prisma.word.findUnique({
+      where: { id: `word-${wordData.englishWord}` },
     });
     
-    if (result) {
-      // Check if it was created or updated by checking if it existed before
-      const existing = await prisma.word.findUnique({
+    if (existing) {
+      await prisma.word.update({
         where: { id: `word-${wordData.englishWord}` },
+        data: {
+          ...wordData,
+          active: true,
+        },
       });
-      if (existing && existing.updatedAt < result.updatedAt) {
-        updated++;
-      } else {
-        added++;
-      }
+      updated++;
+    } else {
+      await prisma.word.create({
+        data: {
+          id: `word-${wordData.englishWord}`,
+          ...wordData,
+          active: true,
+        },
+      });
+      added++;
     }
   }
   

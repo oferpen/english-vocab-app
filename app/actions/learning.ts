@@ -10,6 +10,9 @@ const LEVEL_XP_REQUIREMENTS = [
   150,  // Level 3 (Less basic words) - unlock after mastering 50 basic words
 ];
 
+// Module-level cache to prevent duplicate calls (e.g., from React Strict Mode)
+const processingSessions = new Set<string>();
+
 /**
  * Complete learning session - marks word as seen, updates mission progress, and adds XP
  * This performs all operations directly without calling other server actions to reduce HTTP requests from 3 to 1
@@ -20,6 +23,29 @@ export async function completeLearningSession(
   wordsCount: number,
   xpAmount: number
 ) {
+  // Create unique session key to prevent duplicate calls
+  const sessionKey = `${childId}-${wordId}-${Date.now()}`;
+  
+  // Check if we're already processing this session (within last 2 seconds)
+  const recentSessions = Array.from(processingSessions).filter(key => {
+    const [sessionChildId, sessionWordId, timestamp] = key.split('-');
+    return sessionChildId === childId && sessionWordId === wordId && Date.now() - parseInt(timestamp) < 2000;
+  });
+  
+  if (recentSessions.length > 0) {
+    // Already processing, return early
+    return { success: true, skipped: true };
+  }
+  
+  // Mark as processing
+  processingSessions.add(sessionKey);
+  
+  // Clean up after 5 seconds
+  setTimeout(() => {
+    processingSessions.delete(sessionKey);
+  }, 5000);
+  
+  try {
   const today = getTodayDate();
   
   // Perform all database reads in parallel

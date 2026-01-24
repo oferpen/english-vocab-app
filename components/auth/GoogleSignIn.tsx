@@ -4,7 +4,9 @@ import { signIn } from 'next-auth/react';
 
 export default function GoogleSignIn() {
   const handleGoogleSignIn = () => {
-    signIn('google', { callbackUrl: '/learn/path' });
+    // Redirect to home page first, which will handle session check and redirect to /learn/path
+    // This ensures the session cookie is properly set before checking for child profile
+    signIn('google', { callbackUrl: '/' });
   };
 
   return (

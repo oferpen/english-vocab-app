@@ -122,6 +122,7 @@ export default function ProgressSidePanel({
         </button>
         <Link
           href="/parent"
+          prefetch={false}
           onClick={() => {
             // Store current path before navigating to parent panel
             if (typeof window !== 'undefined') {

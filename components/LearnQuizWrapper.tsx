@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import QuizToday from './QuizToday';
 import LearnToday from './LearnToday';
@@ -29,6 +29,7 @@ export default function LearnQuizWrapper({
 }: LearnQuizWrapperProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [mode, setMode] = useState<'learn' | 'quiz'>(() => {
     return (searchParams?.get('mode') as 'learn' | 'quiz') || 'learn';
   });
@@ -43,16 +44,25 @@ export default function LearnQuizWrapper({
   }, [searchParams, mode, isSwitching]);
 
   const handleModeSwitch = (newMode: 'learn' | 'quiz') => {
-    if (mode === newMode || isSwitching) return;
+    if (mode === newMode || isSwitching || isPending) return;
     
     setIsSwitching(true);
     setMode(newMode);
     
-    // Update URL using router.replace with scroll: false to prevent full page reload
-    // This is more reliable than window.history.replaceState
+    // Use window.history.replaceState to update URL without triggering server re-render
+    // This prevents RSC requests and page reloads
     const params = new URLSearchParams(searchParams?.toString() || '');
     params.set('mode', newMode);
-    router.replace(`/learn?${params.toString()}`, { scroll: false });
+    const newUrl = `/learn?${params.toString()}`;
+    
+    // Update URL without triggering Next.js navigation
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(
+        { ...window.history.state, as: newUrl, url: newUrl },
+        '',
+        newUrl
+      );
+    }
     
     // Reset switching flag after a short delay
     setTimeout(() => setIsSwitching(false), 100);

@@ -49,6 +49,7 @@ export default function PageHeader({ title, childName, avatar, currentChildId, s
         {backHref && (
           <Link
             href={backHref}
+            prefetch={false}
             className="inline-flex items-center justify-center text-primary-600 hover:text-primary-700 font-semibold transition-colors ml-3"
             aria-label="חזור לנתיב"
           >

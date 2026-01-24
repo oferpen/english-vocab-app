@@ -38,7 +38,7 @@ export async function completeLearningSession(
     // Get or create mission state
     (async () => {
       const today = getTodayDate();
-      const periodStartDate = 'DAILY' === 'DAILY' ? today : getWeekStartDate(today);
+      const periodStartDate = today; // For DAILY missions, use today
       return getOrCreateMissionState(childId, 'DAILY', 'learn_words', wordsCount, periodStartDate);
     })(),
     // Get level state

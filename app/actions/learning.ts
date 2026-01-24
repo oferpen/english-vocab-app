@@ -27,14 +27,19 @@ export async function completeLearningSession(
   // Create session key for deduplication
   const sessionKey = `${childId}-${wordId}`;
   
-  // Check if we're already processing this session
-  const existingPromise = processingSessions.get(sessionKey);
+  // Atomic check-and-set: check if already processing, if not create promise immediately
+  // This prevents race conditions where multiple calls pass the check before caching
+  let existingPromise = processingSessions.get(sessionKey);
   if (existingPromise) {
     // Already processing, return the existing promise
+    console.log('[completeLearningSession] Returning cached promise for', sessionKey);
     return existingPromise;
   }
   
-  // Create the promise and cache it IMMEDIATELY (synchronously)
+  console.log('[completeLearningSession] Creating new promise for', sessionKey);
+  
+  // Create promise FIRST, then cache it IMMEDIATELY (before any async operations)
+  // This ensures that concurrent calls will see the cached promise
   const promise = (async () => {
     try {
       const today = getTodayDate();

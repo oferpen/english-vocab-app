@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useTransition, useRef } from 'react';
 import { markWordSeen } from '@/app/actions/progress';
 import { completeLearningSession } from '@/app/actions/learning';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -31,6 +31,7 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
   const [isSwitching, setIsSwitching] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false); // Prevent multiple navigations
   const [isProcessing, setIsProcessing] = useState(false); // Prevent multiple processing
+  const isProcessingRef = useRef(false); // Use ref for immediate synchronous check
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -51,8 +52,13 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
   }, [wordId, words.length]);
 
   const handleMarkLearned = async (e?: React.MouseEvent) => {
-    // Prevent multiple calls
-    if (isProcessing) return;
+    // Prevent multiple calls using ref for immediate synchronous check
+    if (isProcessingRef.current) {
+      console.log('[LearnToday] handleMarkLearned: Already processing (ref), skipping');
+      return;
+    }
+    
+    console.log('[LearnToday] handleMarkLearned: Starting, currentIndex:', currentIndex, 'wordId:', words[currentIndex]?.id);
     
     // Prevent default behavior that might cause multiple calls
     if (e) {
@@ -64,9 +70,11 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
     
     if (currentIndex < words.length - 1) {
       // For non-final words, just mark as seen (non-blocking)
+      isProcessingRef.current = true;
       setIsProcessing(true);
       startTransition(async () => {
         await markWordSeen(childId, word.id);
+        isProcessingRef.current = false;
         setIsProcessing(false);
       });
       
@@ -79,6 +87,7 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
       setCurrentIndex(currentIndex + 1);
     } else {
       // For final word, batch all updates together to reduce revalidations
+      isProcessingRef.current = true;
       setIsProcessing(true);
       
       // Play success sound first
@@ -93,10 +102,12 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
       // Call directly without startTransition to prevent duplicate calls
       completeLearningSession(childId, word.id, words.length, xp)
         .then(() => {
+          isProcessingRef.current = false;
           setIsProcessing(false);
         })
         .catch((error) => {
           console.error('Error completing learning session:', error);
+          isProcessingRef.current = false;
           setIsProcessing(false);
         });
     }
@@ -254,10 +265,16 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
 
       {/* Action Button */}
       <button
-        onClick={handleMarkLearned}
-        className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-5 md:py-6 rounded-xl text-xl md:text-2xl font-bold shadow-lg hover:shadow-2xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] animate-slide-up"
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleMarkLearned(e);
+        }}
+        disabled={isProcessing}
+        className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-5 md:py-6 rounded-xl text-xl md:text-2xl font-bold shadow-lg hover:shadow-2xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] animate-slide-up disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        המשך
+        {isProcessing ? 'מעבד...' : 'המשך'}
       </button>
       </div>
     </>

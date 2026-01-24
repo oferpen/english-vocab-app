@@ -26,26 +26,28 @@ export async function POST() {
     let updated = 0;
     
     for (const wordData of starterWords) {
-      const result = await prisma.word.upsert({
-        where: {
-          id: `word-${wordData.englishWord}`,
-        },
-        update: {
-          ...wordData,
-          active: true,
-        },
-        create: {
-          id: `word-${wordData.englishWord}`,
-          ...wordData,
-          active: true,
-        },
+      const existing = await prisma.word.findUnique({
+        where: { id: `word-${wordData.englishWord}` },
       });
       
-      // Simple check: if createdAt equals updatedAt, it was created
-      if (result.createdAt.getTime() === result.updatedAt.getTime()) {
-        added++;
-      } else {
+      if (existing) {
+        await prisma.word.update({
+          where: { id: `word-${wordData.englishWord}` },
+          data: {
+            ...wordData,
+            active: true,
+          },
+        });
         updated++;
+      } else {
+        await prisma.word.create({
+          data: {
+            id: `word-${wordData.englishWord}`,
+            ...wordData,
+            active: true,
+          },
+        });
+        added++;
       }
     }
     

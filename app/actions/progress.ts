@@ -83,6 +83,9 @@ export async function markWordSeen(childId: string, wordId: string, skipRevalida
   return promise;
 }
 
+// Module-level promise cache to prevent duplicate calls (e.g., from React Strict Mode)
+const recordQuizAttemptCache = new Map<string, Promise<void>>();
+
 export async function recordQuizAttempt(
   childId: string,
   wordId: string,
@@ -90,38 +93,68 @@ export async function recordQuizAttempt(
   correct: boolean,
   isExtra: boolean = false
 ) {
-  // Create quiz attempt
-  await prisma.quizAttempt.create({
-    data: {
-      childId,
-      wordId,
-      questionType,
-      correct,
-      isExtra,
-    },
-  });
-
-  // Update progress
-  const progress = await getOrCreateProgress(childId, wordId);
-  const newAttempts = progress.quizAttempts + 1;
-  const newCorrect = progress.quizCorrect + (correct ? 1 : 0);
+  // Create session key for deduplication (include questionType and correct to handle retries)
+  const sessionKey = `${childId}-${wordId}-${questionType}-${correct}`;
   
-  // Calculate mastery score (0-100)
-  const masteryScore = newAttempts > 0 ? Math.round((newCorrect / newAttempts) * 100) : 0;
+  // Check if we're already processing this session
+  const existingPromise = recordQuizAttemptCache.get(sessionKey);
+  if (existingPromise) {
+    // Already processing, return the existing promise
+    return existingPromise;
+  }
+  
+  // Create promise and cache it IMMEDIATELY (synchronously)
+  const promise = (async () => {
+    try {
+      // Create quiz attempt
+      await prisma.quizAttempt.create({
+        data: {
+          childId,
+          wordId,
+          questionType,
+          correct,
+          isExtra,
+        },
+      });
 
-  await prisma.progress.update({
-    where: { id: progress.id },
-    data: {
-      quizAttempts: newAttempts,
-      quizCorrect: newCorrect,
-      masteryScore,
-      needsReview: correct ? progress.needsReview : true, // Mark for review if wrong
-      lastSeenAt: new Date(),
-    },
-  });
+      // Update progress
+      const progress = await getOrCreateProgress(childId, wordId);
+      const newAttempts = progress.quizAttempts + 1;
+      const newCorrect = progress.quizCorrect + (correct ? 1 : 0);
+      
+      // Calculate mastery score (0-100)
+      const masteryScore = newAttempts > 0 ? Math.round((newCorrect / newAttempts) * 100) : 0;
 
-  // Only revalidate progress page - other pages will update on next navigation
-  revalidatePath('/progress');
+      await prisma.progress.update({
+        where: { id: progress.id },
+        data: {
+          quizAttempts: newAttempts,
+          quizCorrect: newCorrect,
+          masteryScore,
+          needsReview: correct ? progress.needsReview : true, // Mark for review if wrong
+          lastSeenAt: new Date(),
+        },
+      });
+
+      // Don't revalidate - let the UI update optimistically
+      // Revalidation causes page re-renders which trigger additional server calls
+      // revalidatePath('/progress');
+    } catch (error) {
+      // Remove from cache on error
+      recordQuizAttemptCache.delete(sessionKey);
+      throw error;
+    } finally {
+      // Clean up after 1 second (keep promise cached briefly to handle React Strict Mode)
+      setTimeout(() => {
+        recordQuizAttemptCache.delete(sessionKey);
+      }, 1000);
+    }
+  })();
+  
+  // Cache the promise IMMEDIATELY before any async operations
+  recordQuizAttemptCache.set(sessionKey, promise);
+  
+  return promise;
 }
 
 // Global promise cache to prevent duplicate calls - checked BEFORE React's cache

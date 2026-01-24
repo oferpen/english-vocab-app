@@ -44,9 +44,9 @@ export async function markWordSeen(childId: string, wordId: string) {
     },
   });
 
-  revalidatePath('/learn');
+  // Only revalidate progress page - learn page doesn't need immediate update
+  // This reduces unnecessary re-renders
   revalidatePath('/progress');
-  revalidatePath('/learn/path');
 }
 
 export async function recordQuizAttempt(

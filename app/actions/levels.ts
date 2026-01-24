@@ -138,9 +138,9 @@ export async function addXP(childId: string, amount: number) {
     },
   });
 
+  // Only revalidate progress page - other pages will update on next navigation
+  // This prevents multiple re-renders when completing learning
   revalidatePath('/progress');
-  revalidatePath('/learn');
-  revalidatePath('/quiz');
   return { level: newLevel, xp: newXP, leveledUp };
 }
 

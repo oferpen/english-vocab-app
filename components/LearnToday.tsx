@@ -53,23 +53,39 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
 
   const handleMarkLearned = async () => {
     const word = words[currentIndex];
-    await markWordSeen(childId, word.id);
-    
-    // Play success sound
-    playSuccessSound();
     
     if (currentIndex < words.length - 1) {
+      // For non-final words, just mark as seen (non-blocking)
+      startTransition(async () => {
+        await markWordSeen(childId, word.id);
+      });
+      
+      // Play success sound
+      playSuccessSound();
+      
       // Show small celebration for each word
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 1500);
       setCurrentIndex(currentIndex + 1);
     } else {
+      // For final word, batch all updates together to reduce revalidations
+      // Play success sound first
+      playSuccessSound();
+      
       // Show big celebration for completion
       const xp = words.length * 5;
       setXpGained(xp);
       setShowCelebration(true);
-      await updateMissionProgress(childId, 'DAILY', 'learn_words', words.length, 1);
-      await addXP(childId, xp);
+      
+      // Batch all server actions in a single transition to reduce revalidations
+      startTransition(async () => {
+        // Run all updates in parallel to reduce total time
+        await Promise.all([
+          markWordSeen(childId, word.id),
+          updateMissionProgress(childId, 'DAILY', 'learn_words', words.length, 1),
+          addXP(childId, xp),
+        ]);
+      });
     }
   };
 

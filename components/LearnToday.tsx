@@ -271,7 +271,7 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
         disabled={isProcessing}
         className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-5 md:py-6 rounded-xl text-xl md:text-2xl font-bold shadow-lg hover:shadow-2xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] animate-slide-up disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isProcessing ? 'מעבד...' : 'המשך'}
+        המשך
       </button>
       </div>
     </>

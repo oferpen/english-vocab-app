@@ -54,11 +54,8 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
   const handleMarkLearned = async (e?: React.MouseEvent) => {
     // Prevent multiple calls using ref for immediate synchronous check
     if (isProcessingRef.current) {
-      console.log('[LearnToday] handleMarkLearned: Already processing (ref), skipping');
       return;
     }
-    
-    console.log('[LearnToday] handleMarkLearned: Starting, currentIndex:', currentIndex, 'wordId:', words[currentIndex]?.id);
     
     // Prevent default behavior that might cause multiple calls
     if (e) {

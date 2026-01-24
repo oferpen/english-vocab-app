@@ -44,11 +44,8 @@ export async function markWordSeen(childId: string, wordId: string, skipRevalida
   const existingPromise = markWordSeenCache.get(sessionKey);
   if (existingPromise) {
     // Already processing, return the existing promise
-    console.log('[markWordSeen] Returning cached promise for', sessionKey);
     return existingPromise;
   }
-  
-  console.log('[markWordSeen] Creating new promise for', sessionKey);
   
   // Create promise and cache it IMMEDIATELY (synchronously)
   const promise = (async () => {

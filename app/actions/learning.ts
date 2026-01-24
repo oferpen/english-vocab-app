@@ -32,11 +32,8 @@ export async function completeLearningSession(
   let existingPromise = processingSessions.get(sessionKey);
   if (existingPromise) {
     // Already processing, return the existing promise
-    console.log('[completeLearningSession] Returning cached promise for', sessionKey);
     return existingPromise;
   }
-  
-  console.log('[completeLearningSession] Creating new promise for', sessionKey);
   
   // Create promise FIRST, then cache it IMMEDIATELY (before any async operations)
   // This ensures that concurrent calls will see the cached promise

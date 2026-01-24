@@ -119,26 +119,22 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
           actionLabel="המשך לחידון →"
           onAction={() => {
             if (isNavigating) return; // Prevent multiple calls
-            if (navigationTimeoutRef.current) return; // Already navigating
             
             setIsNavigating(true);
             setShowCelebration(false);
             setCompleted(true);
             
-            // Clear any existing timeout
-            if (navigationTimeoutRef.current) {
-              clearTimeout(navigationTimeoutRef.current);
-            }
-            
-            // Use category prop if available, otherwise try to extract from plan ID
-            const categoryToUse = category || todayPlan?.id?.match(/category-(.+?)-level/)?.[1];
-            const levelToUse = level || todayPlan?.id?.match(/level-(\d+)/)?.[1];
-            
-            // Debounce navigation to prevent multiple calls
-            navigationTimeoutRef.current = setTimeout(() => {
+            // Use client-side mode switch if available (no page reload)
+            if (onModeSwitch) {
+              onModeSwitch('quiz');
+              setIsNavigating(false);
+            } else {
+              // Fallback to navigation if callback not available
+              const categoryToUse = category || todayPlan?.id?.match(/category-(.+?)-level/)?.[1];
+              const levelToUse = level || todayPlan?.id?.match(/level-(\d+)/)?.[1];
+              
               if (categoryToUse) {
                 const quizUrl = `/learn?mode=quiz&category=${encodeURIComponent(categoryToUse)}${levelToUse ? `&level=${levelToUse}` : ''}`;
-                // Use startTransition to mark navigation as non-urgent
                 startTransition(() => {
                   router.replace(quizUrl);
                 });
@@ -147,8 +143,7 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
                   router.replace('/learn?mode=quiz');
                 });
               }
-              navigationTimeoutRef.current = null;
-            }, 100); // Small delay to prevent rapid clicks
+            }
           }}
           onClose={() => {
             // Only close, don't navigate - navigation is handled by onAction

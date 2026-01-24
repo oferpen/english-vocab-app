@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useTransition, useRef } from 'react';
 import { markWordSeen } from '@/app/actions/progress';
 import { updateMissionProgress } from '@/app/actions/missions';
 import { addXP } from '@/app/actions/levels';
@@ -31,6 +31,7 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
   const [xpGained, setXpGained] = useState(0);
   const [isSwitching, setIsSwitching] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false); // Prevent multiple navigations
+  const navigationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -102,23 +103,36 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
           actionLabel="המשך לחידון →"
           onAction={() => {
             if (isNavigating) return; // Prevent multiple calls
+            if (navigationTimeoutRef.current) return; // Already navigating
+            
             setIsNavigating(true);
             setShowCelebration(false);
             setCompleted(true);
+            
+            // Clear any existing timeout
+            if (navigationTimeoutRef.current) {
+              clearTimeout(navigationTimeoutRef.current);
+            }
+            
             // Use category prop if available, otherwise try to extract from plan ID
             const categoryToUse = category || todayPlan?.id?.match(/category-(.+?)-level/)?.[1];
             const levelToUse = level || todayPlan?.id?.match(/level-(\d+)/)?.[1];
-            if (categoryToUse) {
-              const quizUrl = `/learn?mode=quiz&category=${encodeURIComponent(categoryToUse)}${levelToUse ? `&level=${levelToUse}` : ''}`;
-              // Use startTransition to mark navigation as non-urgent
-              startTransition(() => {
-                router.replace(quizUrl);
-              });
-            } else {
-              startTransition(() => {
-                router.replace('/learn?mode=quiz');
-              });
-            }
+            
+            // Debounce navigation to prevent multiple calls
+            navigationTimeoutRef.current = setTimeout(() => {
+              if (categoryToUse) {
+                const quizUrl = `/learn?mode=quiz&category=${encodeURIComponent(categoryToUse)}${levelToUse ? `&level=${levelToUse}` : ''}`;
+                // Use startTransition to mark navigation as non-urgent
+                startTransition(() => {
+                  router.replace(quizUrl);
+                });
+              } else {
+                startTransition(() => {
+                  router.replace('/learn?mode=quiz');
+                });
+              }
+              navigationTimeoutRef.current = null;
+            }, 100); // Small delay to prevent rapid clicks
           }}
           onClose={() => {
             // Only close, don't navigate - navigation is handled by onAction

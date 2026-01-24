@@ -1,17 +1,24 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter, usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useEffect, useState, useRef } from 'react';
 
 export default function SessionChecker() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [hasChecked, setHasChecked] = useState(false);
+  const refreshAttempted = useRef(false);
   
   // Only run on home page
   const isHomePage = pathname === '/';
+  
+  // Check if we're coming from OAuth callback (NextAuth adds these params)
+  const isFromOAuth = searchParams.has('error') || searchParams.has('code') || 
+                       document.referrer.includes('accounts.google.com') ||
+                       document.referrer.includes('oauth');
 
   useEffect(() => {
     // Only run on home page
@@ -37,32 +44,21 @@ export default function SessionChecker() {
         router.replace('/learn/path');
       }, 100);
     } else if (status === 'unauthenticated') {
-      // If no session after loading, wait a bit and check again
-      // This handles the case where the cookie is being set after OAuth redirect
-      const timeoutId = setTimeout(() => {
-        if (!hasChecked) {
-          setHasChecked(true);
-          // Refresh the page to check session again (server-side will have the cookie)
+      // Only try refreshing once, and only if we're coming from OAuth
+      if (isFromOAuth && !refreshAttempted.current) {
+        refreshAttempted.current = true;
+        setHasChecked(true);
+        // Wait a bit for cookie to be set, then refresh once
+        setTimeout(() => {
           window.location.reload();
-        }
-      }, 1000); // Wait 1 second for cookie to be set
-      
-      return () => clearTimeout(timeoutId);
+        }, 1500);
+      } else {
+        // Not from OAuth or already refreshed - stop checking
+        setHasChecked(true);
+      }
     }
-  }, [session, status, router, hasChecked, isHomePage]);
+  }, [session, status, router, hasChecked, isHomePage, isFromOAuth]);
 
-  // Only show loading overlay if we're on home page and checking session
-  if (!isHomePage || hasChecked || status === 'authenticated') {
-    return null;
-  }
-
-  // Show subtle loading indicator (don't block the UI completely)
-  return (
-    <div className="fixed bottom-4 right-4 bg-white shadow-lg rounded-lg p-3 z-50 border border-gray-200">
-      <div className="flex items-center gap-2">
-        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
-        <p className="text-sm text-gray-600">בודק התחברות...</p>
-      </div>
-    </div>
-  );
+  // Don't show anything - let the server-side handle it
+  return null;
 }

@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useTransition } from 'react';
 import { markWordSeen } from '@/app/actions/progress';
-import { updateMissionProgress } from '@/app/actions/missions';
-import { addXP } from '@/app/actions/levels';
+import { completeLearningSession } from '@/app/actions/learning';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Confetti from './Confetti';
@@ -76,14 +75,9 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
       setXpGained(xp);
       setShowCelebration(true);
       
-      // Batch all server actions in a single transition to reduce revalidations
+      // Use combined server action to reduce HTTP requests from 3 to 1
       startTransition(async () => {
-        // Run all updates in parallel to reduce total time
-        await Promise.all([
-          markWordSeen(childId, word.id),
-          updateMissionProgress(childId, 'DAILY', 'learn_words', words.length, 1),
-          addXP(childId, xp),
-        ]);
+        await completeLearningSession(childId, word.id, words.length, xp);
       });
     }
   };

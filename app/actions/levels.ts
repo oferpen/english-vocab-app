@@ -104,7 +104,7 @@ function getLevelStateWithCache(childId: string): Promise<any> {
 // Export directly - promise cache handles deduplication
 export const getLevelState = getLevelStateWithCache;
 
-export async function addXP(childId: string, amount: number) {
+export async function addXP(childId: string, amount: number, skipRevalidate: boolean = false) {
   const levelState = await getLevelState(childId);
   const newXP = levelState.xp + amount;
   
@@ -138,9 +138,10 @@ export async function addXP(childId: string, amount: number) {
     },
   });
 
-  // Only revalidate progress page - other pages will update on next navigation
-  // This prevents multiple re-renders when completing learning
-  revalidatePath('/progress');
+  // Only revalidate if not called from combined action
+  if (!skipRevalidate) {
+    revalidatePath('/progress');
+  }
   return { level: newLevel, xp: newXP, leveledUp };
 }
 

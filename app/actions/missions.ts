@@ -53,7 +53,8 @@ export async function updateMissionProgress(
   periodType: 'DAILY' | 'WEEKLY',
   missionKey: string,
   target: number,
-  progressDelta: number = 1
+  progressDelta: number = 1,
+  skipRevalidate: boolean = false
 ) {
   const today = getTodayDate();
   const periodStartDate = periodType === 'DAILY' ? today : getWeekStartDate(today);
@@ -77,7 +78,10 @@ export async function updateMissionProgress(
     },
   });
 
-  revalidatePath('/progress');
+  // Only revalidate if not called from combined action
+  if (!skipRevalidate) {
+    revalidatePath('/progress');
+  }
   return { progress: newProgress, completed };
 }
 

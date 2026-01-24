@@ -33,7 +33,7 @@ export async function getOrCreateProgress(childId: string, wordId: string) {
   return progress;
 }
 
-export async function markWordSeen(childId: string, wordId: string) {
+export async function markWordSeen(childId: string, wordId: string, skipRevalidate: boolean = false) {
   const progress = await getOrCreateProgress(childId, wordId);
   
   await prisma.progress.update({
@@ -44,9 +44,10 @@ export async function markWordSeen(childId: string, wordId: string) {
     },
   });
 
-  // Only revalidate progress page - learn page doesn't need immediate update
-  // This reduces unnecessary re-renders
-  revalidatePath('/progress');
+  // Only revalidate if not called from combined action
+  if (!skipRevalidate) {
+    revalidatePath('/progress');
+  }
 }
 
 export async function recordQuizAttempt(

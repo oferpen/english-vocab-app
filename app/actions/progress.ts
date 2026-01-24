@@ -86,9 +86,8 @@ export async function recordQuizAttempt(
     },
   });
 
-  revalidatePath('/quiz');
+  // Only revalidate progress page - other pages will update on next navigation
   revalidatePath('/progress');
-  revalidatePath('/learn/path');
 }
 
 // Global promise cache to prevent duplicate calls - checked BEFORE React's cache

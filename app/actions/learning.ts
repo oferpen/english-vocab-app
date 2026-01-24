@@ -1,9 +1,6 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { getOrCreateProgress } from './progress';
-import { getOrCreateMissionState } from './missions';
-import { getLevelState } from './levels';
 import { getTodayDate } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
 
@@ -13,17 +10,9 @@ const LEVEL_XP_REQUIREMENTS = [
   150,  // Level 3 (Less basic words) - unlock after mastering 50 basic words
 ];
 
-function getWeekStartDate(date: string): string {
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Monday as start
-  const monday = new Date(d.setDate(diff));
-  return monday.toISOString().split('T')[0];
-}
-
 /**
  * Complete learning session - marks word as seen, updates mission progress, and adds XP
- * This combines all operations into a single server action to reduce HTTP requests from 3 to 1
+ * This performs all operations directly without calling other server actions to reduce HTTP requests from 3 to 1
  */
 export async function completeLearningSession(
   childId: string,
@@ -31,18 +20,84 @@ export async function completeLearningSession(
   wordsCount: number,
   xpAmount: number
 ) {
-  // Perform all database operations in parallel
+  const today = getTodayDate();
+  
+  // Perform all database reads in parallel
   const [progress, mission, levelState] = await Promise.all([
     // Get or create progress
-    getOrCreateProgress(childId, wordId),
+    (async () => {
+      let progress = await prisma.progress.findUnique({
+        where: {
+          childId_wordId: {
+            childId,
+            wordId,
+          },
+        },
+      });
+      
+      if (!progress) {
+        progress = await prisma.progress.create({
+          data: {
+            childId,
+            wordId,
+            timesSeenInLearn: 0,
+            quizAttempts: 0,
+            quizCorrect: 0,
+            masteryScore: 0,
+            needsReview: false,
+          },
+        });
+      }
+      
+      return progress;
+    })(),
     // Get or create mission state
     (async () => {
-      const today = getTodayDate();
-      const periodStartDate = today; // For DAILY missions, use today
-      return getOrCreateMissionState(childId, 'DAILY', 'learn_words', wordsCount, periodStartDate);
+      let mission = await prisma.missionState.findUnique({
+        where: {
+          childId_periodType_missionKey_periodStartDate: {
+            childId,
+            periodType: 'DAILY',
+            missionKey: 'learn_words',
+            periodStartDate: today,
+          },
+        },
+      });
+      
+      if (!mission) {
+        mission = await prisma.missionState.create({
+          data: {
+            childId,
+            periodType: 'DAILY',
+            missionKey: 'learn_words',
+            target: wordsCount,
+            progress: 0,
+            completed: false,
+            periodStartDate: today,
+          },
+        });
+      }
+      
+      return mission;
     })(),
-    // Get level state
-    getLevelState(childId),
+    // Get or create level state
+    (async () => {
+      let levelState = await prisma.levelState.findUnique({
+        where: { childId },
+      });
+      
+      if (!levelState) {
+        levelState = await prisma.levelState.create({
+          data: {
+            childId,
+            level: 1,
+            xp: 0,
+          },
+        });
+      }
+      
+      return levelState;
+    })(),
   ]);
 
   // Calculate new values

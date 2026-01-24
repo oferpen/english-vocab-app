@@ -241,6 +241,9 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
     // Only allow selection if there's no result for the current question
     const currentQuestionId = questions[currentIndex]?.word.id;
     if (showResult && selectedAnswerQuestionId === currentQuestionId) return;
+    
+    // Prevent multiple calls by checking if we're already processing this question
+    if (selectedAnswer && selectedAnswerQuestionId === currentQuestionId) return;
 
     const question = questions[currentIndex];
     const correct = answer === question.correctAnswer;

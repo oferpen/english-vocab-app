@@ -40,7 +40,7 @@ export default function ProgressDisplay({
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-3xl md:text-4xl font-bold text-primary-600">רמה {levelState.level}</h2>
-            <p className="text-lg md:text-xl text-gray-700 font-semibold mt-1">{levelState.xp} נקודות XP</p>
+            <p className="text-lg md:text-xl text-gray-700 font-semibold mt-1">{levelState.xp} נקודות נסיון</p>
           </div>
           <div className="text-5xl md:text-6xl animate-pulse-slow">⭐</div>
         </div>

@@ -94,6 +94,48 @@ describe('Progress Actions', () => {
       await recordQuizAttempt('child-1', 'word-1', 'EN_TO_HE', true, false);
       expect(prisma.progress.update).toHaveBeenCalled();
     });
+
+    it('should prevent duplicate calls when called simultaneously', async () => {
+      const childId = 'child-1';
+      const wordId = 'word-1';
+      
+      (prisma.progress.findUnique as any)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValue({
+          id: 'progress-1',
+          childId,
+          wordId,
+          quizAttempts: 0,
+          quizCorrect: 0,
+          masteryScore: 0,
+          needsReview: false,
+        });
+      (prisma.progress.create as any).mockResolvedValue({
+        id: 'progress-1',
+        quizAttempts: 0,
+        quizCorrect: 0,
+      });
+      (prisma.quizAttempt.create as any).mockResolvedValue({});
+      (prisma.progress.update as any).mockResolvedValue({
+        quizAttempts: 1,
+        quizCorrect: 1,
+        masteryScore: 100,
+      });
+
+      // Call 3 times simultaneously
+      const promises = [
+        recordQuizAttempt(childId, wordId, 'EN_TO_HE', true, false),
+        recordQuizAttempt(childId, wordId, 'EN_TO_HE', true, false),
+        recordQuizAttempt(childId, wordId, 'EN_TO_HE', true, false),
+      ];
+
+      await Promise.all(promises);
+
+      // Should only create quiz attempt once
+      expect(prisma.quizAttempt.create).toHaveBeenCalledTimes(1);
+      // Should only update progress once
+      expect(prisma.progress.update).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('getWordsNeedingReview', () => {

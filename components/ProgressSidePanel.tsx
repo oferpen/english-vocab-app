@@ -180,7 +180,7 @@ export default function ProgressSidePanel({
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-2xl font-bold text-primary-600">רמה {levelState.level}</h3>
-                <p className="text-base text-gray-700 font-semibold mt-1">{levelState.xp} נקודות XP</p>
+                <p className="text-base text-gray-700 font-semibold mt-1">{levelState.xp} נקודות נסיון</p>
               </div>
               <div className="text-4xl">⭐</div>
             </div>

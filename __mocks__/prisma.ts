@@ -69,6 +69,7 @@ export const prisma = {
     findMany: vi.fn(),
   },
   missionState: {
+    findUnique: vi.fn(),
     findMany: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),

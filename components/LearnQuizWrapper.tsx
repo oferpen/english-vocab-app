@@ -90,6 +90,34 @@ export default function LearnQuizWrapper({
   // Keep both components mounted but show/hide based on mode to preserve state
   return (
     <>
+      {/* Navigation Tabs - Always visible to prevent flickering */}
+      <div className="mb-4 flex gap-2 bg-white rounded-xl p-2 shadow-md border border-gray-100">
+        <button
+          onClick={() => handleModeSwitch('learn')}
+          disabled={isSwitching || isPending || mode === 'learn'}
+          className={`flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-lg transition-all duration-200 ${
+            mode === 'learn'
+              ? 'border-2 border-primary-500 text-primary-600 font-bold'
+              : 'hover:bg-blue-50 text-gray-600 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed'
+          }`}
+        >
+          <span className="text-2xl mb-1">📖</span>
+          <span className="text-sm font-semibold">למידה</span>
+        </button>
+        <button
+          onClick={() => handleModeSwitch('quiz')}
+          disabled={isSwitching || isPending || mode === 'quiz'}
+          className={`flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-lg transition-all duration-200 ${
+            mode === 'quiz'
+              ? 'border-2 border-primary-500 text-primary-600 font-bold'
+              : 'hover:bg-purple-50 text-gray-600 hover:text-purple-600 disabled:opacity-50 disabled:cursor-not-allowed'
+          }`}
+        >
+          <span className="text-2xl mb-1">✏️</span>
+          <span className="text-sm font-semibold">חידון</span>
+        </button>
+      </div>
+
       <div className={mode === 'quiz' ? 'block' : 'hidden'}>
         <QuizToday 
           childId={childId} 
@@ -108,6 +136,7 @@ export default function LearnQuizWrapper({
           category={category} 
           level={level}
           onModeSwitch={handleModeSwitch}
+          currentMode={mode} // Pass mode as prop for reliable detection
         />
       </div>
     </>

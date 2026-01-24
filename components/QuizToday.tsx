@@ -76,6 +76,7 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
     setRetryUsed(false);
   }, [currentIndex]);
 
+
   const generateQuestions = async (resetUsedWords: boolean = false, useAllAvailableWords: boolean = false) => {
     // Prevent multiple simultaneous calls
     if (isGeneratingRef.current) return;
@@ -397,7 +398,7 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
           onClick={() => router.push('/learn/path')}
           className="bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600"
         >
-          חזור לנתיב הלמידה
+          🏠 חזור לנתיב הלמידה
         </button>
       </div>
     );
@@ -440,10 +441,10 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
         <Confetti trigger={showCelebration && percentage >= 80} />
         <CelebrationScreen
           title={`סיימת את החידון! ${emoji}`}
-          message={`${score.correct} מתוך ${score.total} נכונים (${percentage}%)! קיבלת ${xpGained} נקודות XP!`}
+          message={`${score.correct} מתוך ${score.total} נכונים (${percentage}%)! קיבלת ${xpGained} נקודות נסיון!`}
           emoji={emoji}
           showConfetti={showCelebration && percentage >= 80}
-          actionLabel="חזור לנתיב הלמידה →"
+          actionLabel="🏠 חזור לנתיב הלמידה"
           onAction={() => {
             setShowCelebration(false);
             setCompleted(true);
@@ -504,36 +505,31 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
     <>
       <Confetti trigger={showConfetti} duration={1000} />
       <div className="p-4 md:p-6 bg-gray-50 min-h-[calc(100vh-200px)] animate-fade-in">
-        {/* Navigation Tabs */}
-        <div className="mb-4 flex gap-2 bg-white rounded-xl p-2 shadow-md border border-gray-100">
-          <button
-            onClick={() => handleModeSwitch('learn')}
-            disabled={isSwitching}
-            className="flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-lg transition-all duration-200 hover:bg-blue-50 text-gray-600 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <span className="text-2xl mb-1">📖</span>
-            <span className="text-sm font-semibold">למידה</span>
-          </button>
-          <div className="flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-lg border-2 border-primary-500 text-primary-600 font-bold">
-            <span className="text-2xl mb-1">✏️</span>
-            <span className="text-sm">חידון</span>
+        {/* Progress Bar - Hide when quiz is completed */}
+        {!completed && !showCelebration && (
+          <div className="mb-4 bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-semibold text-gray-700">
+                {currentIndex + 1} מתוך {questions.length}
+              </span>
+              {score.total > 0 && !completed && (
+                <button
+                  onClick={handleRestartQuiz}
+                  className="text-xs text-gray-500 hover:text-gray-700 underline"
+                  type="button"
+                >
+                  התחל מחדש
+                </button>
+              )}
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div
+                className="bg-gradient-to-r from-primary-500 to-primary-600 h-2 rounded-full transition-all duration-500 ease-out shadow-sm"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
           </div>
-        </div>
-
-        {/* Progress Bar */}
-      <div className="mb-4 bg-white rounded-lg p-3 shadow-sm border border-gray-100">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-semibold text-gray-700">
-            {currentIndex + 1} מתוך {questions.length}
-          </span>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-          <div
-            className="bg-gradient-to-r from-primary-500 to-primary-600 h-2 rounded-full transition-all duration-500 ease-out shadow-sm"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
+        )}
 
       {/* Question Card */}
       <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-6 border border-gray-100 animate-slide-up">

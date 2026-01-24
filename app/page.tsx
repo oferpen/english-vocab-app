@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-config';
 import GoogleSignIn from '@/components/auth/GoogleSignIn';
 import CreateChildProfile from '@/components/CreateChildProfile';
+import SessionChecker from '@/components/auth/SessionChecker';
 import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
@@ -11,9 +12,15 @@ export default async function Home() {
   try {
     const session = await getServerSession(authOptions);
     
-    // If not logged in, show sign-in screen
+    // If not logged in, show sign-in screen with session checker
+    // Session checker will handle redirect after Google login when session cookie is set
     if (!session?.user?.email) {
-      return <GoogleSignIn />;
+      return (
+        <>
+          <GoogleSignIn />
+          <SessionChecker />
+        </>
+      );
     }
 
     // If logged in, check for child profile
@@ -32,6 +39,11 @@ export default async function Home() {
       throw error;
     }
     // For other errors, show sign-in screen
-    return <GoogleSignIn />;
+    return (
+      <>
+        <GoogleSignIn />
+        <SessionChecker />
+      </>
+    );
   }
 }

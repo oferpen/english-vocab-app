@@ -1,15 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 
 interface SignInFormProps {
   initialError?: string;
 }
 
 export default function SignInForm({ initialError }: SignInFormProps) {
-  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const router = useRouter();
@@ -31,69 +30,27 @@ export default function SignInForm({ initialError }: SignInFormProps) {
         const params = new URLSearchParams(hash.substring(1));
         const error = params.get('error');
         const errorDescription = params.get('error_description');
-        
+
         if (errorDescription) {
           const decodedError = decodeURIComponent(errorDescription.replace(/\+/g, ' '));
           setMessage(`שגיאה: ${decodedError}`);
         } else if (error) {
           setMessage(`שגיאה: ${decodeURIComponent(error)}`);
         }
-        
+
         // Clear hash from URL
         window.history.replaceState(null, '', window.location.pathname + window.location.search);
       }
     }
   }, [initialError, router]);
 
-  const handleMagicLink = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
 
-    try {
-      // Sending magic link
-      const { error, data } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-
-      if (error) {
-        // Magic link error
-        throw error;
-      }
-
-      // Magic link sent successfully
-      setMessage('נשלח קישור לאימייל שלך! בדוק את תיבת הדואר הנכנס.');
-    } catch (error: any) {
-      // Error
-      setMessage(`שגיאה: ${error.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
-      // Initiating Google OAuth
-      const { error, data } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-
-      if (error) {
-        // Google OAuth error
-        throw error;
-      }
-
-      // Google OAuth initiated, redirecting
-      // Note: This will redirect, so we won't reach here
+      await signIn('google', { callbackUrl: '/parent' });
     } catch (error: any) {
-      // Google sign-in error
       setMessage(`שגיאה: ${error.message}`);
       setLoading(false);
     }
@@ -103,40 +60,8 @@ export default function SignInForm({ initialError }: SignInFormProps) {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-md p-8 max-w-md w-full">
         <h1 className="text-3xl font-bold mb-6 text-center">פאנל הורים</h1>
-        
+
         <div className="space-y-4">
-          {/* Magic Link */}
-          <form onSubmit={handleMagicLink} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">אימייל</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-3 border rounded-lg"
-                placeholder="your@email.com"
-                required
-                disabled={loading}
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
-            >
-              {loading ? 'שולח...' : 'שלח קישור התחברות'}
-            </button>
-          </form>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">או</span>
-            </div>
-          </div>
-
           {/* Google Sign In */}
           <button
             onClick={handleGoogleSignIn}
@@ -166,9 +91,8 @@ export default function SignInForm({ initialError }: SignInFormProps) {
         </div>
 
         {message && (
-          <div className={`mt-4 p-3 rounded-lg text-center text-sm ${
-            message.includes('שגיאה') ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'
-          }`}>
+          <div className={`mt-4 p-3 rounded-lg text-center text-sm ${message.includes('שגיאה') ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'
+            }`}>
             {message}
           </div>
         )}

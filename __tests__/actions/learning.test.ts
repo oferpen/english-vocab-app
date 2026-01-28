@@ -1,5 +1,28 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+vi.mock('@/lib/prisma', async () => {
+  const { vi } = await import('vitest');
+  return {
+    prisma: {
+      progress: {
+        findUnique: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+      },
+      missionState: {
+        findUnique: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+      },
+      levelState: {
+        findUnique: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+      },
+    },
+  };
+});
+
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
 }));
@@ -19,12 +42,12 @@ describe('completeLearningSession', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     vi.resetModules();
-    
+
     // Import after reset to get fresh modules with cleared caches
     const learningModule = await import('@/app/actions/learning');
-    const prismaModule = await import('@/__mocks__/prisma');
-    
     completeLearningSession = learningModule.completeLearningSession;
+
+    const prismaModule = await import('@/lib/prisma');
     prisma = prismaModule.prisma;
   });
 
@@ -67,22 +90,22 @@ describe('completeLearningSession', () => {
 
     // Mock database calls - completeLearningSession does inline get-or-create
     // It calls findUnique for all three in parallel, then creates if null
-    vi.mocked(prisma.progress.findUnique).mockResolvedValueOnce(null); // Doesn't exist, will create
-    vi.mocked(prisma.progress.create).mockResolvedValue(mockProgress as any);
-    
-    vi.mocked(prisma.missionState.findUnique).mockResolvedValueOnce(null); // Doesn't exist, will create
-    vi.mocked(prisma.missionState.create).mockResolvedValue(mockMission as any);
-    
-    vi.mocked(prisma.levelState.findUnique).mockResolvedValueOnce(mockLevelState as any); // Exists
-    
-    vi.mocked(prisma.progress.update).mockResolvedValue({
+    prisma.progress.findUnique.mockResolvedValueOnce(null); // Doesn't exist, will create
+    prisma.progress.create.mockResolvedValue(mockProgress as any);
+
+    prisma.missionState.findUnique.mockResolvedValueOnce(null); // Doesn't exist, will create
+    prisma.missionState.create.mockResolvedValue(mockMission as any);
+
+    prisma.levelState.findUnique.mockResolvedValueOnce(mockLevelState as any); // Exists
+
+    prisma.progress.update.mockResolvedValue({
       timesSeenInLearn: 1,
     } as any);
-    vi.mocked(prisma.missionState.update).mockResolvedValue({
+    prisma.missionState.update.mockResolvedValue({
       progress: 1,
       completed: false,
     } as any);
-    vi.mocked(prisma.levelState.update).mockResolvedValue({
+    prisma.levelState.update.mockResolvedValue({
       level: 1,
       xp: 50,
     } as any);
@@ -133,18 +156,18 @@ describe('completeLearningSession', () => {
     };
 
     // Mock getOrCreateProgress pattern
-    vi.mocked(prisma.progress.findUnique).mockResolvedValueOnce(null);
-    vi.mocked(prisma.progress.create).mockResolvedValue(mockProgress as any);
-    
+    prisma.progress.findUnique.mockResolvedValueOnce(null);
+    prisma.progress.create.mockResolvedValue(mockProgress as any);
+
     // Mock getOrCreateMissionState pattern
-    vi.mocked(prisma.missionState.findUnique).mockResolvedValueOnce(null);
-    vi.mocked(prisma.missionState.create).mockResolvedValue(mockMission as any);
-    
-    vi.mocked(prisma.levelState.findUnique).mockResolvedValueOnce(mockLevelState as any);
-    
-    vi.mocked(prisma.progress.update).mockResolvedValue({} as any);
-    vi.mocked(prisma.missionState.update).mockResolvedValue({} as any);
-    vi.mocked(prisma.levelState.update).mockResolvedValue({} as any);
+    prisma.missionState.findUnique.mockResolvedValueOnce(null);
+    prisma.missionState.create.mockResolvedValue(mockMission as any);
+
+    prisma.levelState.findUnique.mockResolvedValueOnce(mockLevelState as any);
+
+    prisma.progress.update.mockResolvedValue({} as any);
+    prisma.missionState.update.mockResolvedValue({} as any);
+    prisma.levelState.update.mockResolvedValue({} as any);
 
     // Call 3 times simultaneously (simulating React Strict Mode)
     const promises = [
@@ -198,17 +221,17 @@ describe('completeLearningSession', () => {
       updatedAt: new Date(),
     };
 
-    vi.mocked(prisma.progress.findUnique).mockResolvedValueOnce(null);
-    vi.mocked(prisma.progress.create).mockResolvedValue(mockProgress as any);
-    
-    vi.mocked(prisma.missionState.findUnique).mockResolvedValueOnce(null);
-    vi.mocked(prisma.missionState.create).mockResolvedValue(mockMission as any);
-    
-    vi.mocked(prisma.levelState.findUnique).mockResolvedValueOnce(mockLevelState as any);
-    
-    vi.mocked(prisma.progress.update).mockResolvedValue({} as any);
-    vi.mocked(prisma.missionState.update).mockResolvedValue({} as any);
-    vi.mocked(prisma.levelState.update).mockResolvedValue({} as any);
+    prisma.progress.findUnique.mockResolvedValueOnce(null);
+    prisma.progress.create.mockResolvedValue(mockProgress as any);
+
+    prisma.missionState.findUnique.mockResolvedValueOnce(null);
+    prisma.missionState.create.mockResolvedValue(mockMission as any);
+
+    prisma.levelState.findUnique.mockResolvedValueOnce(mockLevelState as any);
+
+    prisma.progress.update.mockResolvedValue({} as any);
+    prisma.missionState.update.mockResolvedValue({} as any);
+    prisma.levelState.update.mockResolvedValue({} as any);
 
     // Call simultaneously
     const promise1 = completeLearningSession(childId, wordId, wordsCount, xpAmount);
@@ -217,12 +240,12 @@ describe('completeLearningSession', () => {
 
     // All promises should resolve
     const results = await Promise.all([promise1, promise2, promise3]);
-    
+
     // All should return the same result structure
     expect(results[0]).toHaveProperty('success');
     expect(results[1]).toHaveProperty('success');
     expect(results[2]).toHaveProperty('success');
-    
+
     // Should only update once per table
     expect(prisma.progress.update).toHaveBeenCalledTimes(1);
     expect(prisma.missionState.update).toHaveBeenCalledTimes(1);

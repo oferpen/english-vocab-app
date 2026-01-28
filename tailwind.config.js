@@ -38,6 +38,9 @@ module.exports = {
         'pulse-slow': 'pulse 3s infinite',
         'fade-in': 'fadeIn 0.3s ease-in',
         'slide-up': 'slideUp 0.3s ease-out',
+        'slide-down': 'slideDown 0.3s ease-out',
+        'bounce-slow-icon': 'bounceSlowIcon 3s ease-in-out infinite',
+        'blob': 'blob 7s infinite',
       },
       keyframes: {
         fadeIn: {
@@ -47,6 +50,20 @@ module.exports = {
         slideUp: {
           '0%': { transform: 'translateY(10px)', opacity: '0' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        slideDown: {
+          '0%': { opacity: '0', transform: 'translateY(-10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        bounceSlowIcon: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        blob: {
+          '0%': { transform: 'translate(0px, 0px) scale(1)' },
+          '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+          '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+          '100%': { transform: 'translate(0px, 0px) scale(1)' },
         },
       },
     },

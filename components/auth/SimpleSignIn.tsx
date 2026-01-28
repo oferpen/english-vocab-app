@@ -1,15 +1,10 @@
 'use client';
 
-import { supabase } from '@/lib/supabase';
+import { signIn } from 'next-auth/react';
 
 export default function SimpleSignIn() {
   const handleGoogleSignIn = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    await signIn('google', { callbackUrl: '/parent' });
   };
 
   return (
@@ -18,7 +13,7 @@ export default function SimpleSignIn() {
         <div className="text-6xl mb-6">🎮</div>
         <h1 className="text-3xl font-bold text-gray-800 mb-4">לימוד אנגלית</h1>
         <p className="text-gray-600 mb-8">התחבר עם Google כדי להתחיל</p>
-        
+
         <button
           onClick={handleGoogleSignIn}
           className="w-full flex items-center justify-center gap-3 p-4 border-2 rounded-xl hover:bg-gray-50 transition-all transform hover:scale-105 bg-white shadow-md"

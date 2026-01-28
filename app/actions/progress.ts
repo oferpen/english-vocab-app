@@ -39,19 +39,19 @@ const markWordSeenCache = new Map<string, Promise<void>>();
 export async function markWordSeen(childId: string, wordId: string, skipRevalidate: boolean = false) {
   // Create session key for deduplication
   const sessionKey = `${childId}-${wordId}`;
-  
+
   // Check if we're already processing this session
   const existingPromise = markWordSeenCache.get(sessionKey);
   if (existingPromise) {
     // Already processing, return the existing promise
     return existingPromise;
   }
-  
+
   // Create promise and cache it IMMEDIATELY (synchronously)
   const promise = (async () => {
     try {
       const progress = await getOrCreateProgress(childId, wordId);
-      
+
       await prisma.progress.update({
         where: { id: progress.id },
         data: {
@@ -76,10 +76,10 @@ export async function markWordSeen(childId: string, wordId: string, skipRevalida
       }, 1000);
     }
   })();
-  
+
   // Cache the promise IMMEDIATELY before any async operations
   markWordSeenCache.set(sessionKey, promise);
-  
+
   return promise;
 }
 
@@ -95,14 +95,14 @@ export async function recordQuizAttempt(
 ) {
   // Create session key for deduplication (include questionType and correct to handle retries)
   const sessionKey = `${childId}-${wordId}-${questionType}-${correct}`;
-  
+
   // Check if we're already processing this session
   const existingPromise = recordQuizAttemptCache.get(sessionKey);
   if (existingPromise) {
     // Already processing, return the existing promise
     return existingPromise;
   }
-  
+
   // Create promise and cache it IMMEDIATELY (synchronously)
   const promise = (async () => {
     try {
@@ -121,7 +121,7 @@ export async function recordQuizAttempt(
       const progress = await getOrCreateProgress(childId, wordId);
       const newAttempts = progress.quizAttempts + 1;
       const newCorrect = progress.quizCorrect + (correct ? 1 : 0);
-      
+
       // Calculate mastery score (0-100)
       const masteryScore = newAttempts > 0 ? Math.round((newCorrect / newAttempts) * 100) : 0;
 
@@ -136,9 +136,9 @@ export async function recordQuizAttempt(
         },
       });
 
-      // Don't revalidate - let the UI update optimistically
-      // Revalidation causes page re-renders which trigger additional server calls
-      // revalidatePath('/progress');
+      // Revalidate path page to update category completion status after quiz attempts
+      // Only revalidate if this is likely the last attempt in a quiz (we'll do it once at quiz end)
+      // For now, don't revalidate here to avoid too many calls, but ensure it's done at quiz completion
     } catch (error) {
       // Remove from cache on error
       recordQuizAttemptCache.delete(sessionKey);
@@ -150,10 +150,10 @@ export async function recordQuizAttempt(
       }, 1000);
     }
   })();
-  
+
   // Cache the promise IMMEDIATELY before any async operations
   recordQuizAttemptCache.set(sessionKey, promise);
-  
+
   return promise;
 }
 
@@ -166,7 +166,7 @@ function getAllProgressWithCache(childId: string): Promise<any[]> {
   if (progressCache.has(childId)) {
     return progressCache.get(childId)!;
   }
-  
+
   // Create the promise and cache it IMMEDIATELY
   const promise = prisma.progress.findMany({
     where: { childId },
@@ -179,17 +179,17 @@ function getAllProgressWithCache(childId: string): Promise<any[]> {
       { lastSeenAt: 'desc' },
     ],
   });
-  
+
   // Cache the promise IMMEDIATELY before any async operations
   progressCache.set(childId, promise);
-  
+
   // Clean up the cache after the promise resolves (keep for 5 seconds to handle React Strict Mode)
   promise.finally(() => {
     setTimeout(() => {
       progressCache.delete(childId);
     }, 5000);
   });
-  
+
   return promise;
 }
 
@@ -201,7 +201,7 @@ export async function getWordsNeedingReview(childId: string, level?: number) {
     childId,
     needsReview: true,
   };
-  
+
   // Filter by level if specified
   if (level !== undefined) {
     if (level === 2) {
@@ -210,7 +210,7 @@ export async function getWordsNeedingReview(childId: string, level?: number) {
       where.word = { difficulty: { gte: 2 } };
     }
   }
-  
+
   return prisma.progress.findMany({
     where,
     include: {
@@ -233,7 +233,7 @@ export async function getUnseenWords(childId: string, level?: number) {
       notIn: Array.from(seenWordIds),
     },
   };
-  
+
   // Filter by level if specified
   if (level !== undefined) {
     if (level === 2) {

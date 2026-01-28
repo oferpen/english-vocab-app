@@ -49,6 +49,8 @@ export async function createWord(data: {
     },
   });
   revalidatePath('/parent');
+  revalidatePath('/learn/path');
+  revalidatePath('/admin');
   return word;
 }
 
@@ -68,6 +70,8 @@ export async function updateWord(id: string, data: {
     data,
   });
   revalidatePath('/parent');
+  revalidatePath('/learn/path');
+  revalidatePath('/admin');
   return word;
 }
 
@@ -76,6 +80,8 @@ export async function deleteWord(id: string) {
     where: { id },
   });
   revalidatePath('/parent');
+  revalidatePath('/learn/path');
+  revalidatePath('/admin');
 }
 
 export const getWordsByCategory = cache(async (category: string, level?: number) => {
@@ -106,4 +112,14 @@ export async function getAllCategories() {
     distinct: ['category'],
   });
   return categories.map(c => c.category).filter(Boolean) as string[];
+}
+
+export async function getAllWordsAdmin() {
+  // Get all words including inactive ones for admin panel
+  return prisma.word.findMany({
+    orderBy: [
+      { category: 'asc' },
+      { englishWord: 'asc' },
+    ],
+  });
 }

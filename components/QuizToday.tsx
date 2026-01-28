@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition, useRef } from 'react';
 import { recordQuizAttempt } from '@/app/actions/progress';
-import { getAllWords, getWordsByCategory } from '@/app/actions/words';
+import { getAllWords, getWordsByCategory, getAllCategories } from '@/app/actions/words';
 import { getSettings } from '@/app/actions/settings';
 import { updateMissionProgress } from '@/app/actions/missions';
 import { addXP } from '@/app/actions/levels';
@@ -38,12 +38,15 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
   const [showConfetti, setShowConfetti] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [xpGained, setXpGained] = useState(0);
+  const [pendingQuizAttempts, setPendingQuizAttempts] = useState<Promise<any>[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [planId, setPlanId] = useState<string | null>(null); // Track plan ID to detect changes
   const [isSwitching, setIsSwitching] = useState(false);
   const [isPending, startTransition] = useTransition();
   const isGeneratingRef = useRef(false); // Track if we're currently generating questions
+  const continueButtonRef = useRef<HTMLButtonElement>(null); // Ref for continue button to scroll into view
+  const [nextCategory, setNextCategory] = useState<string | null>(null);
   const router = useRouter();
 
   const words = todayPlan?.words?.map((w: any) => w.word) || [];
@@ -76,24 +79,83 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
     setRetryUsed(false);
   }, [currentIndex]);
 
+  // Auto-scroll to continue button when showing result (especially for correct answers)
+  useEffect(() => {
+    if (showResult && selectedAnswerQuestionId && continueButtonRef.current) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => {
+        continueButtonRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'nearest'
+        });
+      }, 300);
+    }
+  }, [showResult, selectedAnswerQuestionId]);
+
+  // Find next category when category changes
+  useEffect(() => {
+    const findNextCategory = async () => {
+      if (!category) {
+        setNextCategory(null);
+        return;
+      }
+
+      try {
+        // Get level state to determine which difficulty to filter by
+        let levelState = propLevelState;
+        if (!levelState) {
+          const { getLevelState } = await import('@/app/actions/levels');
+          levelState = await getLevelState(childId);
+        }
+
+        // Get all words filtered by level to find categories with words at this level
+        const levelWords = await getAllWords(levelState.level);
+
+        // Extract unique categories from words at this level, excluding Starter
+        const categoriesSet = new Set<string>();
+        levelWords.forEach((word: any) => {
+          if (word.category && word.category !== 'Starter') {
+            categoriesSet.add(word.category);
+          }
+        });
+
+        // Sort categories alphabetically
+        const sortedCategories = Array.from(categoriesSet).sort((a, b) => a.localeCompare(b));
+        const currentIndex = sortedCategories.indexOf(category);
+
+        if (currentIndex >= 0 && currentIndex < sortedCategories.length - 1) {
+          setNextCategory(sortedCategories[currentIndex + 1]);
+        } else {
+          setNextCategory(null); // No next category
+        }
+      } catch (error) {
+        console.error('Error finding next category:', error);
+        setNextCategory(null);
+      }
+    };
+
+    findNextCategory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category, childId]);
 
   const generateQuestions = async (resetUsedWords: boolean = false, useAllAvailableWords: boolean = false) => {
     // Prevent multiple simultaneous calls
     if (isGeneratingRef.current) return;
-    
+
     try {
       isGeneratingRef.current = true;
       setLoading(true);
       setError(null);
       const settings = await getSettings();
-      
+
       // Use propLevelState if available, otherwise fetch it
       let levelState = propLevelState;
       if (!levelState) {
         const { getLevelState } = await import('@/app/actions/levels');
         levelState = await getLevelState(childId);
       }
-      
+
       // Use propCategoryWords if available, otherwise fetch them
       let filteredWords: any[];
       if (propCategoryWords && propCategoryWords.length > 0) {
@@ -113,13 +175,13 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
         // Still need allWords to generate wrong answers, so fetch them
         allWords = await getAllWords(levelState.level);
       }
-      
+
       const questionList: any[] = [];
 
       // Determine which word pool to use for quiz questions
       // If restarting and we want variety, use all words instead of just today's plan
       const wordPool = (useAllAvailableWords && allWords.length > 0) ? allWords : filteredWords;
-      
+
       if (wordPool.length === 0) {
         setError('אין מילים זמינות לחידון. נסה ללמוד עוד מילים תחילה.');
         setLoading(false);
@@ -128,107 +190,110 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
         return;
       }
 
-    // Use fresh word IDs if resetting, otherwise use current state
-    const currentUsedWordIds = resetUsedWords ? new Set<string>() : usedWordIds;
+      // Use fresh word IDs if resetting, otherwise use current state
+      const currentUsedWordIds = resetUsedWords ? new Set<string>() : usedWordIds;
 
-    // Get words that haven't been used yet, or all words if we've used them all
-    const availableWords = wordPool.filter((w: any) => !currentUsedWordIds.has(w.id));
-    const wordsToUse = availableWords.length > 0 ? availableWords : wordPool;
-    
-    // Shuffle to get different words each time
-    const shuffledWords = [...wordsToUse].sort(() => Math.random() - 0.5);
-    
-    // Always use all words in the category (category is now required)
-    const quizLength = wordPool.length;
-    const wordsForQuiz = shuffledWords.slice(0, quizLength);
+      // Get words that haven't been used yet, or all words if we've used them all
+      const availableWords = wordPool.filter((w: any) => !currentUsedWordIds.has(w.id));
+      const wordsToUse = availableWords.length > 0 ? availableWords : wordPool;
 
-    // Update used word IDs
-    const newUsedWordIds = resetUsedWords ? new Set<string>() : new Set(currentUsedWordIds);
-    wordsForQuiz.forEach((w: any) => newUsedWordIds.add(w.id));
-    setUsedWordIds(newUsedWordIds);
+      // Shuffle to get different words each time
+      const shuffledWords = [...wordsToUse].sort(() => Math.random() - 0.5);
 
-    for (const word of wordsForQuiz) {
-      const questionTypes: string[] = [];
-      if (settings.questionTypes.enToHe) questionTypes.push('EN_TO_HE');
-      if (settings.questionTypes.heToEn) questionTypes.push('HE_TO_EN');
-      if (settings.questionTypes.audioToEn) questionTypes.push('AUDIO_TO_EN');
+      // Always use all words in the category (category is now required)
+      const quizLength = wordPool.length;
+      const wordsForQuiz = shuffledWords.slice(0, quizLength);
 
-      if (questionTypes.length === 0) continue;
+      // Update used word IDs
+      const newUsedWordIds = resetUsedWords ? new Set<string>() : new Set(currentUsedWordIds);
+      wordsForQuiz.forEach((w: any) => newUsedWordIds.add(w.id));
+      setUsedWordIds(newUsedWordIds);
 
-      const questionType = questionTypes[Math.floor(Math.random() * questionTypes.length)];
-      
-      // Use a seeded random to ensure consistent wrong answers for the same word
-      const seed = word.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
-      
-      const correctAnswer = questionType === 'EN_TO_HE' ? word.hebrewTranslation : word.englishWord;
-      
-      // Generate wrong answers with consistent selection
-      // Use allWords (which we always fetch) to generate wrong answers
-      // Filter out words that have the same translation as the correct answer
-      const wrongAnswerPool = allWords.length > 0 ? allWords : filteredWords; // Fallback to filteredWords if allWords is empty
-      const availableWordsForWrongAnswers = wrongAnswerPool.filter((w) => {
-        if (w.id === word.id) return false;
-        const wAnswer = questionType === 'EN_TO_HE' ? w.hebrewTranslation : w.englishWord;
-        return wAnswer !== correctAnswer; // Exclude words with same translation
-      });
-      
-      // Sort by a hash based on word id and seed to get consistent order
-      const sortedWords = [...availableWordsForWrongAnswers].sort((a, b) => {
-        const hashA = (a.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) + seed) % 1000;
-        const hashB = (b.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) + seed) % 1000;
-        return hashA - hashB;
-      });
-      
-      // Get wrong answers and ensure uniqueness
-      const wrongAnswerSet = new Set<string>();
-      for (const w of sortedWords) {
-        const wAnswer = questionType === 'EN_TO_HE' ? w.hebrewTranslation : w.englishWord;
-        if (wAnswer !== correctAnswer && !wrongAnswerSet.has(wAnswer)) {
-          wrongAnswerSet.add(wAnswer);
-          if (wrongAnswerSet.size >= 3) break;
-        }
-      }
-      
-      const wrongAnswers = Array.from(wrongAnswerSet);
-      
-      // If we don't have enough unique wrong answers, try to find more
-      if (wrongAnswers.length < 3 && availableWordsForWrongAnswers.length > wrongAnswers.length) {
-        // Try to find more unique answers
+      for (const word of wordsForQuiz) {
+        const questionTypes: string[] = [];
+        if (settings.questionTypes.enToHe) questionTypes.push('EN_TO_HE');
+        if (settings.questionTypes.heToEn) questionTypes.push('HE_TO_EN');
+        if (settings.questionTypes.audioToEn) questionTypes.push('AUDIO_TO_EN');
+
+        if (questionTypes.length === 0) continue;
+
+        const questionType = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+
+        // Use a seeded random to ensure consistent wrong answers for the same word
+        const seed = word.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
+
+        const correctAnswer = questionType === 'EN_TO_HE' ? word.hebrewTranslation : word.englishWord;
+
+        // Generate wrong answers with consistent selection
+        // Use words from the SAME CATEGORY as the correct answer
+        // Filter out words that have the same translation as the correct answer
+        const wrongAnswerPool = filteredWords.length > 0 ? filteredWords : allWords; // Prefer filteredWords (same category), fallback to allWords
+        const availableWordsForWrongAnswers = wrongAnswerPool.filter((w: any) => {
+          if (w.id === word.id) return false;
+          // Only use words from the same category
+          if (w.category !== word.category) return false;
+          const wAnswer = questionType === 'EN_TO_HE' ? w.hebrewTranslation : w.englishWord;
+          return wAnswer !== correctAnswer; // Exclude words with same translation
+        });
+
+        // Sort by a hash based on word id and seed to get consistent order
+        const sortedWords = [...availableWordsForWrongAnswers].sort((a, b) => {
+          const hashA = (a.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) + seed) % 1000;
+          const hashB = (b.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) + seed) % 1000;
+          return hashA - hashB;
+        });
+
+        // Get wrong answers and ensure uniqueness
+        const wrongAnswerSet = new Set<string>();
         for (const w of sortedWords) {
           const wAnswer = questionType === 'EN_TO_HE' ? w.hebrewTranslation : w.englishWord;
-          if (wAnswer !== correctAnswer && !wrongAnswers.includes(wAnswer)) {
-            wrongAnswers.push(wAnswer);
-            if (wrongAnswers.length >= 3) break;
+          if (wAnswer !== correctAnswer && !wrongAnswerSet.has(wAnswer)) {
+            wrongAnswerSet.add(wAnswer);
+            if (wrongAnswerSet.size >= 3) break;
           }
         }
+
+        const wrongAnswers = Array.from(wrongAnswerSet);
+
+        // If we don't have enough unique wrong answers, try to find more
+        if (wrongAnswers.length < 3 && availableWordsForWrongAnswers.length > wrongAnswers.length) {
+          // Try to find more unique answers
+          for (const w of sortedWords) {
+            const wAnswer = questionType === 'EN_TO_HE' ? (w as any).hebrewTranslation : (w as any).englishWord;
+            if (wAnswer !== correctAnswer && !wrongAnswers.includes(wAnswer)) {
+              wrongAnswers.push(wAnswer);
+              if (wrongAnswers.length >= 3) break;
+            }
+          }
+        }
+
+        // If we still don't have enough wrong answers (shouldn't happen with proper data), 
+        // we'll just use what we have (minimum 1 correct + wrong answers)
+
+        // Shuffle answers randomly using Fisher-Yates algorithm
+        const allAnswers = [correctAnswer, ...wrongAnswers];
+        const shuffledAnswers = [...allAnswers];
+        // Fisher-Yates shuffle for true randomization
+        for (let i = shuffledAnswers.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffledAnswers[i], shuffledAnswers[j]] = [shuffledAnswers[j], shuffledAnswers[i]];
+        }
+
+        questionList.push({
+          word,
+          questionType,
+          correctAnswer,
+          answers: shuffledAnswers,
+        });
       }
-      
-      // If we still don't have enough wrong answers (shouldn't happen with proper data), 
-      // we'll just use what we have (minimum 1 correct + wrong answers)
-      
-      // Shuffle answers with consistent order for the same word
-      const allAnswers = [correctAnswer, ...wrongAnswers];
-      const shuffledAnswers = [...allAnswers].sort((a, b) => {
-        const hashA = a.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), seed);
-        const hashB = b.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), seed);
-        return hashA - hashB;
-      });
 
-      questionList.push({
-        word,
-        questionType,
-        correctAnswer,
-        answers: shuffledAnswers,
-      });
-    }
-
-    setQuestions(questionList);
-    // Reset currentIndex when generating new questions (but only if resetting)
-    if (resetUsedWords) {
-      setCurrentIndex(0);
-    }
-    setLoading(false);
-    isGeneratingRef.current = false;
+      setQuestions(questionList);
+      // Reset currentIndex when generating new questions (but only if resetting)
+      if (resetUsedWords) {
+        setCurrentIndex(0);
+      }
+      setLoading(false);
+      isGeneratingRef.current = false;
     } catch (err: any) {
       console.error('Error generating questions:', err);
       setError('שגיאה בטעינת החידון. נסה שוב.');
@@ -242,7 +307,7 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
     // Only allow selection if there's no result for the current question
     const currentQuestionId = questions[currentIndex]?.word.id;
     if (showResult && selectedAnswerQuestionId === currentQuestionId) return;
-    
+
     // Prevent multiple calls by checking if we're already processing this question
     if (selectedAnswer && selectedAnswerQuestionId === currentQuestionId) return;
 
@@ -268,14 +333,20 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
       return;
     }
 
-    // Record attempt
-    await recordQuizAttempt(
+    // Record attempt and track the promise
+    const attemptPromise = recordQuizAttempt(
       childId,
       question.word.id,
       question.questionType as any,
       correct,
       false
     );
+
+    // Track pending attempts to ensure they complete before quiz ends
+    setPendingQuizAttempts(prev => [...prev, attemptPromise]);
+
+    // Don't await here - let it run in background, but track it
+    attemptPromise.catch(err => console.error('Error recording quiz attempt:', err));
 
     if (correct) {
       setScore({ ...score, correct: score.correct + 1, total: score.total + 1 });
@@ -286,10 +357,10 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
 
   const handleSkip = async () => {
     if (showResult) return;
-    
+
     // Play failure sound for skip
     playFailureSound();
-    
+
     const question = questions[currentIndex];
     // Record skip as incorrect attempt
     await recordQuizAttempt(
@@ -299,9 +370,9 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
       false,
       false
     );
-    
+
     setScore({ ...score, total: score.total + 1 });
-    
+
     // Move to next question
     if (currentIndex < questions.length - 1) {
       setSelectedAnswer(null);
@@ -311,11 +382,25 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
       setRetryUsed(false);
       setCurrentIndex(prev => prev + 1);
     } else {
+      // Wait for all pending quiz attempts to complete before finishing quiz
+      const currentPending = pendingQuizAttempts;
+      if (currentPending.length > 0) {
+        try {
+          await Promise.all(currentPending);
+        } catch (error) {
+          console.error('Error waiting for quiz attempts:', error);
+        }
+      }
+
       const xp = score.correct * 10;
       setXpGained(xp);
       setShowCelebration(true);
       await updateMissionProgress(childId, 'DAILY', 'complete_quiz', 1, 1);
       await addXP(childId, xp);
+
+      // Revalidate path to refresh category completion status
+      const { revalidatePath } = await import('next/cache');
+      revalidatePath('/learn/path');
     }
   };
 
@@ -435,7 +520,7 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
   if (completed || showCelebration) {
     const percentage = Math.round((score.correct / score.total) * 100);
     const emoji = percentage >= 80 ? '🎉' : percentage >= 60 ? '👍' : '💪';
-    
+
     return (
       <>
         <Confetti trigger={showCelebration && percentage >= 80} />
@@ -452,9 +537,24 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
             router.push('/learn/path');
             setTimeout(() => router.refresh(), 100);
           }}
-          onClose={() => {
+          secondaryActionLabel={nextCategory ? `המשך לקטגוריה הבאה: ${nextCategory}` : undefined}
+          onSecondaryAction={nextCategory ? async () => {
             setShowCelebration(false);
             setCompleted(true);
+            // Revalidate path to ensure category completion is updated
+            const { revalidatePath } = await import('next/cache');
+            revalidatePath('/learn/path');
+            // Navigate to next category quiz
+            const nextCategoryUrl = `/learn?mode=quiz&category=${encodeURIComponent(nextCategory)}${level ? `&level=${level}` : ''}`;
+            router.push(nextCategoryUrl);
+            setTimeout(() => router.refresh(), 100);
+          } : undefined}
+          onClose={async () => {
+            setShowCelebration(false);
+            setCompleted(true);
+            // Revalidate path to ensure category completion is updated
+            const { revalidatePath } = await import('next/cache');
+            revalidatePath('/learn/path');
             // Force reload of path page to update completion status
             router.push('/learn/path');
             setTimeout(() => router.refresh(), 100);
@@ -472,19 +572,19 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
       </div>
     );
   }
-  
+
   const progress = ((currentIndex + 1) / questions.length) * 100;
-  
+
   // Only show result state if this is the current question and we have a result
   // Make sure we check if question exists and IDs match
-  const isCurrentQuestionResult = showResult && 
-                                   selectedAnswerQuestionId !== null && 
-                                   selectedAnswerQuestionId === question.word.id;
-  
+  const isCurrentQuestionResult = showResult &&
+    selectedAnswerQuestionId !== null &&
+    selectedAnswerQuestionId === question.word.id;
+
   const handleModeSwitch = (newMode: 'learn' | 'quiz') => {
     if (isSwitching || isPending || currentMode === newMode) return; // Prevent multiple clicks or switching to same mode
     setIsSwitching(true);
-    
+
     // Use callback if provided (client-side mode switch), otherwise use URL navigation
     if (onModeSwitch) {
       onModeSwitch(newMode);
@@ -531,122 +631,135 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
           </div>
         )}
 
-      {/* Question Card */}
-      <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-6 border border-gray-100 animate-slide-up">
-        {!isCurrentQuestionResult && (
-          <div className="mb-4 flex justify-end">
-            <button
-              onClick={handleSkip}
-              className="bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 hover:border-gray-400 p-2 md:p-3 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
-              title="דלג"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ transform: 'scaleX(-1)' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-        )}
-        <div className="text-center mb-8">
-          {question.questionType === 'EN_TO_HE' && (
-            <>
-              <h2 className="text-5xl md:text-6xl font-bold mb-4 text-primary-600 drop-shadow-sm">{question.word.englishWord}</h2>
-              <p className="text-lg md:text-xl text-gray-600 font-medium">מה התרגום בעברית?</p>
-            </>
-          )}
-          {question.questionType === 'HE_TO_EN' && (
-            <>
-              <h2 className="text-5xl md:text-6xl font-bold mb-4 text-primary-600 drop-shadow-sm">{question.word.hebrewTranslation}</h2>
-              <p className="text-lg md:text-xl text-gray-600 font-medium">מה המילה באנגלית?</p>
-            </>
-          )}
-          {question.questionType === 'AUDIO_TO_EN' && (
-            <>
+        {/* Question Card */}
+        <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-6 border border-gray-100 animate-slide-up">
+          {!isCurrentQuestionResult && (
+            <div className="mb-4 flex justify-end">
               <button
-                onClick={() => speakWord(question.word.englishWord)}
-                className="text-6xl md:text-7xl mb-4 hover:scale-110 active:scale-95 transition-all duration-200 hover:drop-shadow-lg"
+                onClick={handleSkip}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 hover:border-gray-400 p-2 md:p-3 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                title="דלג"
               >
-                🔊
-              </button>
-              <p className="text-lg md:text-xl text-gray-600 font-medium">מה המילה ששמעת?</p>
-            </>
-          )}
-        </div>
-
-        <div className="space-y-3 md:space-y-4">
-          {question.answers.map((answer: string, idx: number) => {
-            let buttonClass = 'w-full py-4 md:py-5 rounded-xl text-lg md:text-xl font-semibold border-2 transition-all duration-200 ';
-            
-            if (isCurrentQuestionResult) {
-              if (answer === question.correctAnswer) {
-                buttonClass += 'bg-success-500 text-white border-success-600 shadow-lg scale-105';
-              } else if (answer === selectedAnswer && !isCorrect) {
-                buttonClass += 'bg-red-500 text-white border-red-600 shadow-md';
-              } else {
-                buttonClass += 'bg-gray-100 text-gray-500 border-gray-300';
-              }
-            } else {
-              // Only highlight if selectedAnswer matches AND it's for the current question
-              // This prevents showing selected state from previous question
-              const isSelected = selectedAnswer === answer && 
-                                 selectedAnswerQuestionId === question.word.id && 
-                                 !showResult;
-              buttonClass += isSelected
-                ? 'bg-primary-100 text-primary-800 border-primary-400 shadow-md'
-                : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50 hover:border-primary-300 hover:shadow-sm';
-            }
-
-            return (
-              <button
-                key={`q${currentIndex}-w${question.word.id}-a${idx}-${answer.substring(0, 10)}`}
-                onClick={() => handleAnswerSelect(answer)}
-                className={buttonClass}
-                disabled={isCurrentQuestionResult}
-              >
-                {answer}
-              </button>
-            );
-          })}
-        </div>
-
-        {isCurrentQuestionResult && !isCorrect && !retryUsed && (
-          <div className="mt-6 p-5 bg-yellow-50 border-2 border-yellow-300 rounded-xl shadow-sm animate-slide-up">
-            <p className="text-center text-yellow-800 mb-3 text-lg font-semibold">לא נכון, נסה שוב!</p>
-            <div className="flex justify-center">
-              <button
-                onClick={handleRetry}
-                className="bg-yellow-500 hover:bg-yellow-600 text-white px-8 py-3 rounded-lg font-bold transition-all duration-200 transform hover:scale-105 active:scale-95"
-              >
-                נסה שוב
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ transform: 'scaleX(-1)' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                </svg>
               </button>
             </div>
+          )}
+          <div className="text-center mb-8">
+            {question.questionType === 'EN_TO_HE' && (
+              <>
+                <h2 className="text-5xl md:text-6xl font-bold mb-4 text-primary-600 drop-shadow-sm">{question.word.englishWord}</h2>
+                <p className="text-lg md:text-xl text-gray-600 font-medium">מה התרגום בעברית?</p>
+              </>
+            )}
+            {question.questionType === 'HE_TO_EN' && (
+              <>
+                <h2 className="text-5xl md:text-6xl font-bold mb-4 text-primary-600 drop-shadow-sm">{question.word.hebrewTranslation}</h2>
+                <p className="text-lg md:text-xl text-gray-600 font-medium">מה המילה באנגלית?</p>
+              </>
+            )}
+            {question.questionType === 'AUDIO_TO_EN' && (
+              <>
+                <button
+                  onClick={() => speakWord(question.word.englishWord)}
+                  className="text-6xl md:text-7xl mb-4 hover:scale-110 active:scale-95 transition-all duration-200 hover:drop-shadow-lg"
+                >
+                  🔊
+                </button>
+                <p className="text-lg md:text-xl text-gray-600 font-medium">מה המילה ששמעת?</p>
+              </>
+            )}
           </div>
-        )}
 
-        {isCurrentQuestionResult && isCorrect && (
-          <div className="mt-6 p-5 bg-success-50 border-2 border-success-300 rounded-xl shadow-sm animate-slide-up">
-            <p className="text-center text-success-800 text-2xl font-bold">נכון! כל הכבוד! 🎉</p>
+          <div className="space-y-3 md:space-y-4">
+            {question.answers.map((answer: string, idx: number) => {
+              let buttonClass = 'w-full py-4 md:py-5 rounded-xl text-lg md:text-xl font-semibold border-2 transition-all duration-200 ';
+
+              if (isCurrentQuestionResult) {
+                if (isCorrect) {
+                  // Correct answer selected - show it in green
+                  if (answer === question.correctAnswer) {
+                    buttonClass += 'bg-success-500 text-white border-success-600 shadow-lg scale-105';
+                  } else {
+                    buttonClass += 'bg-gray-100 text-gray-500 border-gray-300';
+                  }
+                } else {
+                  // Wrong answer selected
+                  if (answer === selectedAnswer) {
+                    // Show wrong selected answer in red
+                    buttonClass += 'bg-red-500 text-white border-red-600 shadow-md';
+                  } else if (answer === question.correctAnswer && retryUsed) {
+                    // Only show correct answer in green after retry is used
+                    buttonClass += 'bg-success-500 text-white border-success-600 shadow-lg scale-105';
+                  } else {
+                    buttonClass += 'bg-gray-100 text-gray-500 border-gray-300';
+                  }
+                }
+              } else {
+                // Only highlight if selectedAnswer matches AND it's for the current question
+                // This prevents showing selected state from previous question
+                const isSelected = selectedAnswer === answer &&
+                  selectedAnswerQuestionId === question.word.id &&
+                  !showResult;
+                buttonClass += isSelected
+                  ? 'bg-primary-100 text-primary-800 border-primary-400 shadow-md'
+                  : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50 hover:border-primary-300 hover:shadow-sm';
+              }
+
+              return (
+                <button
+                  key={`q${currentIndex}-w${question.word.id}-a${idx}-${answer.substring(0, 10)}`}
+                  onClick={() => handleAnswerSelect(answer)}
+                  className={buttonClass}
+                  disabled={isCurrentQuestionResult}
+                >
+                  {answer}
+                </button>
+              );
+            })}
           </div>
-        )}
 
-        {isCurrentQuestionResult && !isCorrect && retryUsed && (
-          <div className="mt-6 p-5 bg-red-50 border-2 border-red-300 rounded-xl shadow-sm animate-slide-up">
-            <p className="text-center text-red-800 text-lg">
-              התשובה הנכונה: <strong className="text-xl">{question.correctAnswer}</strong>
-            </p>
-          </div>
-        )}
-      </div>
+          {isCurrentQuestionResult && !isCorrect && !retryUsed && (
+            <div className="mt-6 p-5 bg-yellow-50 border-2 border-yellow-300 rounded-xl shadow-sm animate-slide-up">
+              <p className="text-center text-yellow-800 mb-3 text-lg font-semibold">לא נכון, נסה שוב!</p>
+              <div className="flex justify-center">
+                <button
+                  onClick={handleRetry}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white px-8 py-3 rounded-lg font-bold transition-all duration-200 transform hover:scale-105 active:scale-95"
+                >
+                  נסה שוב
+                </button>
+              </div>
+            </div>
+          )}
 
-      <div className="flex gap-3">
-        {isCurrentQuestionResult && (
-          <button
-            onClick={handleNext}
-            className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-5 md:py-6 rounded-xl text-xl md:text-2xl font-bold shadow-lg hover:shadow-2xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] animate-slide-up"
-          >
-            {currentIndex < questions.length - 1 ? 'המשך' : 'סיים חידון ✓'}
-          </button>
-        )}
-      </div>
+          {isCurrentQuestionResult && isCorrect && (
+            <div className="mt-6 p-5 bg-success-50 border-2 border-success-300 rounded-xl shadow-sm animate-slide-up">
+              <p className="text-center text-success-800 text-2xl font-bold">נכון! כל הכבוד! 🎉</p>
+            </div>
+          )}
+
+          {isCurrentQuestionResult && !isCorrect && retryUsed && (
+            <div className="mt-6 p-5 bg-red-50 border-2 border-red-300 rounded-xl shadow-sm animate-slide-up">
+              <p className="text-center text-red-800 text-lg">
+                התשובה הנכונה: <strong className="text-xl">{question.correctAnswer}</strong>
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-3">
+          {isCurrentQuestionResult && (
+            <button
+              ref={continueButtonRef}
+              onClick={handleNext}
+              className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-5 md:py-6 rounded-xl text-xl md:text-2xl font-bold shadow-lg hover:shadow-2xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] animate-slide-up"
+            >
+              {currentIndex < questions.length - 1 ? 'המשך' : 'סיים חידון ✓'}
+            </button>
+          )}
+        </div>
       </div>
     </>
   );

@@ -1,6 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getLevelState, addXP, getXPForLevel, getXPForNextLevel } from '@/app/actions/levels';
-import { prisma } from '@/__mocks__/prisma';
+
+vi.mock('@/lib/prisma', async () => {
+  const { vi } = await import('vitest');
+  return {
+    prisma: {
+      levelState: {
+        findUnique: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+      },
+    },
+  };
+});
 
 vi.mock('@/app/actions/letters', () => ({
   checkLevel1Complete: vi.fn(() => Promise.resolve(true)),
@@ -11,8 +22,23 @@ vi.mock('next/cache', () => ({
 }));
 
 describe('Level Actions', () => {
-  beforeEach(() => {
+  let getLevelState: any;
+  let addXP: any;
+  let getXPForLevel: any;
+  let prisma: any;
+
+  beforeEach(async () => {
     vi.clearAllMocks();
+    vi.resetModules();
+
+    const levelsModule = await import('@/app/actions/levels');
+    getLevelState = levelsModule.getLevelState;
+    addXP = levelsModule.addXP;
+    getXPForLevel = levelsModule.getXPForLevel;
+
+    // Get the mocked prisma instance that the app code is using
+    const prismaModule = await import('@/lib/prisma');
+    prisma = prismaModule.prisma;
   });
 
   describe('getLevelState', () => {
@@ -25,15 +51,15 @@ describe('Level Actions', () => {
         updatedAt: new Date(),
       };
 
-      (prisma.levelState.findUnique as any).mockResolvedValue(mockLevelState);
+      prisma.levelState.findUnique.mockResolvedValue(mockLevelState);
 
       const levelState = await getLevelState('child-1');
       expect(levelState).toEqual(mockLevelState);
     });
 
     it('should create level state if not exists', async () => {
-      (prisma.levelState.findUnique as any).mockResolvedValue(null);
-      (prisma.levelState.create as any).mockResolvedValue({
+      prisma.levelState.findUnique.mockResolvedValue(null);
+      prisma.levelState.create.mockResolvedValue({
         id: 'level-new',
         childId: 'child-1',
         level: 1,
@@ -49,14 +75,14 @@ describe('Level Actions', () => {
 
   describe('addXP', () => {
     it('should add XP and level up when threshold reached', async () => {
-      (prisma.levelState.findUnique as any).mockResolvedValue({
+      prisma.levelState.findUnique.mockResolvedValue({
         id: 'level-1',
         childId: 'child-1',
         level: 1,
         xp: 40,
         updatedAt: new Date(),
       });
-      (prisma.levelState.update as any).mockResolvedValue({
+      prisma.levelState.update.mockResolvedValue({
         id: 'level-1',
         childId: 'child-1',
         level: 2,
@@ -64,24 +90,20 @@ describe('Level Actions', () => {
         updatedAt: new Date(),
       });
 
-      // Mock checkLevel1Complete to return true so level can advance
-      const { checkLevel1Complete } = await import('@/app/actions/letters');
-      vi.mocked(checkLevel1Complete).mockResolvedValue(true);
-
       const result = await addXP('child-1', 50);
       expect(result.xp).toBe(90);
       expect(result.level).toBe(2);
     });
 
     it('should not level up if threshold not reached', async () => {
-      (prisma.levelState.findUnique as any).mockResolvedValue({
+      prisma.levelState.findUnique.mockResolvedValue({
         id: 'level-1',
         childId: 'child-1',
         level: 1,
         xp: 10,
         updatedAt: new Date(),
       });
-      (prisma.levelState.update as any).mockResolvedValue({
+      prisma.levelState.update.mockResolvedValue({
         id: 'level-1',
         childId: 'child-1',
         level: 1,

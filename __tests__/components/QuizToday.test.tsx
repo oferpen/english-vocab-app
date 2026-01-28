@@ -6,46 +6,51 @@ import { getAllWords } from '@/app/actions/words';
 import { getSettings } from '@/app/actions/settings';
 import { getLevelState } from '@/app/actions/levels';
 
-const mockGetAllWords = vi.fn();
-const mockGetWordsByCategory = vi.fn();
-const mockGetSettings = vi.fn();
-const mockGetLevelState = vi.fn();
-const mockRecordQuizAttempt = vi.fn();
-const mockAddXP = vi.fn();
-const mockUpdateMissionProgress = vi.fn();
+const mocks = vi.hoisted(() => ({
+  getAllWords: vi.fn(),
+  getWordsByCategory: vi.fn(),
+  getSettings: vi.fn(),
+  getLevelState: vi.fn(),
+  recordQuizAttempt: vi.fn(),
+  addXP: vi.fn(),
+  updateMissionProgress: vi.fn(),
+  playSuccessSound: vi.fn(),
+  playFailureSound: vi.fn(),
+  routerPush: vi.fn(),
+}));
 
 vi.mock('@/app/actions/words', () => ({
-  getAllWords: (...args: any[]) => mockGetAllWords(...args),
-  getWordsByCategory: (...args: any[]) => mockGetWordsByCategory(...args),
+  getAllWords: mocks.getAllWords,
+  getWordsByCategory: mocks.getWordsByCategory,
 }));
 
 vi.mock('@/app/actions/settings', () => ({
-  getSettings: (...args: any[]) => mockGetSettings(...args),
+  getSettings: mocks.getSettings,
 }));
 
 vi.mock('@/app/actions/levels', () => ({
-  getLevelState: (...args: any[]) => mockGetLevelState(...args),
-  addXP: (...args: any[]) => mockAddXP(...args),
+  getLevelState: mocks.getLevelState,
+  addXP: mocks.addXP,
 }));
 
 vi.mock('@/app/actions/progress', () => ({
-  recordQuizAttempt: (...args: any[]) => mockRecordQuizAttempt(...args),
+  recordQuizAttempt: mocks.recordQuizAttempt,
 }));
 
 vi.mock('@/app/actions/missions', () => ({
-  updateMissionProgress: (...args: any[]) => mockUpdateMissionProgress(...args),
+  updateMissionProgress: mocks.updateMissionProgress,
 }));
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
-    push: vi.fn(),
+    push: mocks.routerPush,
   }),
   useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock('@/lib/sounds', () => ({
-  playSuccessSound: vi.fn(),
-  playFailureSound: vi.fn(),
+  playSuccessSound: mocks.playSuccessSound,
+  playFailureSound: mocks.playFailureSound,
 }));
 
 describe('QuizToday - Bug Fixes', () => {
@@ -86,14 +91,24 @@ describe('QuizToday - Bug Fixes', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockGetSettings.mockResolvedValue(mockSettings);
-    mockGetLevelState.mockResolvedValue(mockLevelState);
-    mockGetAllWords.mockResolvedValue(mockWords);
-    mockGetWordsByCategory.mockResolvedValue(mockWords);
-    mockRecordQuizAttempt.mockResolvedValue({});
-    mockAddXP.mockResolvedValue({});
-    mockUpdateMissionProgress.mockResolvedValue({});
+    mocks.getSettings.mockResolvedValue(mockSettings);
+    mocks.getLevelState.mockImplementation((id: string) => {
+      console.log('Test Mock getLevelState called with:', id);
+      return Promise.resolve({
+        level: 2,
+        xp: 50,
+        id: 'level-1',
+        childId: 'child-1',
+      });
+    });
+    mocks.getAllWords.mockResolvedValue(mockWords);
+    mocks.getWordsByCategory.mockResolvedValue(mockWords);
+    mocks.recordQuizAttempt.mockResolvedValue({});
+    mocks.addXP.mockResolvedValue({});
+    mocks.updateMissionProgress.mockResolvedValue({});
   });
+
+
 
   describe('Bug: Selected answer persists to next question', () => {
     it('should reset selectedAnswer when moving to next question', async () => {
@@ -112,13 +127,13 @@ describe('QuizToday - Bug Fixes', () => {
         );
         expect(answerButtons.length).toBeGreaterThan(0);
       });
-      
+
       const answerButtons = screen.getAllByRole('button').filter(
         btn => btn.textContent && btn.textContent.length > 0 && !btn.textContent.includes('המשך') && !btn.textContent.includes('נסה שוב') && !btn.textContent.includes('דלג')
       );
       expect(answerButtons.length).toBeGreaterThan(0);
       const firstAnswer = answerButtons[0];
-      
+
       // Click the answer button
       await user.click(firstAnswer);
 
@@ -132,24 +147,24 @@ describe('QuizToday - Bug Fixes', () => {
         const errorMessage = screen.queryByText(/לא נכון/);
         // Check if any answer button has result styling (success/error colors)
         const answerButtonsAfterClick = screen.getAllByRole('button').filter(
-          btn => btn.textContent && btn.textContent.length > 0 && 
-                 !btn.textContent.includes('המשך') && 
-                 !btn.textContent.includes('נסה שוב') && 
-                 !btn.textContent.includes('דלג')
+          btn => btn.textContent && btn.textContent.length > 0 &&
+            !btn.textContent.includes('המשך') &&
+            !btn.textContent.includes('נסה שוב') &&
+            !btn.textContent.includes('דלג')
         );
-        const hasResultStyling = answerButtonsAfterClick.some(btn => 
-          btn.className.includes('bg-success-500') || 
+        const hasResultStyling = answerButtonsAfterClick.some(btn =>
+          btn.className.includes('bg-success-500') ||
           btn.className.includes('bg-red-500') ||
           btn.className.includes('bg-gray-100')
         );
         const disabledButtons = screen.getAllByRole('button').filter(btn => btn.disabled);
-        
+
         const hasContinueButton = !!continueButton;
         const hasRetryButton = !!retryButton;
         const hasSuccessMessage = !!successMessage;
         const hasErrorMessage = !!errorMessage;
         const hasDisabledButtons = disabledButtons.length > 0;
-        
+
         // When result is shown, at least one indicator should be present
         expect(hasContinueButton || hasRetryButton || hasSuccessMessage || hasErrorMessage || hasResultStyling || hasDisabledButtons).toBe(true);
       }, { timeout: 3000 });
@@ -189,7 +204,7 @@ describe('QuizToday - Bug Fixes', () => {
       );
       if (answerButtons.length > 0) {
         await user.click(answerButtons[0]);
-        
+
         await waitFor(() => {
           expect(screen.getByText(/נכון|לא נכון/)).toBeInTheDocument();
         });
@@ -231,7 +246,7 @@ describe('QuizToday - Bug Fixes', () => {
       );
       if (answerButtons.length > 0) {
         await user.click(answerButtons[0]);
-        
+
         await waitFor(() => {
           expect(screen.getByText(/נכון|לא נכון/)).toBeInTheDocument();
         });
@@ -284,7 +299,7 @@ describe('QuizToday - Bug Fixes', () => {
       );
       if (firstAnswerButtons.length > 0) {
         await user.click(firstAnswerButtons[0]);
-        
+
         await waitFor(() => {
           expect(screen.getByText(/נכון|לא נכון/)).toBeInTheDocument();
         });
@@ -324,12 +339,12 @@ describe('QuizToday - Bug Fixes', () => {
         );
         expect(answerButtons.length).toBeGreaterThan(0);
       });
-      
+
       const answerButtons = screen.getAllByRole('button').filter(
         btn => btn.textContent && btn.textContent.length > 0 && !btn.textContent.includes('המשך') && !btn.textContent.includes('נסה שוב') && !btn.textContent.includes('דלג')
       );
       await user.click(answerButtons[0]);
-      
+
       await waitFor(() => {
         // Buttons should be disabled when showing result, or action buttons should appear
         const continueButton = screen.queryByText('המשך →');
@@ -338,45 +353,45 @@ describe('QuizToday - Bug Fixes', () => {
         const errorMessage = screen.queryByText(/לא נכון/);
         // Check if any answer button has result styling (success/error colors)
         const answerButtonsAfterClick = screen.getAllByRole('button').filter(
-          btn => btn.textContent && btn.textContent.length > 0 && 
-                 !btn.textContent.includes('המשך') && 
-                 !btn.textContent.includes('נסה שוב') && 
-                 !btn.textContent.includes('דלג')
+          btn => btn.textContent && btn.textContent.length > 0 &&
+            !btn.textContent.includes('המשך') &&
+            !btn.textContent.includes('נסה שוב') &&
+            !btn.textContent.includes('דלג')
         );
-        const hasResultStyling = answerButtonsAfterClick.some(btn => 
-          btn.className.includes('bg-success-500') || 
+        const hasResultStyling = answerButtonsAfterClick.some(btn =>
+          btn.className.includes('bg-success-500') ||
           btn.className.includes('bg-red-500') ||
           btn.className.includes('bg-gray-100')
         );
         const disabledButtons = screen.getAllByRole('button').filter(btn => btn.disabled);
-        
+
         const hasContinueButton = !!continueButton;
         const hasRetryButton = !!retryButton;
         const hasSuccessMessage = !!successMessage;
         const hasErrorMessage = !!errorMessage;
         const hasDisabledButtons = disabledButtons.length > 0;
-        
+
         // When result is shown, at least one indicator should be present
         expect(hasContinueButton || hasRetryButton || hasSuccessMessage || hasErrorMessage || hasResultStyling || hasDisabledButtons).toBe(true);
       }, { timeout: 3000 });
 
-        // Move to next question
-        const continueButton = screen.getByText('המשך →');
-        await user.click(continueButton);
+      // Move to next question
+      const continueButton = screen.getByText('המשך →');
+      await user.click(continueButton);
 
-        // Buttons should be enabled again
-        await waitFor(() => {
-          const enabledButtons = screen.getAllByRole('button').filter(
-            btn => btn.textContent && btn.textContent.length > 0 && !btn.textContent.includes('המשך') && !btn.textContent.includes('נסה שוב') && !btn.textContent.includes('דלג') && !btn.disabled
-          );
-          expect(enabledButtons.length).toBeGreaterThan(0);
-        }, { timeout: 3000 });
+      // Buttons should be enabled again
+      await waitFor(() => {
+        const enabledButtons = screen.getAllByRole('button').filter(
+          btn => btn.textContent && btn.textContent.length > 0 && !btn.textContent.includes('המשך') && !btn.textContent.includes('נסה שוב') && !btn.textContent.includes('דלג') && !btn.disabled
+        );
+        expect(enabledButtons.length).toBeGreaterThan(0);
+      }, { timeout: 3000 });
     });
   });
 
   describe('Bug: No words available after finishing category learning', () => {
     it('should pass category to quiz when provided', async () => {
-      render(<QuizToday childId="child-1" todayPlan={mockTodayPlan} category="Animals" />);
+      render(<QuizToday childId="child-1" todayPlan={mockTodayPlan} category="Animals" levelState={mockLevelState} />);
 
       await waitFor(() => {
         expect(screen.queryByText('טוען חידון...')).not.toBeInTheDocument();
@@ -384,7 +399,7 @@ describe('QuizToday - Bug Fixes', () => {
 
       // Should not show "no words available" error
       expect(screen.queryByText('אין מילים זמינות לחידון')).not.toBeInTheDocument();
-      
+
       // Should show questions
       await waitFor(() => {
         const answerButtons = screen.getAllByRole('button').filter(
@@ -395,8 +410,8 @@ describe('QuizToday - Bug Fixes', () => {
     });
 
     it('should filter words correctly when category is provided', async () => {
-      mockGetAllWords.mockResolvedValue(mockWords);
-      
+      mocks.getAllWords.mockResolvedValue(mockWords);
+
       render(<QuizToday childId="child-1" todayPlan={mockTodayPlan} category="Animals" />);
 
       await waitFor(() => {
@@ -416,8 +431,8 @@ describe('QuizToday - Bug Fixes', () => {
         { id: 'word-7', englishWord: 'cafeteria', hebrewTranslation: 'קפיטריה', difficulty: 2, category: 'School' },
       ];
 
-      mockGetLevelState.mockResolvedValue({ ...mockLevelState, level: 2 });
-      mockGetAllWords.mockResolvedValue(level2Words);
+      mocks.getLevelState.mockResolvedValue({ ...mockLevelState, level: 2 });
+      mocks.getAllWords.mockResolvedValue(level2Words);
 
       render(<QuizToday childId="child-1" todayPlan={mockTodayPlan} />);
 
@@ -428,7 +443,7 @@ describe('QuizToday - Bug Fixes', () => {
       // Should not show level 3 words
       expect(screen.queryByText('אודיטוריום')).not.toBeInTheDocument();
       expect(screen.queryByText('קפיטריה')).not.toBeInTheDocument();
-      
+
       // Should show level 2 words
       await waitFor(() => {
         const answerButtons = screen.getAllByRole('button').filter(
@@ -439,8 +454,8 @@ describe('QuizToday - Bug Fixes', () => {
     });
 
     it('should use category words without additional filtering', async () => {
-      mockGetLevelState.mockResolvedValue({ ...mockLevelState, level: 2 });
-      
+      mocks.getLevelState.mockResolvedValue({ ...mockLevelState, level: 2 });
+
       render(<QuizToday childId="child-1" todayPlan={mockTodayPlan} category="Animals" />);
 
       await waitFor(() => {

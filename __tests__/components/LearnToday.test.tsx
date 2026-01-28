@@ -10,6 +10,7 @@ const mockMarkWordSeen = vi.fn();
 const mockAddXP = vi.fn();
 const mockUpdateMissionProgress = vi.fn();
 const mockRouterPush = vi.fn();
+const mockRouterReplace = vi.fn();
 
 vi.mock('@/app/actions/progress', () => ({
   markWordSeen: (...args: any[]) => mockMarkWordSeen(...args),
@@ -26,6 +27,7 @@ vi.mock('@/app/actions/missions', () => ({
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: mockRouterPush,
+    replace: mockRouterReplace,
   }),
   useSearchParams: () => new URLSearchParams(),
 }));
@@ -61,14 +63,14 @@ describe('LearnToday - Bug Fixes', () => {
         expect(screen.queryByText('טוען מילים...')).not.toBeInTheDocument();
       });
 
-      // Mark first word as learned
+      // Mark first word as learned (Click Next)
       await waitFor(() => {
-        const learnedButton = screen.getByText('למדתי ✓');
-        expect(learnedButton).toBeInTheDocument();
+        const nextButton = screen.getByText('הבא');
+        expect(nextButton).toBeInTheDocument();
       });
-      
-      const learnedButton = screen.getByText('למדתי ✓');
-      await user.click(learnedButton);
+
+      const nextButton = screen.getByText('הבא');
+      await user.click(nextButton);
 
       await waitFor(() => {
         expect(mockMarkWordSeen).toHaveBeenCalled();
@@ -76,12 +78,12 @@ describe('LearnToday - Bug Fixes', () => {
 
       // Mark second word as learned (completing the category)
       await waitFor(() => {
-        const learnedButton2 = screen.getByText('למדתי ✓');
-        expect(learnedButton2).toBeInTheDocument();
+        const nextButton2 = screen.getByText('הבא');
+        expect(nextButton2).toBeInTheDocument();
       });
-      
-      const learnedButton2 = screen.getByText('למדתי ✓');
-      await user.click(learnedButton2);
+
+      const nextButton2 = screen.getByText('הבא');
+      await user.click(nextButton2);
 
       // Wait for celebration screen
       await waitFor(() => {
@@ -89,13 +91,13 @@ describe('LearnToday - Bug Fixes', () => {
       });
 
       // Click continue to quiz
-      const continueButton = screen.getByText('המשך לחידון →');
+      const continueButton = screen.getByText('המשך לחידון ←');
       await user.click(continueButton);
 
       // Verify navigation includes category
       await waitFor(() => {
-        expect(mockRouterPush).toHaveBeenCalled();
-        const calls = mockRouterPush.mock.calls;
+        expect(mockRouterReplace).toHaveBeenCalled();
+        const calls = mockRouterReplace.mock.calls;
         const lastCall = calls[calls.length - 1][0];
         expect(lastCall).toContain('category=Colors');
         expect(lastCall).toContain('level=2');
@@ -108,7 +110,7 @@ describe('LearnToday - Bug Fixes', () => {
         ...mockTodayPlan,
         id: 'category-Animals-level-2',
       };
-      
+
       render(<LearnToday childId="child-1" todayPlan={planWithCategoryId} />);
 
       await waitFor(() => {
@@ -117,31 +119,32 @@ describe('LearnToday - Bug Fixes', () => {
 
       // Complete learning
       await waitFor(() => {
-        const learnedButton = screen.getByText('למדתי ✓');
-        expect(learnedButton).toBeInTheDocument();
+        const nextButton = screen.getByText('הבא');
+        expect(nextButton).toBeInTheDocument();
       });
-      
-      const learnedButton = screen.getByText('למדתי ✓');
-      await user.click(learnedButton);
-      
+
+      const nextButton = screen.getByText('הבא');
+      await user.click(nextButton);
+
       await waitFor(() => {
-        const learnedButton2 = screen.getByText('למדתי ✓');
-        expect(learnedButton2).toBeInTheDocument();
+        const nextButton2 = screen.getByText('הבא');
+        expect(nextButton2).toBeInTheDocument();
       });
-      
-      await user.click(screen.getByText('למדתי ✓'));
+
+      const nextButton2 = screen.getByText('הבא');
+      await user.click(nextButton2);
 
       await waitFor(() => {
         expect(screen.getByText(/כל הכבוד/)).toBeInTheDocument();
       });
 
-      const continueButton = screen.getByText('המשך לחידון →');
+      const continueButton = screen.getByText('המשך לחידון ←');
       await user.click(continueButton);
 
       // Should extract category from plan ID
       await waitFor(() => {
-        expect(mockRouterPush).toHaveBeenCalled();
-        const calls = mockRouterPush.mock.calls;
+        expect(mockRouterReplace).toHaveBeenCalled();
+        const calls = mockRouterReplace.mock.calls;
         const lastCall = calls[calls.length - 1][0];
         expect(lastCall).toContain('category=Animals');
       });

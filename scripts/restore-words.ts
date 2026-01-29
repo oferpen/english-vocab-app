@@ -69,9 +69,10 @@ async function restoreWords() {
     // Show summary
     const byCategory: Record<string, number> = {};
     const byDifficulty: Record<number, number> = {};
-    
+
     words.forEach((w: any) => {
-      byCategory[w.category] = (byCategory[w.category] || 0) + 1;
+      const category = w.category || 'Uncategorized';
+      byCategory[category] = (byCategory[category] || 0) + 1;
       byDifficulty[w.difficulty] = (byDifficulty[w.difficulty] || 0) + 1;
     });
 

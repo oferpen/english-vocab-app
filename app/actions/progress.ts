@@ -204,11 +204,7 @@ export async function getWordsNeedingReview(childId: string, level?: number) {
 
   // Filter by level if specified
   if (level !== undefined) {
-    if (level === 2) {
-      where.word = { difficulty: 1 };
-    } else if (level === 3) {
-      where.word = { difficulty: { gte: 2 } };
-    }
+    where.word = { level: level };
   }
 
   return prisma.progress.findMany({
@@ -236,11 +232,7 @@ export async function getUnseenWords(childId: string, level?: number) {
 
   // Filter by level if specified
   if (level !== undefined) {
-    if (level === 2) {
-      where.difficulty = 1;
-    } else if (level === 3) {
-      where.difficulty = { gte: 2 };
-    }
+    where.level = level;
   }
 
   return prisma.word.findMany({

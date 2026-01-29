@@ -11,36 +11,39 @@ export async function getCurrentParentAccount() {
     });
     if (account) return account;
   }
-  
+
   // If no Google session, return the first parent account
   // This allows PIN-based login to work without Google session
   // Note: This assumes single-family usage. For multi-family, consider adding session management for PIN auth
   const firstParent = await prisma.parentAccount.findFirst({
     orderBy: { createdAt: 'asc' },
   });
-  
+
   return firstParent || null;
 }
 
 export async function verifyPIN(pin: string): Promise<boolean> {
   try {
-    // Check PIN against ALL accounts with PIN hashes
-    // This allows PIN authentication to work independently of Google login
     const accounts = await prisma.parentAccount.findMany({
       where: { pinHash: { not: null } },
     });
-    
+
+    console.log(`[verifyPIN] Found ${accounts.length} accounts with PIN hashes`);
+
     for (const account of accounts) {
       if (account.pinHash) {
         const match = await bcrypt.compare(pin, account.pinHash);
+        console.log(`[verifyPIN] Comparing with account ${account.id} (${account.email || 'no email'}): ${match}`);
         if (match) {
           return true;
         }
       }
     }
-    
+
+    console.log('[verifyPIN] No match found for provided PIN');
     return false;
   } catch (error) {
+    console.error('[verifyPIN] Error:', error);
     return false;
   }
 }
@@ -48,7 +51,7 @@ export async function verifyPIN(pin: string): Promise<boolean> {
 export async function setPIN(pin: string): Promise<void> {
   const pinHash = await bcrypt.hash(pin, 10);
   const session = await getAuthSession();
-  
+
   if (session?.user?.email) {
     // User is logged in via Google, set PIN for their account
     const account = await prisma.parentAccount.findUnique({
@@ -62,7 +65,7 @@ export async function setPIN(pin: string): Promise<void> {
       return;
     }
   }
-  
+
   // If no Google session, create a new account with PIN
   // This allows PIN-only accounts
   await prisma.parentAccount.create({
@@ -77,6 +80,23 @@ export async function setPIN(pin: string): Promise<void> {
       }),
     },
   });
+}
+
+export async function updatePIN(pin: string): Promise<boolean> {
+  try {
+    const parentAccount = await getCurrentParentAccount();
+    if (!parentAccount) return false;
+
+    const pinHash = await bcrypt.hash(pin, 10);
+    await prisma.parentAccount.update({
+      where: { id: parentAccount.id },
+      data: { pinHash },
+    });
+    return true;
+  } catch (error) {
+    console.error('[updatePIN] Error:', error);
+    return false;
+  }
 }
 
 export async function hasPIN(): Promise<boolean> {

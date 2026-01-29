@@ -31,12 +31,12 @@ export default function LearnLetters({ childId, letterId }: LearnLettersProps) {
   const loadLetters = async () => {
     try {
       setLoading(true);
-      
+
       // Add timeout to prevent hanging
-      const timeoutPromise = new Promise((_, reject) => 
+      const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error('Request timeout')), 10000)
       );
-      
+
       // If a specific letterId is provided, load that letter
       if (letterId) {
         const allLetters = await Promise.race([
@@ -60,7 +60,7 @@ export default function LearnLetters({ childId, letterId }: LearnLettersProps) {
           getUnmasteredLetters(childId),
           timeoutPromise
         ]) as any[];
-        
+
         if (unmastered.length === 0) {
           // All letters mastered, check if can advance to level 2
           const { checkLevel1Complete } = await import('@/app/actions/letters');
@@ -68,7 +68,7 @@ export default function LearnLetters({ childId, letterId }: LearnLettersProps) {
             checkLevel1Complete(childId),
             timeoutPromise
           ]) as boolean;
-          
+
           if (level1Complete) {
             setCompleted(true);
           } else {
@@ -104,32 +104,32 @@ export default function LearnLetters({ childId, letterId }: LearnLettersProps) {
       e.preventDefault();
       e.stopPropagation();
     }
-    
+
     const letter = letters[currentIndex];
     const currentIdx = currentIndex;
-    
+
     // Update UI optimistically first (before server call) - move to next letter immediately
     if (currentIdx < letters.length - 1) {
       setCurrentIndex(currentIdx + 1);
     }
-    
+
     // Use startTransition to mark server action as non-urgent, preventing blocking updates
     startTransition(async () => {
       await markLetterSeen(childId, letter.id, correct);
-      
+
       // Play success sound if correct
       if (correct) {
         playSuccessSound();
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 1500);
       }
-      
+
       // Handle completion logic (only if we were at the last letter)
       if (currentIdx >= letters.length - 1) {
         // Check if level 1 is complete
         const { checkLevel1Complete } = await import('@/app/actions/letters');
         const level1Complete = await checkLevel1Complete(childId);
-        
+
         if (level1Complete) {
           // Unlock level 2
           const { checkAndUnlockLevel2 } = await import('@/app/actions/levels');
@@ -171,11 +171,11 @@ export default function LearnLetters({ childId, letterId }: LearnLettersProps) {
       <>
         <Confetti trigger={showCelebration} />
         <CelebrationScreen
-          title="כל הכבוד! 🎉"
+          title="כל הכבוד!"
           message="סיימת ללמוד את כל האותיות! עכשיו אתה יכול להתחיל ללמוד מילים!"
-          emoji="⭐"
+          emoji="🎉"
           showConfetti={showCelebration}
-          actionLabel="המשך למילים →"
+          actionLabel="המשך למילים"
           onAction={() => {
             setShowCelebration(false);
             setCompleted(true);

@@ -22,12 +22,6 @@ async function main() {
   const deletedLevelStates = await prisma.levelState.deleteMany({});
   console.log(`✅ Deleted ${deletedLevelStates.count} level states`);
 
-  const deletedDailyPlanWords = await prisma.dailyPlanWord.deleteMany({});
-  console.log(`✅ Deleted ${deletedDailyPlanWords.count} daily plan words`);
-
-  const deletedDailyPlans = await prisma.dailyPlan.deleteMany({});
-  console.log(`✅ Deleted ${deletedDailyPlans.count} daily plans`);
-
   console.log('\nDeleting user profiles...');
   // Delete all children first (due to foreign key constraints)
   const deletedChildren = await prisma.childProfile.deleteMany({});

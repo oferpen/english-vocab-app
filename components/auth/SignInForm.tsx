@@ -57,16 +57,16 @@ export default function SignInForm({ initialError }: SignInFormProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-md p-8 max-w-md w-full">
-        <h1 className="text-3xl font-bold mb-6 text-center">פאנל הורים</h1>
+    <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12 max-w-md w-full border border-neutral-100">
+        <h1 className="text-3xl font-black mb-6 text-center text-neutral-800 tracking-tight">פאנל הורים</h1>
 
         <div className="space-y-4">
           {/* Google Sign In */}
           <button
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 p-3 border-2 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-3 p-4 border-2 border-neutral-100 rounded-2xl hover:bg-neutral-50 hover:border-primary-100 transition-all active:scale-95 disabled:opacity-50 font-bold"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -91,7 +91,7 @@ export default function SignInForm({ initialError }: SignInFormProps) {
         </div>
 
         {message && (
-          <div className={`mt-4 p-3 rounded-lg text-center text-sm ${message.includes('שגיאה') ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'
+          <div className={`mt-6 p-4 rounded-xl text-center text-sm font-medium ${message.includes('שגיאה') ? 'bg-danger-50 text-danger-600 border border-danger-100' : 'bg-success-50 text-success-600 border border-success-100'
             }`}>
             {message}
           </div>

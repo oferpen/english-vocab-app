@@ -22,7 +22,7 @@ interface LessonPageProps {
 
 export default async function LessonPage({ params, searchParams }: LessonPageProps) {
   const child = await getCurrentChild();
-  
+
   if (!child) {
     return <GoogleSignIn />;
   }
@@ -33,7 +33,7 @@ export default async function LessonPage({ params, searchParams }: LessonPagePro
     if (!letter) {
       return <div>אות לא נמצאה</div>;
     }
-    
+
     return (
       <div className="min-h-screen bg-gray-50">
         <BottomNav />
@@ -68,7 +68,7 @@ export default async function LessonPage({ params, searchParams }: LessonPagePro
         <div className="pt-20 md:pt-20">
           <div className="max-w-2xl mx-auto bg-white min-h-screen">
             <PageHeader title="ללמוד" childName={child.name} avatar={child.avatar} currentChildId={child.id} />
-            <LearnToday childId={child.id} todayPlan={todayPlan} wordId={word.id} category={word.category} />
+            <LearnToday childId={child.id} todayPlan={todayPlan} wordId={word.id} category={word.category ?? undefined} />
           </div>
         </div>
       </div>

@@ -3,8 +3,8 @@ import './globals.css';
 import Providers from '@/components/Providers';
 
 export const metadata: Metadata = {
-  title: 'לימוד אנגלית לילדים',
-  description: 'אפליקציה ללימוד אוצר מילים באנגלית',
+  title: 'EnglishPath - לימוד אנגלית לילדים',
+  description: 'אפליקציה ללימוד אוצר מילים באנגלית - בדרך המהנה ביותר!',
 };
 
 export default function RootLayout({

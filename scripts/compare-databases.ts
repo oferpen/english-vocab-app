@@ -69,18 +69,20 @@ async function getWordStats(prisma: PrismaClient, label: string): Promise<WordSt
   const byCategoryAndDifficulty: Record<string, Record<number, number>> = {};
 
   words.forEach((word) => {
+    const category = word.category || 'Uncategorized';
+
     // Count by category
-    byCategory[word.category] = (byCategory[word.category] || 0) + 1;
+    byCategory[category] = (byCategory[category] || 0) + 1;
 
     // Count by difficulty
     byDifficulty[word.difficulty] = (byDifficulty[word.difficulty] || 0) + 1;
 
     // Count by category and difficulty
-    if (!byCategoryAndDifficulty[word.category]) {
-      byCategoryAndDifficulty[word.category] = {};
+    if (!byCategoryAndDifficulty[category]) {
+      byCategoryAndDifficulty[category] = {};
     }
-    byCategoryAndDifficulty[word.category][word.difficulty] =
-      (byCategoryAndDifficulty[word.category][word.difficulty] || 0) + 1;
+    byCategoryAndDifficulty[category][word.difficulty] =
+      (byCategoryAndDifficulty[category][word.difficulty] || 0) + 1;
   });
 
   return {
@@ -91,7 +93,7 @@ async function getWordStats(prisma: PrismaClient, label: string): Promise<WordSt
     words: words.map((w) => ({
       englishWord: w.englishWord,
       hebrewTranslation: w.hebrewTranslation,
-      category: w.category,
+      category: w.category || 'Uncategorized',
       difficulty: w.difficulty,
       active: w.active,
     })),

@@ -24,7 +24,7 @@ async function exportWords() {
   // Temporarily override DATABASE_URL
   const originalUrl = process.env.DATABASE_URL;
   process.env.DATABASE_URL = dbUrl;
-  
+
   const prisma = new PrismaClient();
 
   try {
@@ -42,7 +42,7 @@ async function exportWords() {
       words: words.map(w => ({
         englishWord: w.englishWord,
         hebrewTranslation: w.hebrewTranslation,
-        category: w.category,
+        category: w.category || 'Uncategorized',
         difficulty: w.difficulty,
         active: w.active,
         exampleEn: w.exampleEn,
@@ -56,9 +56,10 @@ async function exportWords() {
     // Show summary
     const byCategory: Record<string, number> = {};
     const byDifficulty: Record<number, number> = {};
-    
+
     words.forEach(w => {
-      byCategory[w.category] = (byCategory[w.category] || 0) + 1;
+      const cat = w.category || 'Uncategorized';
+      byCategory[cat] = (byCategory[cat] || 0) + 1;
       byDifficulty[w.difficulty] = (byDifficulty[w.difficulty] || 0) + 1;
     });
 

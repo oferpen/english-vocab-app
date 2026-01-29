@@ -8,15 +8,17 @@ export default function SimpleSignIn() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-        <div className="text-6xl mb-6">🎮</div>
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">לימוד אנגלית</h1>
-        <p className="text-gray-600 mb-8">התחבר עם Google כדי להתחיל</p>
+    <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-[2.5rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] p-10 md:p-14 max-w-md w-full text-center border border-neutral-100 flex flex-col items-center">
+        <div className="w-24 h-24 bg-primary-100 rounded-3xl flex items-center justify-center text-5xl mb-8 shadow-sm border border-primary-200 animate-bounce-slow">
+          🦉
+        </div>
+        <h1 className="text-4xl font-black text-neutral-900 mb-4 tracking-tight">לימוד אנגלית</h1>
+        <p className="text-xl text-neutral-500 mb-10 font-medium">התחבר עם Google כדי להתחיל</p>
 
         <button
           onClick={handleGoogleSignIn}
-          className="w-full flex items-center justify-center gap-3 p-4 border-2 rounded-xl hover:bg-gray-50 transition-all transform hover:scale-105 bg-white shadow-md"
+          className="w-full flex items-center justify-center gap-4 p-5 border-2 border-neutral-100 rounded-2xl hover:bg-neutral-50 hover:border-primary-100 transition-all transform hover:scale-[1.02] active:scale-[0.98] bg-white shadow-xl shadow-neutral-200/50"
         >
           <svg className="w-6 h-6" viewBox="0 0 24 24">
             <path
@@ -36,7 +38,7 @@ export default function SimpleSignIn() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
             />
           </svg>
-          <span className="text-lg font-medium">התחבר עם Google</span>
+          <span className="text-xl font-bold text-neutral-800">התחבר עם Google</span>
         </button>
       </div>
     </div>

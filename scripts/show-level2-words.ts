@@ -20,10 +20,11 @@ async function showLevel2Words() {
     // Group by category
     const byCategory: Record<string, typeof words> = {};
     words.forEach((word) => {
-      if (!byCategory[word.category]) {
-        byCategory[word.category] = [];
+      const category = word.category || 'Uncategorized';
+      if (!byCategory[category]) {
+        byCategory[category] = [];
       }
-      byCategory[word.category].push(word);
+      byCategory[category].push(word);
     });
 
     let output = '\n📚 LEVEL 2 WORDS (Difficulty 1)\n';

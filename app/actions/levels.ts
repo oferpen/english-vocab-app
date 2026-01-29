@@ -107,7 +107,7 @@ export const getLevelState = getLevelStateWithCache;
 export async function addXP(childId: string, amount: number, skipRevalidate: boolean = false) {
   const levelState = await getLevelState(childId);
   const newXP = levelState.xp + amount;
-  
+
   // Calculate new level based on XP
   let newLevel = levelState.level;
   for (let i = LEVEL_XP_REQUIREMENTS.length - 1; i >= 0; i--) {
@@ -141,6 +141,7 @@ export async function addXP(childId: string, amount: number, skipRevalidate: boo
   // Only revalidate if not called from combined action
   if (!skipRevalidate) {
     revalidatePath('/progress');
+    revalidatePath('/learn/path');
   }
   return { level: newLevel, xp: newXP, leveledUp };
 }
@@ -160,6 +161,7 @@ export async function checkAndUnlockLevel2(childId: string) {
         },
       });
       revalidatePath('/learn');
+      revalidatePath('/learn/path');
       revalidatePath('/quiz');
       revalidatePath('/progress');
       return true;

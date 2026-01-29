@@ -1,12 +1,12 @@
 import { getCurrentChild } from '@/lib/auth-nextauth';
 import { getLevelState } from '@/app/actions/levels';
 import { getWordsByCategory } from '@/app/actions/words';
+import { getStreak } from '@/app/actions/streak';
 import { getTodayDate } from '@/lib/utils';
 import LearnLetters from '@/components/LearnLetters';
 import LearnQuizWrapper from '@/components/LearnQuizWrapper';
 import GoogleSignIn from '@/components/auth/GoogleSignIn';
-import PageHeader from '@/components/PageHeader';
-import ProgressSidePanel from '@/components/ProgressSidePanel';
+import ModernNavBar from '@/components/ModernNavBar';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -25,7 +25,7 @@ interface LearnPageProps {
 
 export default async function LearnPage({ searchParams }: LearnPageProps) {
   const child = await getCurrentChild();
-  
+
   if (!child) {
     return <GoogleSignIn />;
   }
@@ -35,14 +35,20 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
   const wordId = params?.wordId;
   const category = params?.category;
   const requestedLevel = params?.level ? parseInt(params.level) : undefined;
-  const mode = params?.mode || 'learn'; // Default to 'learn' if not specified
+  const mode = params?.mode || 'learn';
 
-  // Get child's level to determine what to show
+  // Fetch child's level and streak in parallel
   let levelState;
+  let streak = 0;
+
   try {
-    levelState = await getLevelState(child.id);
-  } catch (error: any) {
-    // Default to level 1 if there's an error
+    const [levelData, streakData] = await Promise.all([
+      getLevelState(child.id).catch(() => ({ level: 1, xp: 0, id: '', childId: child.id, updatedAt: new Date() })),
+      getStreak(child.id).catch(() => 0)
+    ]);
+    levelState = levelData;
+    streak = streakData;
+  } catch (error) {
     levelState = { level: 1, xp: 0, id: '', childId: child.id, updatedAt: new Date() };
   }
 
@@ -51,84 +57,66 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
     levelState = { level: 1, xp: levelState.xp, id: levelState.id, childId: child.id, updatedAt: levelState.updatedAt };
   }
 
+  // Helper for NavBar to ensure consistency
+  const navBar = (
+    <ModernNavBar
+      childName={child.name}
+      avatar={child.avatar || ''}
+      level={levelState.level}
+      streak={streak}
+      xp={levelState.xp}
+    />
+  );
+
   const levelTitle = mode === 'quiz' ? 'חידון' : (levelState.level === 1 ? 'ללמוד' : 'ללמוד');
 
-  // Handle quiz mode - Level 1 (letters) doesn't have quizzes
-  if (mode === 'quiz' && levelState.level === 1) {
+  // Handle quiz mode - Level 1 (letters) doesn't have regular quizzes
+  // Exception: Allow if a category (like Starter) is being learned
+  if (mode === 'quiz' && levelState.level === 1 && !category) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <ProgressSidePanel childId={child.id} levelState={levelState} />
-        <div className="max-w-2xl mx-auto bg-white min-h-screen">
-          <PageHeader title="חידון" childName={child.name} avatar={child.avatar} currentChildId={child.id} />
-          <div className="p-8 text-center">
-            <div className="text-6xl mb-4">📚</div>
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">עדיין לא זמין</h2>
-            <p className="text-lg text-gray-600 mb-6">
-              סיים ללמוד את כל האותיות כדי לפתוח חידונים!
-            </p>
-            <a
-              href="/learn"
-              className="inline-block bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-8 py-4 rounded-xl text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-            >
-              חזור ללמידה →
-            </a>
-          </div>
+      <div className="min-h-screen bg-neutral-50">
+        {navBar}
+        <div className="max-w-2xl mx-auto bg-white min-h-screen pt-16 pb-20 md:pb-8 text-center pt-32 px-4 shadow-sm">
+          <div className="text-8xl mb-6">📚</div>
+          <h2 className="text-3xl font-black mb-4 text-neutral-800 tracking-tight">עדיין לא זמין</h2>
+          <p className="text-xl text-neutral-600 mb-8 max-w-md mx-auto">
+            סיים ללמוד את כל האותיות כדי לפתוח חידונים!
+          </p>
+          <a href="/learn" className="px-8 py-4 bg-primary-500 text-white rounded-2xl font-bold shadow-lg shadow-primary-200 hover:bg-primary-600 hover:scale-105 transition-all inline-block">
+            חזור ללמידה
+          </a>
         </div>
       </div>
     );
   }
 
   // Load words for word learning/quiz
-  // Allow category requests for level 1 users (especially Starter category)
   let todayPlan = null;
   let categoryWords: any[] = [];
-  
-  // If category is provided, load words regardless of user level
-  // This allows level 1 users to learn Starter category words
+
   if (category) {
-    // Use requested level if provided, otherwise use child's current level
-    let levelToUse = requestedLevel || levelState.level;
-    
-    // Special case: Starter category words have difficulty 1 (level 2), but are shown at level 1
-    // If user is at level 1 and clicks Starter, we need to fetch difficulty 1 words
-    if (category === 'Starter' && levelToUse === 1) {
-      levelToUse = 2; // Starter words are difficulty 1, which corresponds to level 2
-    }
-    
-    // For quiz mode, fetch all words in category without level filtering
-    // For learn mode, filter by level
-    categoryWords = mode === 'quiz' 
+    const levelToUse = requestedLevel || levelState.level;
+
+    categoryWords = mode === 'quiz'
       ? await getWordsByCategory(category)
       : await getWordsByCategory(category, levelToUse);
-    
-    // Debug logging
-    console.log('[LearnPage] Category:', category, 'Level:', levelToUse, 'Mode:', mode, 'Words found:', categoryWords.length);
-    
+
     if (categoryWords.length === 0) {
       return (
-        <div className="min-h-screen bg-gray-50">
-          <ProgressSidePanel childId={child.id} levelState={levelState} />
-          <div className="max-w-2xl mx-auto bg-white min-h-screen">
-            <PageHeader title={levelTitle} childName={child.name} avatar={child.avatar} currentChildId={child.id} />
-            <div className="p-8 text-center">
-              <div className="text-6xl mb-4">📚</div>
-              <h2 className="text-2xl font-bold mb-4 text-gray-800">אין מילים בקטגוריה</h2>
-              <p className="text-lg text-gray-600 mb-6">
-                הקטגוריה שנבחרה לא מכילה מילים זמינות ברמה זו.
-              </p>
-              <Link
-                href="/learn/path"
-                className="inline-block bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-8 py-4 rounded-xl text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-              >
-                חזור לנתיב →
-              </Link>
-            </div>
+        <div className="min-h-screen bg-neutral-50">
+          {navBar}
+          <div className="max-w-2xl mx-auto bg-white min-h-screen pt-16 pb-20 md:pb-8 text-center pt-32 px-4 shadow-sm">
+            <div className="text-8xl mb-6">📭</div>
+            <h2 className="text-3xl font-black mb-4 text-neutral-800 tracking-tight">אין מילים בקטגוריה</h2>
+            <p className="text-xl text-neutral-600 mb-8">לא נמצאו מילים זמינות ברמה זו.</p>
+            <Link href="/learn/path" className="px-8 py-4 bg-primary-500 text-white rounded-2xl font-bold shadow-lg shadow-primary-200 hover:bg-primary-600">
+              חזור לנתיב
+            </Link>
           </div>
         </div>
       );
     }
-    
-    // Create a temporary plan structure with words from this category
+
     todayPlan = {
       id: mode === 'quiz' ? `category-${category}` : `category-${category}-level-${levelToUse}`,
       childId: child.id,
@@ -136,17 +124,13 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
       words: categoryWords.map(word => ({ word })),
     };
   } else if (levelState.level >= 2) {
-    // For level 2+ without category, redirect to path
     redirect('/learn/path');
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <ProgressSidePanel childId={child.id} levelState={levelState} />
-      <div className="max-w-2xl mx-auto bg-white min-h-screen">
-        <PageHeader title={levelTitle} childName={child.name} avatar={child.avatar} currentChildId={child.id} backHref="/learn/path" />
-
-        {/* Learning/Quiz interface */}
+    <div className="min-h-screen bg-neutral-50">
+      {navBar}
+      <div className="max-w-2xl mx-auto bg-white min-h-screen pt-16 pb-20 md:pb-8 shadow-sm">
         <LearnQuizWrapper
           childId={child.id}
           todayPlan={todayPlan}

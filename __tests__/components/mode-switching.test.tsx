@@ -41,10 +41,6 @@ vi.mock('@/app/actions/settings', () => ({
   }),
 }));
 
-vi.mock('@/app/actions/plans', () => ({
-  getTodayPlan: vi.fn().mockResolvedValue(null),
-}));
-
 vi.mock('@/app/actions/letters', () => ({
   getAllLetters: vi.fn().mockResolvedValue([]),
   getUnmasteredLetters: vi.fn().mockResolvedValue([]),

@@ -11,6 +11,7 @@ import ChildrenManagement from './ChildrenManagement';
 import ProgressDashboard from './ProgressDashboard';
 import SettingsPanel from './SettingsPanel';
 import ChildSwitcher from './ChildSwitcher';
+import { ArrowRight, LogOut, ShieldCheck } from 'lucide-react';
 
 interface ParentPanelProps {
   session?: any;
@@ -27,26 +28,19 @@ export default function ParentPanel({ session: initialSession }: ParentPanelProp
   // Store referrer when component mounts (before PIN gate)
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Check if we already have a stored return path (set before navigation)
       const storedReturnTo = sessionStorage.getItem('parentPanelReturnTo');
-      
-      // If we don't have a stored path, try to use referrer
       if (!storedReturnTo) {
         const referrer = document.referrer;
         const currentOrigin = window.location.origin;
-        
-        // Only store if referrer is from our app and not the parent panel itself
         if (referrer && referrer.startsWith(currentOrigin) && !referrer.includes('/parent')) {
           sessionStorage.setItem('parentPanelReturnTo', referrer.replace(currentOrigin, ''));
         } else {
-          // Fallback: if no referrer, default to learn path
           sessionStorage.setItem('parentPanelReturnTo', '/learn/path');
         }
       }
     }
   }, []);
 
-  // Load active child when PIN is verified
   useEffect(() => {
     if (pinVerified) {
       loadActiveChild();
@@ -57,29 +51,23 @@ export default function ParentPanel({ session: initialSession }: ParentPanelProp
     try {
       const child = await getActiveChild();
       setActiveChild(child);
-      } catch (error) {
-        // Error loading active child
-      }
+    } catch (error) {
+      console.error('Error loading active child:', error);
+    }
   };
 
-  // Always require PIN verification, regardless of Google session
-  // Wait for session to load before showing PINGate
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-xl text-gray-600">טוען...</p>
-        </div>
+      <div className="min-h-screen bg-[#F9F9FF] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
 
-  // Always show PIN gate until PIN is verified
   if (!pinVerified) {
     return <PINGate onVerified={() => setPinVerified(true)} />;
   }
 
-  // Hide content immediately when exiting
   if (isExiting) {
     return null;
   }
@@ -89,73 +77,71 @@ export default function ParentPanel({ session: initialSession }: ParentPanelProp
   };
 
   const handleExit = () => {
-    // Hide content immediately for instant feedback
     setIsExiting(true);
-    
-    // Get stored return path or fallback to home
     if (typeof window !== 'undefined') {
       const returnTo = sessionStorage.getItem('parentPanelReturnTo');
-      sessionStorage.removeItem('parentPanelReturnTo'); // Clean up
-      
-      if (returnTo && returnTo !== '/parent') {
-        window.location.href = returnTo;
-      } else {
-        window.location.href = '/';
-      }
+      sessionStorage.removeItem('parentPanelReturnTo');
+      window.location.href = (returnTo && returnTo !== '/parent') ? returnTo : '/';
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm p-4">
-        <div className="flex justify-between items-center">
+    <div className="min-h-screen bg-[#F9F9FF]">
+      {/* Premium Header */}
+      <header className="bg-white/80 backdrop-blur-md sticky top-0 z-30 border-b border-indigo-50 px-4 md:px-8 py-4 shadow-sm">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
           <button
             onClick={handleExit}
-            className="text-blue-600 hover:text-blue-800 font-medium"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-indigo-600 font-bold hover:bg-indigo-50 transition-all active:scale-95 text-sm"
           >
-            ← יציאה
+            <ArrowRight className="w-4 h-4" />
+            <span>חזרה ללמידה</span>
           </button>
-          <h1 className="text-2xl font-bold text-center flex-1">פאנל הורים</h1>
-          <div className="w-20"></div> {/* Spacer for centering */}
-        </div>
-        {(session || initialSession || pinVerified) && (
-          <div className="flex flex-col items-center mt-2">
+
+          <div className="flex flex-col items-center">
+            <h1 className="text-xl md:text-2xl font-black tracking-tight flex items-center gap-1.5" dir="ltr">
+              <span className="text-neutral-900">English</span>
+              <span className="text-indigo-600">Path</span>
+              <span className="text-neutral-300 mx-1">|</span>
+              <span className="text-neutral-400 font-bold text-sm md:text-base rtl">פאנל הורים</span>
+            </h1>
             {session?.user?.email && (
-              <p className="text-sm text-gray-600 text-center">
-                מחובר כ: {session.user.email}
+              <p className="text-[10px] md:text-xs text-neutral-400 font-bold mt-0.5">
+                {session.user.email}
               </p>
-            )}
-            {pinVerified && !session && (
-              <p className="text-sm text-gray-600 text-center">
-                מחובר עם PIN
-              </p>
-            )}
-            {(session || initialSession) && (
-              <button
-                onClick={handleSignOut}
-                className="mt-2 text-xs text-red-600 hover:text-red-800 underline"
-              >
-                התנתק
-              </button>
             )}
           </div>
-        )}
-      </header>
-      {pinVerified && activeChild && (
-        <div className="bg-white border-b border-gray-200 px-4 py-3">
-          <ChildSwitcher 
-            currentChildId={activeChild.id} 
-            currentChildName={activeChild.name}
-            onChildSwitched={loadActiveChild}
-          />
+
+          <button
+            onClick={handleSignOut}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-red-500 font-bold hover:bg-red-50 transition-all active:scale-95 text-sm"
+            title="התנתק"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="hidden md:inline">התנתק</span>
+          </button>
         </div>
-      )}
-      <ParentNav activeTab={activeTab} onTabChange={setActiveTab} />
-      <div className="pb-20">
-        {activeTab === 'children' && <ChildrenManagement />}
-        {activeTab === 'dashboard' && <ProgressDashboard />}
-        {activeTab === 'settings' && <SettingsPanel />}
-      </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        {pinVerified && activeChild && (
+          <div className="mb-8 bg-white p-4 rounded-3xl shadow-sm border border-neutral-100 flex items-center justify-center">
+            <ChildSwitcher
+              currentChildId={activeChild.id}
+              currentChildName={activeChild.name}
+              onChildSwitched={loadActiveChild}
+            />
+          </div>
+        )}
+
+        <ParentNav activeTab={activeTab} onTabChange={setActiveTab} />
+
+        <div className="mt-8 pb-32">
+          {activeTab === 'children' && <ChildrenManagement />}
+          {activeTab === 'dashboard' && <ProgressDashboard />}
+          {activeTab === 'settings' && <SettingsPanel />}
+        </div>
+      </main>
     </div>
   );
 }

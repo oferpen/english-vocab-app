@@ -11,6 +11,7 @@ import Link from 'next/link';
 import Confetti from './Confetti';
 import CelebrationScreen from './CelebrationScreen';
 import { playSuccessSound, playFailureSound } from '@/lib/sounds';
+import { Volume2, SkipBack, CheckCircle2, XCircle, ChevronLeft, Sparkles } from 'lucide-react';
 
 interface QuizTodayProps {
   childId: string;
@@ -102,20 +103,20 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
       }
 
       try {
-        // Get level state to determine which difficulty to filter by
-        let levelState = propLevelState;
-        if (!levelState) {
+        // Use propLevelState if available, otherwise fetch it
+        let currentLevelState = propLevelState;
+        if (!currentLevelState) {
           const { getLevelState } = await import('@/app/actions/levels');
-          levelState = await getLevelState(childId);
+          currentLevelState = await getLevelState(childId);
         }
 
         // Get all words filtered by level to find categories with words at this level
-        const levelWords = await getAllWords(levelState.level);
+        const levelWords = await getAllWords(currentLevelState.level);
 
         // Extract unique categories from words at this level, excluding Starter
         const categoriesSet = new Set<string>();
         levelWords.forEach((word: any) => {
-          if (word.category && word.category !== 'Starter') {
+          if (word.category && !word.category.startsWith('Starter')) {
             categoriesSet.add(word.category);
           }
         });
@@ -137,7 +138,7 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
 
     findNextCategory();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category, childId]);
+  }, [category, childId, propLevelState]);
 
   const generateQuestions = async (resetUsedWords: boolean = false, useAllAvailableWords: boolean = false) => {
     // Prevent multiple simultaneous calls
@@ -303,29 +304,34 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
     }
   };
 
-  const handleAnswerSelect = async (answer: string) => {
+  const handleAnswerSelect = (answer: string) => {
     // Only allow selection if there's no result for the current question
     const currentQuestionId = questions[currentIndex]?.word.id;
     if (showResult && selectedAnswerQuestionId === currentQuestionId) return;
 
-    // Prevent multiple calls by checking if we're already processing this question
-    if (selectedAnswer && selectedAnswerQuestionId === currentQuestionId) return;
+    setSelectedAnswer(answer);
+    setSelectedAnswerQuestionId(currentQuestionId);
+  };
+
+  const handleCheck = async () => {
+    if (!selectedAnswer || showResult) return;
 
     const question = questions[currentIndex];
-    const correct = answer === question.correctAnswer;
-    setSelectedAnswer(answer);
-    setSelectedAnswerQuestionId(question.word.id); // Store which question this answer belongs to
+    const correct = selectedAnswer === question.correctAnswer;
     setIsCorrect(correct);
     setShowResult(true);
 
     // Play sound based on result
     if (correct) {
       playSuccessSound();
-      // Show confetti for correct answer
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 1000);
+      setScore(prev => ({ ...prev, correct: prev.correct + 1, total: prev.total + 1 }));
     } else {
       playFailureSound();
+      if (retryUsed) {
+        setScore(prev => ({ ...prev, total: prev.total + 1 }));
+      }
     }
 
     if (!correct && !retryUsed) {
@@ -333,7 +339,7 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
       return;
     }
 
-    // Record attempt and track the promise
+    // Record attempt
     const attemptPromise = recordQuizAttempt(
       childId,
       question.word.id,
@@ -341,18 +347,8 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
       correct,
       false
     );
-
-    // Track pending attempts to ensure they complete before quiz ends
     setPendingQuizAttempts(prev => [...prev, attemptPromise]);
-
-    // Don't await here - let it run in background, but track it
     attemptPromise.catch(err => console.error('Error recording quiz attempt:', err));
-
-    if (correct) {
-      setScore({ ...score, correct: score.correct + 1, total: score.total + 1 });
-    } else {
-      setScore({ ...score, total: score.total + 1 });
-    }
   };
 
   const handleSkip = async () => {
@@ -525,11 +521,11 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
       <>
         <Confetti trigger={showCelebration && percentage >= 80} />
         <CelebrationScreen
-          title={`סיימת את החידון! ${emoji}`}
+          title="סיימת את החידון!"
           message={`${score.correct} מתוך ${score.total} נכונים (${percentage}%)! קיבלת ${xpGained} נקודות נסיון!`}
           emoji={emoji}
           showConfetti={showCelebration && percentage >= 80}
-          actionLabel="🏠 חזור לנתיב הלמידה"
+          actionLabel="חזור לנתיב הלמידה"
           onAction={() => {
             setShowCelebration(false);
             setCompleted(true);
@@ -604,27 +600,25 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
   return (
     <>
       <Confetti trigger={showConfetti} duration={1000} />
-      <div className="p-4 md:p-6 bg-gray-50 min-h-[calc(100vh-200px)] animate-fade-in">
-        {/* Progress Bar - Hide when quiz is completed */}
+      <div className="p-4 md:p-8 bg-neutral-50 min-h-screen animate-fade-in flex flex-col max-w-2xl mx-auto">
+        {/* Progress Bar Header */}
         {!completed && !showCelebration && (
-          <div className="mb-4 bg-white rounded-lg p-3 shadow-sm border border-gray-100">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-semibold text-gray-700">
+          <div className="mb-8 w-full">
+            <div className="flex justify-between items-center mb-3">
+              <button
+                onClick={handleRestartQuiz}
+                className="text-sm font-bold text-neutral-400 hover:text-primary-600 transition-colors uppercase tracking-wide"
+                type="button"
+              >
+                התחל מחדש
+              </button>
+              <span className="text-sm font-black text-neutral-500">
                 {currentIndex + 1} מתוך {questions.length}
               </span>
-              {score.total > 0 && !completed && (
-                <button
-                  onClick={handleRestartQuiz}
-                  className="text-xs text-gray-500 hover:text-gray-700 underline"
-                  type="button"
-                >
-                  התחל מחדש
-                </button>
-              )}
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+            <div className="w-full bg-neutral-200 rounded-full h-5 overflow-hidden shadow-inner p-1">
               <div
-                className="bg-gradient-to-r from-primary-500 to-primary-600 h-2 rounded-full transition-all duration-500 ease-out shadow-sm"
+                className="bg-primary-500 h-full rounded-full transition-all duration-700 ease-out shadow-sm"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -632,129 +626,154 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
         )}
 
         {/* Question Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-6 border border-gray-100 animate-slide-up">
+        <div className="bg-white rounded-[2.5rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] p-8 md:p-12 mb-8 border border-neutral-100 animate-slide-up flex-1 flex flex-col justify-between relative overflow-hidden">
           {!isCurrentQuestionResult && (
-            <div className="mb-4 flex justify-end">
+            <div className="absolute top-6 right-6">
               <button
                 onClick={handleSkip}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 hover:border-gray-400 p-2 md:p-3 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                className="text-neutral-300 hover:text-primary-500 transition-colors p-2"
                 title="דלג"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ transform: 'scaleX(-1)' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                </svg>
+                <SkipBack className="w-6 h-6" />
               </button>
             </div>
           )}
-          <div className="text-center mb-8">
-            {question.questionType === 'EN_TO_HE' && (
-              <>
-                <h2 className="text-5xl md:text-6xl font-bold mb-4 text-primary-600 drop-shadow-sm">{question.word.englishWord}</h2>
-                <p className="text-lg md:text-xl text-gray-600 font-medium">מה התרגום בעברית?</p>
-              </>
-            )}
-            {question.questionType === 'HE_TO_EN' && (
-              <>
-                <h2 className="text-5xl md:text-6xl font-bold mb-4 text-primary-600 drop-shadow-sm">{question.word.hebrewTranslation}</h2>
-                <p className="text-lg md:text-xl text-gray-600 font-medium">מה המילה באנגלית?</p>
-              </>
-            )}
-            {question.questionType === 'AUDIO_TO_EN' && (
-              <>
-                <button
-                  onClick={() => speakWord(question.word.englishWord)}
-                  className="text-6xl md:text-7xl mb-4 hover:scale-110 active:scale-95 transition-all duration-200 hover:drop-shadow-lg"
-                >
-                  🔊
-                </button>
-                <p className="text-lg md:text-xl text-gray-600 font-medium">מה המילה ששמעת?</p>
-              </>
-            )}
-          </div>
 
-          <div className="space-y-3 md:space-y-4">
-            {question.answers.map((answer: string, idx: number) => {
-              let buttonClass = 'w-full py-4 md:py-5 rounded-xl text-lg md:text-xl font-semibold border-2 transition-all duration-200 ';
+          <div className="flex-1">
+            <div className="text-center mb-10">
+              {question.questionType === 'EN_TO_HE' && (
+                <>
+                  <h2 className="text-6xl md:text-7xl font-black mb-4 text-primary-600 tracking-tight leading-tight">{question.word.englishWord}</h2>
+                  <p className="text-xl md:text-2xl text-neutral-800 font-bold tracking-tight">מה התרגום בעברית?</p>
+                </>
+              )}
+              {question.questionType === 'HE_TO_EN' && (
+                <>
+                  <h2 className="text-6xl md:text-7xl font-black mb-4 text-primary-600 tracking-tight leading-tight">{question.word.hebrewTranslation}</h2>
+                  <p className="text-xl md:text-2xl text-neutral-800 font-bold tracking-tight">מה המילה באנגלית?</p>
+                </>
+              )}
+              {question.questionType === 'AUDIO_TO_EN' && (
+                <>
+                  <div className="flex justify-center mb-6">
+                    <button
+                      onClick={() => speakWord(question.word.englishWord)}
+                      className="w-24 h-24 rounded-[2rem] bg-primary-100 text-primary-600 flex items-center justify-center shadow-[0_8px_0_0_#e0e7ff] hover:translate-y-1 hover:shadow-[0_4px_0_0_#e0e7ff] transition-all duration-200 active:translate-y-2 active:shadow-none"
+                    >
+                      <Volume2 className="w-12 h-12" />
+                    </button>
+                  </div>
+                  <p className="text-xl md:text-2xl text-neutral-800 font-bold tracking-tight">מה המילה ששמעת?</p>
+                </>
+              )}
+            </div>
 
-              if (isCurrentQuestionResult) {
-                if (isCorrect) {
-                  // Correct answer selected - show it in green
-                  if (answer === question.correctAnswer) {
-                    buttonClass += 'bg-success-500 text-white border-success-600 shadow-lg scale-105';
+            <div className="space-y-4">
+              {question.answers.map((answer: string, idx: number) => {
+                let buttonClass = 'w-full py-5 rounded-2xl text-xl font-bold border-2 transition-all duration-200 shadow-[0_4px_0_0_rgba(0,0,0,0.05)] active:translate-y-1 active:shadow-none ';
+
+                if (isCurrentQuestionResult) {
+                  if (isCorrect) {
+                    if (answer === question.correctAnswer) {
+                      buttonClass += 'bg-success-500 text-white border-success-600 shadow-[0_4px_0_0_#059669] scale-[1.02]';
+                    } else {
+                      buttonClass += 'bg-white text-neutral-300 border-neutral-100 opacity-40 shadow-none';
+                    }
                   } else {
-                    buttonClass += 'bg-gray-100 text-gray-500 border-gray-300';
+                    if (answer === selectedAnswer) {
+                      buttonClass += 'bg-danger-500 text-white border-danger-600 shadow-[0_4px_0_0_#e11d48]';
+                    } else if (answer === question.correctAnswer && retryUsed) {
+                      buttonClass += 'bg-success-500 text-white border-success-600 shadow-[0_4px_0_0_#059669]';
+                    } else {
+                      buttonClass += 'bg-white text-neutral-300 border-neutral-100 opacity-40 shadow-none';
+                    }
                   }
                 } else {
-                  // Wrong answer selected
-                  if (answer === selectedAnswer) {
-                    // Show wrong selected answer in red
-                    buttonClass += 'bg-red-500 text-white border-red-600 shadow-md';
-                  } else if (answer === question.correctAnswer && retryUsed) {
-                    // Only show correct answer in green after retry is used
-                    buttonClass += 'bg-success-500 text-white border-success-600 shadow-lg scale-105';
-                  } else {
-                    buttonClass += 'bg-gray-100 text-gray-500 border-gray-300';
-                  }
+                  const isSelected = selectedAnswer === answer &&
+                    selectedAnswerQuestionId === question.word.id;
+                  buttonClass += isSelected
+                    ? 'bg-primary-100 text-primary-600 border-primary-500 shadow-[0_4px_0_0_#c7d2fe]'
+                    : 'bg-white text-neutral-600 border-neutral-100 hover:border-primary-200 hover:bg-neutral-50';
                 }
-              } else {
-                // Only highlight if selectedAnswer matches AND it's for the current question
-                // This prevents showing selected state from previous question
-                const isSelected = selectedAnswer === answer &&
-                  selectedAnswerQuestionId === question.word.id &&
-                  !showResult;
-                buttonClass += isSelected
-                  ? 'bg-primary-100 text-primary-800 border-primary-400 shadow-md'
-                  : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50 hover:border-primary-300 hover:shadow-sm';
-              }
 
-              return (
-                <button
-                  key={`q${currentIndex}-w${question.word.id}-a${idx}-${answer.substring(0, 10)}`}
-                  onClick={() => handleAnswerSelect(answer)}
-                  className={buttonClass}
-                  disabled={isCurrentQuestionResult}
-                >
-                  {answer}
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={`q${currentIndex}-w${question.word.id}-a${idx}`}
+                    onClick={() => handleAnswerSelect(answer)}
+                    className={buttonClass}
+                    disabled={isCurrentQuestionResult}
+                  >
+                    {answer}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {isCurrentQuestionResult && !isCorrect && !retryUsed && (
-            <div className="mt-6 p-5 bg-yellow-50 border-2 border-yellow-300 rounded-xl shadow-sm animate-slide-up">
-              <p className="text-center text-yellow-800 mb-3 text-lg font-semibold">לא נכון, נסה שוב!</p>
-              <div className="flex justify-center">
-                <button
-                  onClick={handleRetry}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-white px-8 py-3 rounded-lg font-bold transition-all duration-200 transform hover:scale-105 active:scale-95"
-                >
-                  נסה שוב
-                </button>
-              </div>
-            </div>
-          )}
-
-          {isCurrentQuestionResult && isCorrect && (
-            <div className="mt-6 p-5 bg-success-50 border-2 border-success-300 rounded-xl shadow-sm animate-slide-up">
-              <p className="text-center text-success-800 text-2xl font-bold">נכון! כל הכבוד! 🎉</p>
-            </div>
-          )}
-
-          {isCurrentQuestionResult && !isCorrect && retryUsed && (
-            <div className="mt-6 p-5 bg-red-50 border-2 border-red-300 rounded-xl shadow-sm animate-slide-up">
-              <p className="text-center text-red-800 text-lg">
-                התשובה הנכונה: <strong className="text-xl">{question.correctAnswer}</strong>
-              </p>
+          {/* Feedback Section inside Card */}
+          {isCurrentQuestionResult && (
+            <div className="mt-8 animate-slide-up">
+              {isCorrect ? (
+                <div className="p-5 bg-success-50 border-2 border-success-200 rounded-3xl flex items-center justify-center gap-3">
+                  <div className="bg-success-500 w-8 h-8 rounded-full flex items-center justify-center text-white shadow-sm">
+                    <CheckCircle2 className="w-5 h-5" />
+                  </div>
+                  <p className="text-success-700 text-xl font-black tracking-tight">נכון! כל הכבוד! 🎉</p>
+                </div>
+              ) : !retryUsed ? (
+                <div className="p-5 bg-accent-50 border-2 border-accent-200 rounded-3xl text-center space-y-4">
+                  <p className="text-accent-800 text-xl font-black tracking-tight flex items-center justify-center gap-2">
+                    לא נורא, נסה שוב
+                  </p>
+                  <button
+                    onClick={handleRetry}
+                    className="w-full bg-accent-500 hover:bg-accent-600 text-white py-4 rounded-2xl font-black transition-all shadow-[0_4px_0_0_#d97706] active:translate-y-1 active:shadow-none"
+                  >
+                    נסה שוב
+                  </button>
+                </div>
+              ) : (
+                <div className="p-5 bg-danger-50 border-2 border-danger-200 rounded-3xl text-center flex items-center justify-center gap-3">
+                  <div className="bg-danger-500 w-8 h-8 rounded-full flex items-center justify-center text-white shadow-sm">
+                    <XCircle className="w-5 h-5" />
+                  </div>
+                  <p className="text-danger-800 text-xl font-black tracking-tight">
+                    התשובה: {question.correctAnswer}
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>
 
-        <div className="flex gap-3">
-          {isCurrentQuestionResult && (
+        {/* Global Action Button Anchor */}
+        <div className="w-full mt-auto pb-8">
+          {!isCurrentQuestionResult ? (
+            <button
+              onClick={handleCheck}
+              disabled={!selectedAnswer}
+              className={`
+                w-full py-5 rounded-2xl text-2xl font-black transition-all duration-200 tracking-tight
+                ${selectedAnswer
+                  ? 'bg-primary-500 text-white shadow-[0_8px_0_0_#4f46e5] hover:translate-y-1 hover:shadow-[0_4px_0_0_#4f46e5] active:translate-y-2 active:shadow-none'
+                  : 'bg-neutral-200 text-neutral-400 cursor-not-allowed shadow-none'
+                }
+              `}
+            >
+              בדיקה
+            </button>
+          ) : (
             <button
               ref={continueButtonRef}
               onClick={handleNext}
-              className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-5 md:py-6 rounded-xl text-xl md:text-2xl font-bold shadow-lg hover:shadow-2xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] animate-slide-up"
+              className={`
+                w-full py-5 rounded-2xl text-2xl font-black transition-all duration-200 tracking-tight
+                ${isCorrect
+                  ? 'bg-success-500 text-white shadow-[0_8px_0_0_#059669] hover:translate-y-1 hover:shadow-[0_4px_0_0_#059669]'
+                  : 'bg-primary-500 text-white shadow-[0_8px_0_0_#4f46e5] hover:translate-y-1 hover:shadow-[0_4px_0_0_#4f46e5]'
+                }
+                active:translate-y-2 active:shadow-none
+              `}
             >
               {currentIndex < questions.length - 1 ? 'המשך' : 'סיים חידון ✓'}
             </button>

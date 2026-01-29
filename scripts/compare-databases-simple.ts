@@ -46,13 +46,14 @@ async function getWordsFromDatabase(prisma: PrismaClient, label: string) {
   };
 
   words.forEach(word => {
-    stats.byCategory[word.category] = (stats.byCategory[word.category] || 0) + 1;
+    const category = word.category || 'Uncategorized';
+    stats.byCategory[category] = (stats.byCategory[category] || 0) + 1;
     stats.byDifficulty[word.difficulty] = (stats.byDifficulty[word.difficulty] || 0) + 1;
-    if (!stats.byCategoryAndDifficulty[word.category]) {
-      stats.byCategoryAndDifficulty[word.category] = {};
+    if (!stats.byCategoryAndDifficulty[category]) {
+      stats.byCategoryAndDifficulty[category] = {};
     }
-    stats.byCategoryAndDifficulty[word.category][word.difficulty] =
-      (stats.byCategoryAndDifficulty[word.category][word.difficulty] || 0) + 1;
+    stats.byCategoryAndDifficulty[category][word.difficulty] =
+      (stats.byCategoryAndDifficulty[category][word.difficulty] || 0) + 1;
   });
 
   return stats;
@@ -70,15 +71,15 @@ async function compare() {
   // Load production
   console.log('📊 Loading PRODUCTION database...');
   console.log('⚠️  Make sure schema.prisma provider is set to "postgresql" for production connection\n');
-  
+
   // Temporarily override DATABASE_URL for production
   const originalUrl = process.env.DATABASE_URL;
   process.env.DATABASE_URL = productionUrl;
-  
+
   // Regenerate Prisma Client if needed, or use a workaround
   // For now, we'll assume the user has changed the schema provider
   const productionPrisma = new PrismaClient();
-  
+
   let productionStats;
   try {
     productionStats = await getWordsFromDatabase(productionPrisma, 'Production');
@@ -94,7 +95,7 @@ async function compare() {
     process.env.DATABASE_URL = originalUrl;
     process.exit(1);
   }
-  
+
   await productionPrisma.$disconnect();
   process.env.DATABASE_URL = originalUrl;
 
@@ -102,7 +103,7 @@ async function compare() {
   console.log('\n' + '='.repeat(80));
   console.log('📈 COMPARISON RESULTS');
   console.log('='.repeat(80));
-  
+
   console.log(`\nTotal words:`);
   console.log(`  Local:      ${localStats.total}`);
   console.log(`  Production: ${productionStats.total}`);
@@ -111,7 +112,7 @@ async function compare() {
   // Colors Level 3 specifically
   const localColorsLevel3 = localStats.words.filter(w => w.category === 'Colors' && w.difficulty >= 2);
   const prodColorsLevel3 = productionStats.words.filter(w => w.category === 'Colors' && w.difficulty >= 2);
-  
+
   console.log(`\n🎨 Colors Category - Level 3 (Difficulty 2+):`);
   console.log(`  Local:      ${localColorsLevel3.length} words`);
   console.log(`  Production: ${prodColorsLevel3.length} words`);
@@ -155,7 +156,7 @@ async function compare() {
   const colorsLocal = localStats.byCategoryAndDifficulty['Colors'] || {};
   const colorsProd = productionStats.byCategoryAndDifficulty['Colors'] || {};
   const difficulties = new Set([...Object.keys(colorsLocal), ...Object.keys(colorsProd)]);
-  
+
   for (const diff of Array.from(difficulties).sort()) {
     const d = Number(diff);
     const localCount = colorsLocal[d] || 0;

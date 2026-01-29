@@ -45,27 +45,19 @@ export default function LearnQuizWrapper({
 
   const handleModeSwitch = (newMode: 'learn' | 'quiz') => {
     if (mode === newMode || isSwitching || isPending) return;
-    
+
     setIsSwitching(true);
     setMode(newMode);
-    
-    // Use window.history.replaceState to update URL without triggering server re-render
-    // This prevents RSC requests and page reloads
+
+    // Update URL using router.replace to keep useSearchParams in sync
     const params = new URLSearchParams(searchParams?.toString() || '');
     params.set('mode', newMode);
-    const newUrl = `/learn?${params.toString()}`;
-    
-    // Update URL without triggering Next.js navigation
-    if (typeof window !== 'undefined') {
-      window.history.replaceState(
-        { ...window.history.state, as: newUrl, url: newUrl },
-        '',
-        newUrl
-      );
-    }
-    
-    // Reset switching flag after a short delay
-    setTimeout(() => setIsSwitching(false), 100);
+
+    startTransition(() => {
+      router.replace(`/learn?${params.toString()}`, { scroll: false });
+      // Reset switching flag after transition completes
+      setIsSwitching(false);
+    });
   };
 
   // Render based on mode - keep components mounted to preserve state
@@ -95,11 +87,10 @@ export default function LearnQuizWrapper({
         <button
           onClick={() => handleModeSwitch('learn')}
           disabled={isSwitching || isPending || mode === 'learn'}
-          className={`flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-lg transition-all duration-200 ${
-            mode === 'learn'
+          className={`flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-lg transition-all duration-200 ${mode === 'learn'
               ? 'border-2 border-primary-500 text-primary-600 font-bold'
               : 'hover:bg-blue-50 text-gray-600 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed'
-          }`}
+            }`}
         >
           <span className="text-2xl mb-1">📖</span>
           <span className="text-sm font-semibold">למידה</span>
@@ -107,11 +98,10 @@ export default function LearnQuizWrapper({
         <button
           onClick={() => handleModeSwitch('quiz')}
           disabled={isSwitching || isPending || mode === 'quiz'}
-          className={`flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-lg transition-all duration-200 ${
-            mode === 'quiz'
+          className={`flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-lg transition-all duration-200 ${mode === 'quiz'
               ? 'border-2 border-primary-500 text-primary-600 font-bold'
               : 'hover:bg-purple-50 text-gray-600 hover:text-purple-600 disabled:opacity-50 disabled:cursor-not-allowed'
-          }`}
+            }`}
         >
           <span className="text-2xl mb-1">✏️</span>
           <span className="text-sm font-semibold">חידון</span>
@@ -119,9 +109,9 @@ export default function LearnQuizWrapper({
       </div>
 
       <div className={mode === 'quiz' ? 'block' : 'hidden'}>
-        <QuizToday 
-          childId={childId} 
-          todayPlan={todayPlan} 
+        <QuizToday
+          childId={childId}
+          todayPlan={todayPlan}
           category={category}
           levelState={levelState}
           categoryWords={categoryWords}
@@ -129,11 +119,11 @@ export default function LearnQuizWrapper({
         />
       </div>
       <div className={mode === 'learn' ? 'block' : 'hidden'}>
-        <LearnToday 
-          childId={childId} 
-          todayPlan={todayPlan} 
-          wordId={wordId} 
-          category={category} 
+        <LearnToday
+          childId={childId}
+          todayPlan={todayPlan}
+          wordId={wordId}
+          category={category}
           level={level}
           onModeSwitch={handleModeSwitch}
           currentMode={mode} // Pass mode as prop for reliable detection

@@ -2,20 +2,15 @@
 
 import { cache } from 'react';
 import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, unstable_noStore as noStore } from 'next/cache';
 
 export const getAllWords = cache(async (level?: number) => {
   const where: any = { active: true };
-  
-  // Filter by level if specified
-  // Level 2 = basic words (difficulty 1)
-  // Level 3 = less basic words (difficulty 2+)
-  if (level === 2) {
-    where.difficulty = 1;
-  } else if (level === 3) {
-    where.difficulty = { gte: 2 };
+
+  if (level) {
+    where.level = level;
   }
-  
+
   return prisma.word.findMany({
     where,
     orderBy: [
@@ -35,7 +30,7 @@ export async function createWord(data: {
   englishWord: string;
   hebrewTranslation: string;
   category: string;
-  difficulty?: number;
+  level?: number;
   imageUrl?: string;
   audioUrl?: string;
   exampleEn?: string;
@@ -44,7 +39,7 @@ export async function createWord(data: {
   const word = await prisma.word.create({
     data: {
       ...data,
-      difficulty: data.difficulty || 1,
+      level: data.level || 1,
       active: true,
     },
   });
@@ -58,7 +53,7 @@ export async function updateWord(id: string, data: {
   englishWord?: string;
   hebrewTranslation?: string;
   category?: string;
-  difficulty?: number;
+  level?: number;
   active?: boolean;
   imageUrl?: string;
   audioUrl?: string;
@@ -89,16 +84,11 @@ export const getWordsByCategory = cache(async (category: string, level?: number)
     category,
     active: true,
   };
-  
-  // Filter by level if specified
-  // Level 2 = basic words (difficulty 1)
-  // Level 3 = less basic words (difficulty 2+)
-  if (level === 2) {
-    where.difficulty = 1;
-  } else if (level === 3) {
-    where.difficulty = { gte: 2 };
+
+  if (level) {
+    where.level = level;
   }
-  
+
   return prisma.word.findMany({
     where,
     orderBy: { englishWord: 'asc' },
@@ -115,6 +105,7 @@ export async function getAllCategories() {
 }
 
 export async function getAllWordsAdmin() {
+  noStore();
   // Get all words including inactive ones for admin panel
   return prisma.word.findMany({
     orderBy: [

@@ -2,7 +2,7 @@ import { vi } from 'vitest';
 
 // Create a mock Prisma client
 export const prisma = {
-  parentAccount: {
+  user: {
     findUnique: vi.fn(),
     findFirst: vi.fn(),
     findMany: vi.fn(),
@@ -10,15 +10,8 @@ export const prisma = {
     update: vi.fn(),
     updateMany: vi.fn(),
     delete: vi.fn(),
-  },
-  childProfile: {
-    findUnique: vi.fn(),
-    findFirst: vi.fn(),
-    findMany: vi.fn(),
-    create: vi.fn(),
-    update: vi.fn(),
-    updateMany: vi.fn(),
-    delete: vi.fn(),
+    upsert: vi.fn(),
+    count: vi.fn(),
   },
   word: {
     findUnique: vi.fn(),
@@ -35,35 +28,21 @@ export const prisma = {
     create: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
+    count: vi.fn(),
   },
   letterProgress: {
     findUnique: vi.fn(),
     findMany: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
+    count: vi.fn(),
   },
-  levelState: {
-    findUnique: vi.fn(),
-    findFirst: vi.fn(),
-    create: vi.fn(),
-    update: vi.fn(),
-  },
+
   progress: {
     findUnique: vi.fn(),
     findMany: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
-  },
-  dailyPlan: {
-    findUnique: vi.fn(),
-    findFirst: vi.fn(),
-    create: vi.fn(),
-    update: vi.fn(),
-    delete: vi.fn(),
-  },
-  dailyPlanWord: {
-    deleteMany: vi.fn(),
-    createMany: vi.fn(),
   },
   quizAttempt: {
     create: vi.fn(),

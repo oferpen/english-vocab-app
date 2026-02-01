@@ -56,7 +56,7 @@ vi.mock('@/lib/sounds', () => ({
 describe('QuizToday - Bug Fixes', () => {
   const mockTodayPlan = {
     id: 'plan-1',
-    childId: 'child-1',
+    userId: 'user-1',
     date: '2024-01-01',
     words: [
       { word: { id: 'word-1', englishWord: 'cat', hebrewTranslation: 'חתול', difficulty: 1, category: 'Animals' } },
@@ -77,7 +77,7 @@ describe('QuizToday - Bug Fixes', () => {
     level: 2,
     xp: 50,
     id: 'level-1',
-    childId: 'child-1',
+    userId: 'user-1',
     updatedAt: new Date(),
   };
 
@@ -98,7 +98,7 @@ describe('QuizToday - Bug Fixes', () => {
         level: 2,
         xp: 50,
         id: 'level-1',
-        childId: 'child-1',
+        userId: 'user-1',
       });
     });
     mocks.getAllWords.mockResolvedValue(mockWords);
@@ -106,6 +106,8 @@ describe('QuizToday - Bug Fixes', () => {
     mocks.recordQuizAttempt.mockResolvedValue({});
     mocks.addXP.mockResolvedValue({});
     mocks.updateMissionProgress.mockResolvedValue({});
+    // Mock scrollIntoView
+    Element.prototype.scrollIntoView = vi.fn();
   });
 
 
@@ -113,7 +115,7 @@ describe('QuizToday - Bug Fixes', () => {
   describe('Bug: Selected answer persists to next question', () => {
     it('should reset selectedAnswer when moving to next question', async () => {
       const user = userEvent.setup();
-      render(<QuizToday childId="child-1" todayPlan={mockTodayPlan} />);
+      render(<QuizToday userId="user-1" todayPlan={mockTodayPlan} />);
 
       // Wait for questions to load
       await waitFor(() => {
@@ -123,13 +125,19 @@ describe('QuizToday - Bug Fixes', () => {
       // Find and click an answer - look for buttons that are answer options (not navigation buttons)
       await waitFor(() => {
         const answerButtons = screen.getAllByRole('button').filter(
-          btn => btn.textContent && btn.textContent.length > 0 && !btn.textContent.includes('המשך') && !btn.textContent.includes('נסה שוב') && !btn.textContent.includes('דלג')
+          btn => btn.textContent && btn.textContent.length > 0 &&
+            !btn.textContent.includes('המשך') &&
+            !btn.textContent.includes('נסה שוב') &&
+            !btn.textContent.includes('דלג') &&
+            !btn.textContent.includes('התחל מחדש') &&
+            !btn.textContent.includes('בדיקה')
         );
         expect(answerButtons.length).toBeGreaterThan(0);
       });
 
       const answerButtons = screen.getAllByRole('button').filter(
-        btn => btn.textContent && btn.textContent.length > 0 && !btn.textContent.includes('המשך') && !btn.textContent.includes('נסה שוב') && !btn.textContent.includes('דלג')
+        btn => btn.textContent && btn.textContent.length > 0 &&
+          !['המשך', 'נסה שוב', 'דלג', 'התחל מחדש', 'בדיקה'].some(t => btn.textContent?.includes(t))
       );
       expect(answerButtons.length).toBeGreaterThan(0);
       const firstAnswer = answerButtons[0];
@@ -137,27 +145,31 @@ describe('QuizToday - Bug Fixes', () => {
       // Click the answer button
       await user.click(firstAnswer);
 
+      // Click check button
+      const checkButton = screen.getByText('בדיקה');
+      await user.click(checkButton);
+
       // Wait for result to show - check for visual indicators that result is displayed
       // This could be: disabled buttons, continue/retry buttons, or success/error messages
       await waitFor(() => {
         // Check for continue button, retry button, success message, or disabled answer buttons
-        const continueButton = screen.queryByText('המשך →');
-        const retryButton = screen.queryByText(/נסה שוב/);
+        const buttons = screen.getAllByRole('button');
+        const continueButton = buttons.find(b => b.textContent?.includes('המשך'));
+        const retryButton = buttons.find(b => b.textContent?.includes('נסה שוב'));
         const successMessage = screen.queryByText(/נכון/);
         const errorMessage = screen.queryByText(/לא נכון/);
+
         // Check if any answer button has result styling (success/error colors)
-        const answerButtonsAfterClick = screen.getAllByRole('button').filter(
+        const answerButtonsAfterClick = buttons.filter(
           btn => btn.textContent && btn.textContent.length > 0 &&
-            !btn.textContent.includes('המשך') &&
-            !btn.textContent.includes('נסה שוב') &&
-            !btn.textContent.includes('דלג')
+            !['המשך', 'נסה שוב', 'דלג', 'התחל מחדש', 'בדיקה'].some(t => btn.textContent?.includes(t))
         );
         const hasResultStyling = answerButtonsAfterClick.some(btn =>
           btn.className.includes('bg-success-500') ||
           btn.className.includes('bg-red-500') ||
           btn.className.includes('bg-gray-100')
         );
-        const disabledButtons = screen.getAllByRole('button').filter(btn => btn.disabled);
+        const disabledButtons = buttons.filter(btn => (btn as HTMLButtonElement).disabled);
 
         const hasContinueButton = !!continueButton;
         const hasRetryButton = !!retryButton;
@@ -169,8 +181,8 @@ describe('QuizToday - Bug Fixes', () => {
         expect(hasContinueButton || hasRetryButton || hasSuccessMessage || hasErrorMessage || hasResultStyling || hasDisabledButtons).toBe(true);
       }, { timeout: 3000 });
 
-      // Click "המשך" to go to next question
-      const continueButton = screen.getByText('המשך →');
+      // Move to next question
+      const continueButton = await screen.findByText(/המשך/);
       await user.click(continueButton);
 
       // Wait for next question to load
@@ -179,7 +191,8 @@ describe('QuizToday - Bug Fixes', () => {
         expect(screen.getByText(/2 מתוך/)).toBeInTheDocument();
         // Check that no answer is selected (all buttons should be enabled and not highlighted)
         const allAnswerButtons = screen.getAllByRole('button').filter(
-          btn => btn.textContent && btn.textContent.length > 0 && !btn.textContent.includes('המשך') && !btn.textContent.includes('נסה שוב') && !btn.textContent.includes('דלג')
+          btn => btn.textContent && btn.textContent.length > 0 &&
+            !['המשך', 'נסה שוב', 'דלג', 'התחל מחדש', 'בדיקה'].some(t => btn.textContent?.includes(t))
         );
         // Should have answer buttons
         expect(allAnswerButtons.length).toBeGreaterThan(0);
@@ -192,7 +205,7 @@ describe('QuizToday - Bug Fixes', () => {
 
     it('should track selectedAnswerQuestionId correctly', async () => {
       const user = userEvent.setup();
-      render(<QuizToday childId="child-1" todayPlan={mockTodayPlan} />);
+      render(<QuizToday userId="user-1" todayPlan={mockTodayPlan} />);
 
       await waitFor(() => {
         expect(screen.queryByText('טוען חידון...')).not.toBeInTheDocument();
@@ -205,18 +218,22 @@ describe('QuizToday - Bug Fixes', () => {
       if (answerButtons.length > 0) {
         await user.click(answerButtons[0]);
 
+        const checkButton = screen.getByText('בדיקה');
+        await user.click(checkButton);
+
         await waitFor(() => {
-          expect(screen.getByText(/נכון|לא נכון/)).toBeInTheDocument();
+          expect(screen.getByText(/נכון|לא נכון|לא נורא/)).toBeInTheDocument();
         });
 
         // Move to next question
-        const continueButton = screen.getByText('המשך →');
+        const continueButton = await screen.findByText(/המשך/);
         await user.click(continueButton);
 
         // Verify we can answer the next question
         await waitFor(() => {
           const nextAnswerButtons = screen.getAllByRole('button').filter(
-            btn => btn.textContent && btn.textContent.length > 0 && !btn.textContent.includes('המשך') && !btn.textContent.includes('נסה שוב') && !btn.textContent.includes('דלג')
+            btn => btn.textContent && btn.textContent.length > 0 &&
+              !['המשך', 'נסה שוב', 'דלג', 'התחל מחדש', 'בדיקה'].some(t => btn.textContent?.includes(t))
           );
           expect(nextAnswerButtons.length).toBeGreaterThan(0);
           // All buttons should be enabled
@@ -231,7 +248,7 @@ describe('QuizToday - Bug Fixes', () => {
   describe('Bug: Progress bar not updating', () => {
     it('should update progress bar when moving to next question', async () => {
       const user = userEvent.setup();
-      render(<QuizToday childId="child-1" todayPlan={mockTodayPlan} />);
+      render(<QuizToday userId="user-1" todayPlan={mockTodayPlan} />);
 
       await waitFor(() => {
         expect(screen.queryByText('טוען חידון...')).not.toBeInTheDocument();
@@ -247,12 +264,15 @@ describe('QuizToday - Bug Fixes', () => {
       if (answerButtons.length > 0) {
         await user.click(answerButtons[0]);
 
+        const checkButton = screen.getByText('בדיקה');
+        await user.click(checkButton);
+
         await waitFor(() => {
-          expect(screen.getByText(/נכון|לא נכון/)).toBeInTheDocument();
+          expect(screen.getByText(/נכון|לא נכון|לא נורא/)).toBeInTheDocument();
         });
 
         // Move to next question
-        const continueButton = screen.getByText('המשך →');
+        const continueButton = await screen.findByText(/המשך/);
         await user.click(continueButton);
 
         // Check that progress updated
@@ -263,7 +283,7 @@ describe('QuizToday - Bug Fixes', () => {
     });
 
     it('should reset currentIndex when todayPlan changes', async () => {
-      const { rerender } = render(<QuizToday childId="child-1" todayPlan={mockTodayPlan} />);
+      const { rerender } = render(<QuizToday userId="user-1" todayPlan={mockTodayPlan} />);
 
       await waitFor(() => {
         expect(screen.queryByText('טוען חידון...')).not.toBeInTheDocument();
@@ -275,7 +295,7 @@ describe('QuizToday - Bug Fixes', () => {
         id: 'plan-2',
       };
 
-      rerender(<QuizToday childId="child-1" todayPlan={newPlan} />);
+      rerender(<QuizToday userId="user-1" todayPlan={newPlan} />);
 
       await waitFor(() => {
         // Progress should reset to 1
@@ -287,7 +307,7 @@ describe('QuizToday - Bug Fixes', () => {
   describe('Bug: Buttons not clickable on second question', () => {
     it('should enable buttons on second question', async () => {
       const user = userEvent.setup();
-      render(<QuizToday childId="child-1" todayPlan={mockTodayPlan} />);
+      render(<QuizToday userId="user-1" todayPlan={mockTodayPlan} />);
 
       await waitFor(() => {
         expect(screen.queryByText('טוען חידון...')).not.toBeInTheDocument();
@@ -300,12 +320,15 @@ describe('QuizToday - Bug Fixes', () => {
       if (firstAnswerButtons.length > 0) {
         await user.click(firstAnswerButtons[0]);
 
+        const checkButton = screen.getByText('בדיקה');
+        await user.click(checkButton);
+
         await waitFor(() => {
-          expect(screen.getByText(/נכון|לא נכון/)).toBeInTheDocument();
+          expect(screen.getByText(/נכון|לא נכון|לא נורא/)).toBeInTheDocument();
         });
 
         // Move to next question
-        const continueButton = screen.getByText('המשך →');
+        const continueButton = await screen.findByText(/המשך/);
         await user.click(continueButton);
 
         // Wait for second question
@@ -315,7 +338,12 @@ describe('QuizToday - Bug Fixes', () => {
 
         // Check that buttons are clickable
         const secondAnswerButtons = screen.getAllByRole('button').filter(
-          btn => btn.textContent && btn.textContent.length > 0 && !btn.textContent.includes('המשך') && !btn.textContent.includes('נסה שוב') && !btn.textContent.includes('דלג')
+          btn => btn.textContent && btn.textContent.length > 0 &&
+            !btn.textContent.includes('המשך') &&
+            !btn.textContent.includes('נסה שוב') &&
+            !btn.textContent.includes('דלג') &&
+            !btn.textContent.includes('התחל מחדש') &&
+            !btn.textContent.includes('בדיקה')
         );
         expect(secondAnswerButtons.length).toBeGreaterThan(0);
         secondAnswerButtons.forEach(btn => {
@@ -326,7 +354,7 @@ describe('QuizToday - Bug Fixes', () => {
 
     it('should correctly calculate isCurrentQuestionResult', async () => {
       const user = userEvent.setup();
-      render(<QuizToday childId="child-1" todayPlan={mockTodayPlan} />);
+      render(<QuizToday userId="user-1" todayPlan={mockTodayPlan} />);
 
       await waitFor(() => {
         expect(screen.queryByText('טוען חידון...')).not.toBeInTheDocument();
@@ -335,35 +363,40 @@ describe('QuizToday - Bug Fixes', () => {
       // Answer first question
       await waitFor(() => {
         const answerButtons = screen.getAllByRole('button').filter(
-          btn => btn.textContent && btn.textContent.length > 0 && !btn.textContent.includes('המשך') && !btn.textContent.includes('נסה שוב') && !btn.textContent.includes('דלג')
+          btn => btn.textContent && btn.textContent.length > 0 &&
+            !['המשך', 'נסה שוב', 'דלג', 'התחל מחדש', 'בדיקה'].some(t => btn.textContent?.includes(t))
         );
         expect(answerButtons.length).toBeGreaterThan(0);
       });
 
       const answerButtons = screen.getAllByRole('button').filter(
-        btn => btn.textContent && btn.textContent.length > 0 && !btn.textContent.includes('המשך') && !btn.textContent.includes('נסה שוב') && !btn.textContent.includes('דלג')
+        btn => btn.textContent && btn.textContent.length > 0 &&
+          !['המשך', 'נסה שוב', 'דלג', 'התחל מחדש', 'בדיקה'].some(t => btn.textContent?.includes(t))
       );
       await user.click(answerButtons[0]);
 
+      const checkButton = screen.getByText('בדיקה');
+      await user.click(checkButton);
+
       await waitFor(() => {
         // Buttons should be disabled when showing result, or action buttons should appear
-        const continueButton = screen.queryByText('המשך →');
-        const retryButton = screen.queryByText(/נסה שוב/);
+        const buttons = screen.getAllByRole('button');
+        const continueButton = buttons.find(b => b.textContent?.includes('המשך'));
+        const retryButton = buttons.find(b => b.textContent?.includes('נסה שוב'));
         const successMessage = screen.queryByText(/נכון/);
         const errorMessage = screen.queryByText(/לא נכון/);
+
         // Check if any answer button has result styling (success/error colors)
-        const answerButtonsAfterClick = screen.getAllByRole('button').filter(
+        const answerButtonsAfterClick = buttons.filter(
           btn => btn.textContent && btn.textContent.length > 0 &&
-            !btn.textContent.includes('המשך') &&
-            !btn.textContent.includes('נסה שוב') &&
-            !btn.textContent.includes('דלג')
+            !['המשך', 'נסה שוב', 'דלג', 'התחל מחדש', 'בדיקה'].some(t => btn.textContent?.includes(t))
         );
         const hasResultStyling = answerButtonsAfterClick.some(btn =>
           btn.className.includes('bg-success-500') ||
           btn.className.includes('bg-red-500') ||
           btn.className.includes('bg-gray-100')
         );
-        const disabledButtons = screen.getAllByRole('button').filter(btn => btn.disabled);
+        const disabledButtons = buttons.filter(btn => (btn as HTMLButtonElement).disabled);
 
         const hasContinueButton = !!continueButton;
         const hasRetryButton = !!retryButton;
@@ -376,13 +409,15 @@ describe('QuizToday - Bug Fixes', () => {
       }, { timeout: 3000 });
 
       // Move to next question
-      const continueButton = screen.getByText('המשך →');
+      const continueButton = await screen.findByText(/המשך/);
       await user.click(continueButton);
 
       // Buttons should be enabled again
       await waitFor(() => {
         const enabledButtons = screen.getAllByRole('button').filter(
-          btn => btn.textContent && btn.textContent.length > 0 && !btn.textContent.includes('המשך') && !btn.textContent.includes('נסה שוב') && !btn.textContent.includes('דלג') && !btn.disabled
+          btn => btn.textContent && btn.textContent.length > 0 &&
+            !['המשך', 'נסה שוב', 'דלג', 'התחל מחדש', 'בדיקה'].some(t => btn.textContent?.includes(t)) &&
+            !(btn as HTMLButtonElement).disabled
         );
         expect(enabledButtons.length).toBeGreaterThan(0);
       }, { timeout: 3000 });
@@ -391,7 +426,7 @@ describe('QuizToday - Bug Fixes', () => {
 
   describe('Bug: No words available after finishing category learning', () => {
     it('should pass category to quiz when provided', async () => {
-      render(<QuizToday childId="child-1" todayPlan={mockTodayPlan} category="Animals" levelState={mockLevelState} />);
+      render(<QuizToday userId="user-1" todayPlan={mockTodayPlan} category="Animals" levelState={mockLevelState} />);
 
       await waitFor(() => {
         expect(screen.queryByText('טוען חידון...')).not.toBeInTheDocument();
@@ -403,7 +438,8 @@ describe('QuizToday - Bug Fixes', () => {
       // Should show questions
       await waitFor(() => {
         const answerButtons = screen.getAllByRole('button').filter(
-          btn => btn.textContent && btn.textContent.length > 0 && !btn.textContent.includes('המשך') && !btn.textContent.includes('נסה שוב') && !btn.textContent.includes('דלג')
+          btn => btn.textContent && btn.textContent.length > 0 &&
+            !['המשך', 'נסה שוב', 'דלג', 'התחל מחדש', 'בדיקה'].some(t => btn.textContent?.includes(t))
         );
         expect(answerButtons.length).toBeGreaterThan(0);
       });
@@ -412,7 +448,7 @@ describe('QuizToday - Bug Fixes', () => {
     it('should filter words correctly when category is provided', async () => {
       mocks.getAllWords.mockResolvedValue(mockWords);
 
-      render(<QuizToday childId="child-1" todayPlan={mockTodayPlan} category="Animals" />);
+      render(<QuizToday userId="user-1" todayPlan={mockTodayPlan} category="Animals" />);
 
       await waitFor(() => {
         expect(screen.queryByText('טוען חידון...')).not.toBeInTheDocument();
@@ -434,7 +470,7 @@ describe('QuizToday - Bug Fixes', () => {
       mocks.getLevelState.mockResolvedValue({ ...mockLevelState, level: 2 });
       mocks.getAllWords.mockResolvedValue(level2Words);
 
-      render(<QuizToday childId="child-1" todayPlan={mockTodayPlan} />);
+      render(<QuizToday userId="user-1" todayPlan={mockTodayPlan} />);
 
       await waitFor(() => {
         expect(screen.queryByText('טוען חידון...')).not.toBeInTheDocument();
@@ -447,7 +483,8 @@ describe('QuizToday - Bug Fixes', () => {
       // Should show level 2 words
       await waitFor(() => {
         const answerButtons = screen.getAllByRole('button').filter(
-          btn => btn.textContent && btn.textContent.length > 0 && !btn.textContent.includes('המשך') && !btn.textContent.includes('נסה שוב') && !btn.textContent.includes('דלג')
+          btn => btn.textContent && btn.textContent.length > 0 &&
+            !['המשך', 'נסה שוב', 'דלג', 'התחל מחדש', 'בדיקה'].some(t => btn.textContent?.includes(t))
         );
         expect(answerButtons.length).toBeGreaterThan(0);
       });
@@ -456,7 +493,7 @@ describe('QuizToday - Bug Fixes', () => {
     it('should use category words without additional filtering', async () => {
       mocks.getLevelState.mockResolvedValue({ ...mockLevelState, level: 2 });
 
-      render(<QuizToday childId="child-1" todayPlan={mockTodayPlan} category="Animals" />);
+      render(<QuizToday userId="user-1" todayPlan={mockTodayPlan} category="Animals" />);
 
       await waitFor(() => {
         expect(screen.queryByText('טוען חידון...')).not.toBeInTheDocument();

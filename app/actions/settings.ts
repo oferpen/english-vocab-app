@@ -3,7 +3,7 @@
 import { cache } from 'react';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
-import { getCurrentParentAccount } from '@/lib/auth';
+import { getCurrentUser } from '@/lib/auth';
 
 export interface AppSettings {
   questionTypes: {
@@ -14,15 +14,15 @@ export interface AppSettings {
 }
 
 export const getSettings = cache(async (): Promise<AppSettings> => {
-  const parentAccount = await getCurrentParentAccount();
-  if (!parentAccount) {
+  const user = await getCurrentUser();
+  if (!user) {
     return getDefaultSettings();
   }
 
   try {
-    const parsed = JSON.parse(parentAccount.settingsJson || '{}') as Partial<AppSettings>;
+    const parsed = JSON.parse(user.settingsJson || '{}') as Partial<AppSettings>;
     const defaults = getDefaultSettings();
-    
+
     // Ensure all required fields exist with defaults
     return {
       questionTypes: {
@@ -37,16 +37,16 @@ export const getSettings = cache(async (): Promise<AppSettings> => {
 });
 
 export async function updateSettings(settings: Partial<AppSettings>) {
-  const parentAccount = await getCurrentParentAccount();
-  if (!parentAccount) {
-    throw new Error('Parent account not found');
+  const user = await getCurrentUser();
+  if (!user) {
+    throw new Error('User not found');
   }
 
   const current = await getSettings();
   const updated = { ...current, ...settings };
 
-  await prisma.parentAccount.update({
-    where: { id: parentAccount.id },
+  await prisma.user.update({
+    where: { id: user.id },
     data: {
       settingsJson: JSON.stringify(updated),
     },

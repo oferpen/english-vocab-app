@@ -1,35 +1,23 @@
 'use server';
 
-import { verifyPIN as verifyPINLib, hasPIN as hasPINLib, setPIN as setPINLib, updatePIN as updatePINLib } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getAuthSession } from '@/lib/auth-helper';
 import { randomUUID } from 'crypto';
 
-export async function verifyPIN(pin: string): Promise<boolean> {
-  return verifyPINLib(pin);
-}
-
-export async function hasPIN(): Promise<boolean> {
-  return hasPINLib();
-}
-
-export async function setPIN(pin: string): Promise<void> {
-  return setPINLib(pin);
-}
-
-export async function updatePIN(pin: string): Promise<boolean> {
-  return updatePINLib(pin);
-}
-
-export async function getCurrentParentAccount() {
+export async function getCurrentUser() {
   const session = await getAuthSession();
-  if (!session?.user?.email) {
-    return null;
+  if (session?.user?.email) {
+    return await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
   }
 
-  return await prisma.parentAccount.findUnique({
-    where: { email: session.user.email },
-  });
+  // Also try cookie/deviceId if session is missing but we're in component context? 
+  // Normally the client component or page will call this.
+  // Ideally, reuse the logic from lib/auth.ts, but that's what we are essentially duplicating or should import.
+  // For Server Actions, we can just import from lib/auth.
+  const { getCurrentUser: getCurrentUserLib } = await import('@/lib/auth');
+  return getCurrentUserLib();
 }
 
 export async function isGoogleAuthenticated(): Promise<boolean> {
@@ -54,18 +42,35 @@ export async function startAnonymousSession() {
     });
   }
 
-  const parentAccount = await prisma.parentAccount.findUnique({
-    where: { deviceId } as any,
+  const user = await prisma.user.findUnique({
+    where: { deviceId },
   });
 
-  // If it's a Google account, force a NEW deviceId for anonymous learning
-  if (parentAccount && !(parentAccount as any).isAnonymous) {
+  // If it's a Google account (not anonymous), force a NEW deviceId for anonymous learning
+  if (user && !user.isAnonymous) {
     const newDeviceId = randomUUID();
     cookieStore.set('deviceId', newDeviceId, {
       maxAge: 60 * 60 * 24 * 365,
       path: '/',
       httpOnly: true,
       sameSite: 'lax',
+    });
+    // Create new anonymous user
+    await prisma.user.create({
+      data: {
+        deviceId: newDeviceId,
+        isAnonymous: true,
+        name: 'Guest',
+      },
+    });
+  } else if (!user) {
+    // Create new anonymous user if not exists
+    await prisma.user.create({
+      data: {
+        deviceId,
+        isAnonymous: true,
+        name: 'Guest',
+      },
     });
   }
 

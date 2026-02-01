@@ -5,15 +5,15 @@ import { prisma } from '@/lib/prisma';
 import { getTodayDate } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
 
-export const getStreak = cache(async (childId: string): Promise<number> => {
+export const getStreak = cache(async (userId: string): Promise<number> => {
   // Get all quiz attempts and learn sessions
   const today = getTodayDate();
-  
+
   // This is simplified - in production you'd track daily completion
   // For now, check if there's activity today and yesterday
   const progress = await prisma.progress.findMany({
     where: {
-      childId,
+      userId,
       lastSeenAt: {
         gte: new Date(new Date().setDate(new Date().getDate() - 30)),
       },
@@ -36,12 +36,12 @@ export const getStreak = cache(async (childId: string): Promise<number> => {
   let streak = 0;
   const sortedDates = Array.from(dates).sort().reverse();
   const todayDate = new Date(today);
-  
+
   for (let i = 0; i < sortedDates.length; i++) {
     const checkDate = new Date(todayDate);
     checkDate.setDate(checkDate.getDate() - i);
     const checkDateStr = checkDate.toISOString().split('T')[0];
-    
+
     if (sortedDates.includes(checkDateStr)) {
       streak++;
     } else {
@@ -52,7 +52,7 @@ export const getStreak = cache(async (childId: string): Promise<number> => {
   return streak;
 });
 
-export async function checkDailyCompletion(childId: string, type: 'learn' | 'quiz'): Promise<boolean> {
+export async function checkDailyCompletion(userId: string, type: 'learn' | 'quiz'): Promise<boolean> {
   const today = getTodayDate();
   const todayStart = new Date(today + 'T00:00:00');
 
@@ -60,7 +60,7 @@ export async function checkDailyCompletion(childId: string, type: 'learn' | 'qui
     // Check if any words were learned today (lastSeenAt is today)
     const progress = await prisma.progress.findFirst({
       where: {
-        childId,
+        userId,
         lastSeenAt: {
           gte: todayStart,
         },
@@ -71,7 +71,7 @@ export async function checkDailyCompletion(childId: string, type: 'learn' | 'qui
     // Check if any quiz was completed today (any quiz attempt today)
     const attempts = await prisma.quizAttempt.findFirst({
       where: {
-        childId,
+        userId,
         isExtra: false,
         createdAt: {
           gte: todayStart,

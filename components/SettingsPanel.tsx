@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { getSettings, updateSettings } from '@/app/actions/settings';
-import { updatePIN } from '@/app/actions/auth';
 import { useRouter } from 'next/navigation';
 import {
   Settings as SettingsIcon,
@@ -10,19 +9,12 @@ import {
   Zap,
   Info,
   Check,
-  ChevronLeft,
-  Lock,
-  ShieldCheck,
-  AlertCircle
 } from 'lucide-react';
 
 export default function SettingsPanel() {
   const [settings, setSettings] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [showPinForm, setShowPinForm] = useState(false);
-  const [newPin, setNewPin] = useState('');
-  const [pinMessage, setPinMessage] = useState({ text: '', type: '' });
   const router = useRouter();
 
   useEffect(() => {
@@ -63,34 +55,6 @@ export default function SettingsPanel() {
     }
   };
 
-  const handlePINChange = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newPin.length !== 4) {
-      setPinMessage({ text: 'הקוד חייב להכיל 4 ספרות', type: 'error' });
-      return;
-    }
-
-    setSaving(true);
-    setPinMessage({ text: '', type: '' });
-
-    try {
-      const success = await updatePIN(newPin);
-      if (success) {
-        setPinMessage({ text: 'הקוד הוחלף בהצלחה', type: 'success' });
-        setNewPin('');
-        setTimeout(() => {
-          setShowPinForm(false);
-          setPinMessage({ text: '', type: '' });
-        }, 2000);
-      } else {
-        setPinMessage({ text: 'שגיאה בהחלפת הקוד', type: 'error' });
-      }
-    } catch (error) {
-      setPinMessage({ text: 'שגיאה בתקשורת עם השרת', type: 'error' });
-    } finally {
-      setSaving(false);
-    }
-  };
 
   if (loading || !settings) {
     return (
@@ -173,77 +137,6 @@ export default function SettingsPanel() {
                 );
               })}
             </div>
-          </div>
-
-          <div className="bg-white rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-neutral-100 p-8 md:p-10">
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center">
-                  <Lock className="w-6 h-6" />
-                </div>
-                <h3 className="text-2xl font-black text-neutral-800">אבטחה</h3>
-              </div>
-              {!showPinForm && (
-                <button
-                  onClick={() => setShowPinForm(true)}
-                  className="text-indigo-600 font-black text-sm hover:underline"
-                >
-                  החלף קוד PIN
-                </button>
-              )}
-            </div>
-
-            {showPinForm ? (
-              <form onSubmit={handlePINChange} className="space-y-4 animate-in slide-in-from-top-2 duration-300">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="flex-1">
-                    <input
-                      type="password"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength={4}
-                      value={newPin}
-                      onChange={(e) => setNewPin(e.target.value.replace(/[^0-9]/g, ''))}
-                      className="w-full px-6 py-4 bg-neutral-50 border-2 border-neutral-100 rounded-2xl focus:border-indigo-500 focus:outline-none transition-all font-black text-center text-2xl tracking-[1em]"
-                      placeholder="----"
-                      required
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      type="submit"
-                      disabled={saving || newPin.length !== 4}
-                      className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black shadow-[0_8px_0_0_#4338ca] active:translate-y-2 active:shadow-none transition-all disabled:opacity-50 disabled:shadow-none"
-                    >
-                      שמור קוד
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { setShowPinForm(false); setPinMessage({ text: '', type: '' }); }}
-                      className="px-8 py-4 bg-neutral-100 text-neutral-600 rounded-2xl font-black hover:bg-neutral-200 transition-all"
-                    >
-                      ביטול
-                    </button>
-                  </div>
-                </div>
-                {pinMessage.text && (
-                  <div className={`flex items-center gap-2 text-sm font-bold ${pinMessage.type === 'success' ? 'text-green-600' : 'text-rose-500'} animate-in fade-in`}>
-                    {pinMessage.type === 'success' ? <ShieldCheck className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-                    {pinMessage.text}
-                  </div>
-                )}
-              </form>
-            ) : (
-              <div className="flex items-center gap-4 p-6 bg-neutral-50 rounded-3xl border border-neutral-100">
-                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-neutral-300">
-                  <Check className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="font-black text-neutral-800">קוד הגישה מופעל</div>
-                  <div className="text-xs text-neutral-400 font-bold">הקוד משמש לכניסה לאזור ההורים</div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
 

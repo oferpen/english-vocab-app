@@ -6,14 +6,15 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting seed...');
 
-  // Create parent account with default PIN "1234"
-  const pinHash = await bcrypt.hash('1234', 10);
-  const parentAccount = await prisma.parentAccount.upsert({
-    where: { id: 'default-parent' },
+  // Create default user
+  const user = await prisma.user.upsert({
+    where: { id: 'default-user' },
     update: {},
     create: {
-      id: 'default-parent',
-      pinHash,
+      id: 'default-user',
+      name: 'Default User',
+      isAnonymous: true,
+      deviceId: 'default-device-id',
       settingsJson: JSON.stringify({
         questionTypes: {
           enToHe: true,
@@ -24,7 +25,7 @@ async function main() {
     },
   });
 
-  console.log('✅ Parent account created');
+  console.log('✅ Default user created');
 
   // Seed letters (A-Z)
   const letters = [
@@ -69,27 +70,7 @@ async function main() {
 
   console.log('✅ Created 26 letters');
 
-  // Create default child
-  const child = await prisma.childProfile.upsert({
-    where: { id: 'default-child' },
-    update: {},
-    create: {
-      id: 'default-child',
-      parentAccountId: parentAccount.id,
-      name: 'ילד/ה',
-      avatar: '👶',
-      age: 10,
-      grade: 'ד',
-    },
-  });
 
-  // Update parent's lastActiveChildId
-  await prisma.parentAccount.update({
-    where: { id: parentAccount.id },
-    data: { lastActiveChildId: child.id },
-  });
-
-  console.log('✅ Default child created');
 
   // Seed words - at least 60 beginner words
   const words = [
@@ -702,21 +683,7 @@ async function main() {
 
   console.log(`✅ Created ${words.length} words`);
 
-  // Create level state for child
-  await prisma.levelState.upsert({
-    where: { childId: child.id },
-    update: {},
-    create: {
-      childId: child.id,
-      level: 1,
-      xp: 0,
-    },
-  });
-
-  console.log('✅ Level state created');
-
   console.log('🎉 Seed completed!');
-  console.log('📌 Default PIN: 1234');
 }
 
 main()

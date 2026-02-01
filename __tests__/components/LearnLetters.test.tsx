@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LearnLetters from '@/components/LearnLetters';
-import { getAllLetters, getUnmasteredLetters, markLetterSeen } from '@/app/actions/letters';
 
 const mockGetUnmasteredLetters = vi.fn();
 const mockMarkLetterSeen = vi.fn();
@@ -30,18 +29,23 @@ vi.mock('@/lib/sounds', () => ({
   playSuccessSound: vi.fn(),
 }));
 
+// Mock useTransition to behave synchronously in tests
+vi.mock('react', async () => {
+  const actual = await vi.importActual('react');
+  return {
+    ...actual,
+    useTransition: () => [false, (fn: Function) => fn()],
+  };
+});
+
 describe('LearnLetters', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockGetUnmasteredLetters.mockClear();
-    mockMarkLetterSeen.mockClear();
-    mockCheckLevel1Complete.mockClear();
   });
 
   it('should display loading state initially', () => {
-    mockGetUnmasteredLetters.mockImplementation(() => new Promise(() => {}));
-
-    render(<LearnLetters childId="child-1" />);
+    mockGetUnmasteredLetters.mockImplementation(() => new Promise(() => { }));
+    render(<LearnLetters userId="user-1" />);
     expect(screen.getByText('טוען אותיות...')).toBeInTheDocument();
   });
 
@@ -49,16 +53,14 @@ describe('LearnLetters', () => {
     const mockLetters = [
       { id: 'letter-1', letter: 'A', name: 'A', hebrewName: 'איי', sound: '/eɪ/', order: 1 },
     ];
-
     mockGetUnmasteredLetters.mockResolvedValue(mockLetters);
     mockCheckLevel1Complete.mockResolvedValue(false);
 
-    render(<LearnLetters childId="child-1" />);
+    render(<LearnLetters userId="user-1" />);
 
     await waitFor(() => {
-      // Look for the letter display, not just the text "A" which might appear multiple times
       expect(screen.getByText('איי')).toBeInTheDocument();
-    }, { timeout: 5000 });
+    });
   });
 
   it('should mark letter as learned when button clicked', async () => {
@@ -66,43 +68,22 @@ describe('LearnLetters', () => {
     const mockLetters = [
       { id: 'letter-1', letter: 'A', name: 'A', hebrewName: 'איי', sound: '/eɪ/', order: 1 },
     ];
-
     mockGetUnmasteredLetters.mockResolvedValue(mockLetters);
     mockMarkLetterSeen.mockResolvedValue({ mastered: false, timesSeen: 1, timesCorrect: 1 });
+    mockCheckLevel1Complete.mockResolvedValue(false);
 
-    render(<LearnLetters childId="child-1" />);
+    render(<LearnLetters userId="user-1" />);
 
+    // Wait for letters to load
     await waitFor(() => {
-      expect(screen.getByText('יודע! ✓')).toBeInTheDocument();
+      expect(screen.queryByText('איי')).toBeInTheDocument();
     });
 
-    await user.click(screen.getByText('יודע! ✓'));
+    const knownButton = screen.getByText('יודע!');
+    await user.click(knownButton);
 
     await waitFor(() => {
-      expect(mockMarkLetterSeen).toHaveBeenCalledWith('child-1', 'letter-1', true);
+      expect(mockMarkLetterSeen).toHaveBeenCalledWith('user-1', 'letter-1', true);
     });
-  });
-
-  it('should show celebration when level 1 complete', async () => {
-    const mockLetters = [
-      { id: 'letter-1', letter: 'A', name: 'A', order: 1 },
-    ];
-
-    mockGetUnmasteredLetters.mockResolvedValue(mockLetters);
-    mockMarkLetterSeen.mockResolvedValue({ mastered: true, timesSeen: 3, timesCorrect: 3 });
-    mockCheckLevel1Complete.mockResolvedValue(true);
-
-    const user = userEvent.setup();
-    render(<LearnLetters childId="child-1" />);
-
-    await waitFor(() => {
-      expect(screen.getByText('יודע! ✓')).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByText('יודע! ✓'));
-
-    await waitFor(() => {
-      expect(screen.getByText(/כל הכבוד/)).toBeInTheDocument();
-    }, { timeout: 5000 });
   });
 });

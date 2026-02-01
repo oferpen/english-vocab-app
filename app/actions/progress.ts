@@ -4,23 +4,23 @@ import { cache } from 'react';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
-export async function getProgress(childId: string, wordId: string) {
+export async function getProgress(userId: string, wordId: string) {
   return prisma.progress.findUnique({
     where: {
-      childId_wordId: {
-        childId,
+      userId_wordId: {
+        userId,
         wordId,
       },
     },
   });
 }
 
-export async function getOrCreateProgress(childId: string, wordId: string) {
-  let progress = await getProgress(childId, wordId);
+export async function getOrCreateProgress(userId: string, wordId: string) {
+  let progress = await getProgress(userId, wordId);
   if (!progress) {
     progress = await prisma.progress.create({
       data: {
-        childId,
+        userId,
         wordId,
         timesSeenInLearn: 0,
         quizAttempts: 0,
@@ -36,9 +36,9 @@ export async function getOrCreateProgress(childId: string, wordId: string) {
 // Module-level promise cache to prevent duplicate calls (e.g., from React Strict Mode)
 const markWordSeenCache = new Map<string, Promise<void>>();
 
-export async function markWordSeen(childId: string, wordId: string, skipRevalidate: boolean = false) {
+export async function markWordSeen(userId: string, wordId: string, skipRevalidate: boolean = false) {
   // Create session key for deduplication
-  const sessionKey = `${childId}-${wordId}`;
+  const sessionKey = `${userId}-${wordId}`;
 
   // Check if we're already processing this session
   const existingPromise = markWordSeenCache.get(sessionKey);
@@ -50,7 +50,7 @@ export async function markWordSeen(childId: string, wordId: string, skipRevalida
   // Create promise and cache it IMMEDIATELY (synchronously)
   const promise = (async () => {
     try {
-      const progress = await getOrCreateProgress(childId, wordId);
+      const progress = await getOrCreateProgress(userId, wordId);
 
       await prisma.progress.update({
         where: { id: progress.id },
@@ -87,14 +87,14 @@ export async function markWordSeen(childId: string, wordId: string, skipRevalida
 const recordQuizAttemptCache = new Map<string, Promise<void>>();
 
 export async function recordQuizAttempt(
-  childId: string,
+  userId: string,
   wordId: string,
   questionType: 'EN_TO_HE' | 'HE_TO_EN' | 'AUDIO_TO_EN',
   correct: boolean,
   isExtra: boolean = false
 ) {
   // Create session key for deduplication (include questionType and correct to handle retries)
-  const sessionKey = `${childId}-${wordId}-${questionType}-${correct}`;
+  const sessionKey = `${userId}-${wordId}-${questionType}-${correct}`;
 
   // Check if we're already processing this session
   const existingPromise = recordQuizAttemptCache.get(sessionKey);
@@ -109,7 +109,7 @@ export async function recordQuizAttempt(
       // Create quiz attempt
       await prisma.quizAttempt.create({
         data: {
-          childId,
+          userId,
           wordId,
           questionType,
           correct,
@@ -118,7 +118,7 @@ export async function recordQuizAttempt(
       });
 
       // Update progress
-      const progress = await getOrCreateProgress(childId, wordId);
+      const progress = await getOrCreateProgress(userId, wordId);
       const newAttempts = progress.quizAttempts + 1;
       const newCorrect = progress.quizCorrect + (correct ? 1 : 0);
 
@@ -161,15 +161,15 @@ export async function recordQuizAttempt(
 const progressCache = new Map<string, Promise<any[]>>();
 
 // This function is called BEFORE React's cache wrapper
-function getAllProgressWithCache(childId: string): Promise<any[]> {
-  // Check if there's already a pending promise for this childId
-  if (progressCache.has(childId)) {
-    return progressCache.get(childId)!;
+function getAllProgressWithCache(userId: string): Promise<any[]> {
+  // Check if there's already a pending promise for this userId
+  if (progressCache.has(userId)) {
+    return progressCache.get(userId)!;
   }
 
   // Create the promise and cache it IMMEDIATELY
   const promise = prisma.progress.findMany({
-    where: { childId },
+    where: { userId },
     include: {
       word: true,
     },
@@ -181,12 +181,12 @@ function getAllProgressWithCache(childId: string): Promise<any[]> {
   });
 
   // Cache the promise IMMEDIATELY before any async operations
-  progressCache.set(childId, promise);
+  progressCache.set(userId, promise);
 
   // Clean up the cache after the promise resolves (keep for 5 seconds to handle React Strict Mode)
   promise.finally(() => {
     setTimeout(() => {
-      progressCache.delete(childId);
+      progressCache.delete(userId);
     }, 5000);
   });
 
@@ -196,9 +196,9 @@ function getAllProgressWithCache(childId: string): Promise<any[]> {
 // Export directly - promise cache handles deduplication
 export const getAllProgress = getAllProgressWithCache;
 
-export async function getWordsNeedingReview(childId: string, level?: number) {
+export async function getWordsNeedingReview(userId: string, level?: number) {
   const where: any = {
-    childId,
+    userId,
     needsReview: true,
   };
 
@@ -215,9 +215,9 @@ export async function getWordsNeedingReview(childId: string, level?: number) {
   });
 }
 
-export async function getUnseenWords(childId: string, level?: number) {
+export async function getUnseenWords(userId: string, level?: number) {
   const progress = await prisma.progress.findMany({
-    where: { childId },
+    where: { userId },
     select: { wordId: true },
   });
 
@@ -238,4 +238,8 @@ export async function getUnseenWords(childId: string, level?: number) {
   return prisma.word.findMany({
     where,
   });
+}
+
+export async function revalidateLearnPath() {
+  revalidatePath('/learn/path');
 }

@@ -8,7 +8,7 @@ import LearnLetters from './LearnLetters';
 import QuizLetters from './QuizLetters';
 
 interface LearnQuizWrapperProps {
-  childId: string;
+  userId: string;
   todayPlan: any;
   category?: string;
   level?: number;
@@ -19,7 +19,7 @@ interface LearnQuizWrapperProps {
 }
 
 export default function LearnQuizWrapper({
-  childId,
+  userId,
   todayPlan,
   category,
   level,
@@ -36,52 +36,48 @@ export default function LearnQuizWrapper({
   });
   const [isSwitching, setIsSwitching] = useState(false);
 
-  // Sync mode with URL params
   useEffect(() => {
-    const urlMode = searchParams?.get('mode') as 'learn' | 'quiz';
-    if (urlMode && urlMode !== mode && !isSwitching) {
-      setMode(urlMode);
+    // Sync mode to URL without full page reload
+    const url = new URL(window.location.href);
+    if (url.searchParams.get('mode') !== mode) {
+      url.searchParams.set('mode', mode);
+      window.history.replaceState(null, '', url.toString());
     }
-  }, [searchParams, mode, isSwitching]);
+  }, [mode]);
 
   const handleModeSwitch = (newMode: 'learn' | 'quiz') => {
-    if (mode === newMode || isSwitching || isPending) return;
+    if (mode === newMode || isSwitching) return;
 
     setIsSwitching(true);
     setMode(newMode);
 
-    // Update URL using router.replace to keep useSearchParams in sync
-    const params = new URLSearchParams(searchParams?.toString() || '');
-    params.set('mode', newMode);
-
-    startTransition(() => {
-      router.replace(`/learn?${params.toString()}`, { scroll: false });
-      // Reset switching flag after transition completes
+    // Small delay to ensure smooth transition
+    setTimeout(() => {
       setIsSwitching(false);
-    });
+    }, 100);
   };
 
   // Render based on mode
   // Level 1 logic: Show Letters Learn/Quiz if no category/todayPlan
-  if (levelState.level === 1 && !category && !todayPlan) {
+  if (level === 1 && !category && !todayPlan) {
     return (
       <>
-        <div className="mb-4 flex gap-2 bg-white rounded-xl p-2 shadow-md border border-gray-100">
+        <div className="mb-2 flex gap-2 bg-white rounded-xl p-1.5 shadow-sm border border-gray-100">
           <button
             onClick={() => handleModeSwitch('learn')}
             disabled={isSwitching || isPending || mode === 'learn'}
-            className={`flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-lg transition-all duration-200 ${mode === 'learn'
+            className={`flex-1 flex items-center justify-center py-2 px-3 rounded-lg transition-all duration-200 ${mode === 'learn'
               ? 'border-2 border-primary-500 text-primary-600 font-bold shadow-sm'
               : 'hover:bg-blue-50 text-gray-600 hover:text-blue-600'
               }`}
           >
-            <span className="text-2xl mb-1">📖</span>
+            <span className="text-xl mr-2">📖</span>
             <span className="text-sm font-semibold">למידה</span>
           </button>
           <button
             onClick={() => handleModeSwitch('quiz')}
             disabled={isSwitching || isPending || mode === 'quiz'}
-            className={`flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-lg transition-all duration-200 ${mode === 'quiz'
+            className={`flex-1 flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-all duration-200 ${mode === 'quiz'
               ? 'border-2 border-primary-500 text-primary-600 font-bold shadow-sm'
               : 'hover:bg-purple-50 text-gray-600 hover:text-purple-600'
               }`}
@@ -92,9 +88,9 @@ export default function LearnQuizWrapper({
         </div>
 
         {mode === 'quiz' ? (
-          <QuizLetters childId={childId} onModeSwitch={handleModeSwitch} />
+          <QuizLetters userId={userId} onModeSwitch={handleModeSwitch} />
         ) : (
-          <LearnLetters childId={childId} letterId={letterId} />
+          <LearnLetters userId={userId} letterId={letterId} />
         )}
       </>
     );
@@ -112,11 +108,11 @@ export default function LearnQuizWrapper({
   return (
     <>
       {/* Navigation Tabs - Always visible to prevent flickering */}
-      <div className="mb-4 flex gap-2 bg-white rounded-xl p-2 shadow-md border border-gray-100">
+      <div className="mb-2 flex gap-2 bg-white rounded-xl p-1.5 shadow-sm border border-gray-100">
         <button
           onClick={() => handleModeSwitch('learn')}
           disabled={isSwitching || isPending || mode === 'learn'}
-          className={`flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-lg transition-all duration-200 ${mode === 'learn'
+          className={`flex-1 flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-all duration-200 ${mode === 'learn'
             ? 'border-2 border-primary-500 text-primary-600 font-bold'
             : 'hover:bg-blue-50 text-gray-600 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed'
             }`}
@@ -127,7 +123,7 @@ export default function LearnQuizWrapper({
         <button
           onClick={() => handleModeSwitch('quiz')}
           disabled={isSwitching || isPending || mode === 'quiz'}
-          className={`flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-lg transition-all duration-200 ${mode === 'quiz'
+          className={`flex-1 flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-all duration-200 ${mode === 'quiz'
             ? 'border-2 border-primary-500 text-primary-600 font-bold'
             : 'hover:bg-purple-50 text-gray-600 hover:text-purple-600 disabled:opacity-50 disabled:cursor-not-allowed'
             }`}
@@ -137,27 +133,26 @@ export default function LearnQuizWrapper({
         </button>
       </div>
 
-      <div className={mode === 'quiz' ? 'block' : 'hidden'}>
+      {mode === 'quiz' ? (
         <QuizToday
-          childId={childId}
+          userId={userId}
           todayPlan={todayPlan}
           category={category}
           levelState={levelState}
           categoryWords={categoryWords}
           onModeSwitch={handleModeSwitch}
         />
-      </div>
-      <div className={mode === 'learn' ? 'block' : 'hidden'}>
+      ) : (
         <LearnToday
-          childId={childId}
+          userId={userId}
           todayPlan={todayPlan}
           wordId={wordId}
           category={category}
           level={level}
           onModeSwitch={handleModeSwitch}
-          currentMode={mode} // Pass mode as prop for reliable detection
+          currentMode={mode}
         />
-      </div>
+      )}
     </>
   );
 }

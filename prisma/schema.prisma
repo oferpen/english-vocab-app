@@ -7,41 +7,28 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model ParentAccount {
-  id                String         @id @default(cuid())
-  pinHash           String?
-  email             String?        @unique
-  googleId          String?        @unique
-  name              String?
-  image             String?
-  isAnonymous       Boolean        @default(false)
-  deviceId          String?        @unique
-  createdAt         DateTime       @default(now())
-  lastActiveChildId String?
-  settingsJson      String         @default("{}")
-  children          ChildProfile[]
-
-  @@map("parent_accounts")
-  @@index([deviceId])
-}
-
-model ChildProfile {
+model User {
   id              String           @id @default(cuid())
-  parentAccountId String
-  name            String
+  email           String?          @unique
+  googleId        String?          @unique
+  name            String?
+  image           String?
   avatar          String?
-  age             Int?
-  grade           String?
+  isAnonymous     Boolean          @default(false)
+  deviceId        String?          @unique
+  level           Int              @default(1)
+  xp              Int              @default(0)
+  settingsJson    String           @default("{}")
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
-  parentAccount   ParentAccount    @relation(fields: [parentAccountId], references: [id], onDelete: Cascade)
   letterProgress  LetterProgress[]
-  levelState      LevelState?
-  missionStates   MissionState[]
   progress        Progress[]
   quizAttempts    QuizAttempt[]
+  missionStates   MissionState[]
 
-  @@map("child_profiles")
+  @@map("users")
+  @@index([deviceId])
+  @@index([email])
 }
 
 model Word {
@@ -66,64 +53,53 @@ model Word {
 }
 
 model Progress {
-  id               String       @id @default(cuid())
-  childId          String
+  id               String    @id @default(cuid())
+  userId           String
   wordId           String
-  timesSeenInLearn Int          @default(0)
-  quizAttempts     Int          @default(0)
-  quizCorrect      Int          @default(0)
+  timesSeenInLearn Int       @default(0)
+  quizAttempts     Int       @default(0)
+  quizCorrect      Int       @default(0)
   lastSeenAt       DateTime?
-  masteryScore     Int          @default(0)
-  needsReview      Boolean      @default(false)
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @default(now())
-  child            ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
-  word             Word         @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  masteryScore     Int       @default(0)
+  needsReview      Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @default(now())
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  word             Word      @relation(fields: [wordId], references: [id], onDelete: Cascade)
 
-  @@unique([childId, wordId])
+  @@unique([userId, wordId])
   @@map("progress")
 }
 
 model QuizAttempt {
-  id           String       @id @default(cuid())
-  childId      String
+  id           String   @id @default(cuid())
+  userId       String
   wordId       String
-  createdAt    DateTime     @default(now())
+  createdAt    DateTime @default(now())
   questionType String
   correct      Boolean
-  isExtra      Boolean      @default(false)
-  child        ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
-  word         Word         @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  isExtra      Boolean  @default(false)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  word         Word     @relation(fields: [wordId], references: [id], onDelete: Cascade)
 
   @@map("quiz_attempts")
 }
 
 model MissionState {
-  id              String       @id @default(cuid())
-  childId         String
+  id              String   @id @default(cuid())
+  userId          String
   periodType      String
   missionKey      String
-  progress        Int          @default(0)
+  progress        Int      @default(0)
   target          Int
-  completed       Boolean      @default(false)
+  completed       Boolean  @default(false)
   periodStartDate String
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @default(now())
-  child           ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([childId, periodType, missionKey, periodStartDate])
+  @@unique([userId, periodType, missionKey, periodStartDate])
   @@map("mission_states")
-}
-
-model LevelState {
-  id        String       @id @default(cuid())
-  childId   String       @unique
-  level     Int          @default(1)
-  xp        Int          @default(0)
-  updatedAt DateTime     @default(now())
-  child     ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
-
-  @@map("level_states")
 }
 
 model Letter {
@@ -143,18 +119,18 @@ model Letter {
 }
 
 model LetterProgress {
-  id           String       @id @default(cuid())
-  childId      String
+  id           String    @id @default(cuid())
+  userId       String
   letterId     String
-  timesSeen    Int          @default(0)
-  timesCorrect Int          @default(0)
-  mastered     Boolean      @default(false)
+  timesSeen    Int       @default(0)
+  timesCorrect Int       @default(0)
+  mastered     Boolean   @default(false)
   lastSeenAt   DateTime?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @default(now())
-  child        ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
-  letter       Letter       @relation(fields: [letterId], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now())
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  letter       Letter    @relation(fields: [letterId], references: [id], onDelete: Cascade)
 
-  @@unique([childId, letterId])
+  @@unique([userId, letterId])
   @@map("letter_progress")
 }

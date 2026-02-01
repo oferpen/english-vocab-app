@@ -8,14 +8,14 @@ import { getLevelState, getXPForNextLevel, getXPForLevel } from '@/app/actions/l
 import CircularProgress from './CircularProgress';
 
 interface ProgressSidePanelProps {
-  childId: string;
+  userId: string;
   levelState?: any; // Optional - if provided, don't fetch it again
   progress?: any[]; // Optional - if provided, don't fetch it again
   streak?: number; // Optional - if provided, don't fetch it again
 }
 
 export default function ProgressSidePanel({
-  childId,
+  userId,
   levelState: propLevelState,
   progress: propProgress,
   streak: propStreak,
@@ -45,7 +45,7 @@ export default function ProgressSidePanel({
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [childId, propProgress, propLevelState, propStreak]); // Depend on props to update when they change
+  }, [userId, propProgress, propLevelState, propStreak]); // Depend on props to update when they change
 
   const loadProgress = async () => {
     // Prevent multiple simultaneous calls
@@ -59,15 +59,15 @@ export default function ProgressSidePanel({
       const promises: Promise<any>[] = [];
 
       if (!propProgress) {
-        promises.push(getAllProgress(childId).then(setProgress));
+        promises.push(getAllProgress(userId).then(setProgress));
       }
 
       if (propStreak === undefined) {
-        promises.push(getStreak(childId).then(setStreak));
+        promises.push(getStreak(userId).then(setStreak));
       }
 
       if (!propLevelState) {
-        promises.push(getLevelState(childId).then(setLevelState));
+        promises.push(getLevelState(userId).then(setLevelState));
       }
 
       await Promise.all(promises);

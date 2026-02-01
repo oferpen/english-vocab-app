@@ -1,13 +1,10 @@
 'use server';
 
-import { cache } from 'react';
-import { unstable_cache } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
 const XP_PER_WORD_MASTERED = 10;
 const XP_PER_MISSION = 50;
-const XP_PER_STREAK_DAY = 5;
 
 // Level mapping:
 // Level 1 = Letters (A-Z)
@@ -26,90 +23,27 @@ export async function getLevelContentType(level: number): Promise<'letters' | 'b
   return 'advanced_words'; // Level 3+
 }
 
-export async function canAccessLevel(childLevel: number, requiredLevel: number): Promise<boolean> {
-  return childLevel >= requiredLevel;
+export async function canAccessLevel(userLevel: number, requiredLevel: number): Promise<boolean> {
+  return userLevel >= requiredLevel;
 }
 
-// Global promise cache to prevent duplicate calls - checked BEFORE React's cache
-const levelStateCache = new Map<string, Promise<any>>();
-
-// This function is called BEFORE React's cache wrapper
-function getLevelStateWithCache(childId: string): Promise<any> {
-  // Validate input
-  if (!childId || typeof childId !== 'string') {
-    console.warn('getLevelState: Invalid childId', childId);
-    return Promise.resolve({ id: '', childId: childId || '', level: 1, xp: 0, updatedAt: new Date() });
-  }
-
-  // Check if there's already a pending promise for this childId
-  if (levelStateCache.has(childId)) {
-    return levelStateCache.get(childId)!;
-  }
-
-  // Create the promise and cache it IMMEDIATELY
-  const promise = (async () => {
-    try {
-      let levelState = await prisma.levelState.findUnique({
-        where: { childId },
-      });
-
-      if (!levelState) {
-        try {
-          levelState = await prisma.levelState.create({
-            data: {
-              childId,
-              level: 1,
-              xp: 0,
-            },
-          });
-        } catch (createError: any) {
-          // If table doesn't exist or creation fails, return a default object
-          if (createError?.code === 'P2021' || createError?.message?.includes('does not exist')) {
-            return { id: '', childId, level: 1, xp: 0, updatedAt: new Date() };
-          }
-          // Log error but return default instead of throwing
-          console.error('Error creating levelState:', createError);
-          return { id: '', childId, level: 1, xp: 0, updatedAt: new Date() };
-        }
-      }
-
-      return levelState;
-    } catch (error: any) {
-      // If table doesn't exist, return a default object
-      if (error?.code === 'P2021' || error?.message?.includes('does not exist')) {
-        return { id: '', childId, level: 1, xp: 0, updatedAt: new Date() };
-      }
-      // Log error but return default instead of throwing to prevent revalidation failures
-      console.error('Error in getLevelState:', {
-        error: error?.message || error,
-        code: error?.code,
-        childId,
-      });
-      return { id: '', childId, level: 1, xp: 0, updatedAt: new Date() };
-    }
-  })();
-
-  levelStateCache.set(childId, promise);
-
-  // Clean up the cache after the promise resolves
-  promise.finally(() => {
-    setTimeout(() => {
-      levelStateCache.delete(childId);
-    }, 5000);
+// Simplified getLevelState helper (optional, can just use user.level/xp)
+export async function getLevelState(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { level: true, xp: true },
   });
-
-  return promise;
+  return user ? { level: user.level, xp: user.xp } : { level: 1, xp: 0 };
 }
 
-// Export directly - promise cache handles deduplication
-export const getLevelState = getLevelStateWithCache;
+export async function addXP(userId: string, amount: number, skipRevalidate: boolean = false) {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return { level: 1, xp: 0, leveledUp: false };
 
-export async function addXP(childId: string, amount: number, skipRevalidate: boolean = false) {
-  const levelState = await getLevelState(childId);
-  const newXP = levelState.xp + amount;
+  const newXP = user.xp + amount;
 
   // Calculate new level based on XP
-  let newLevel = levelState.level;
+  let newLevel = user.level;
   for (let i = LEVEL_XP_REQUIREMENTS.length - 1; i >= 0; i--) {
     if (newXP >= LEVEL_XP_REQUIREMENTS[i]) {
       newLevel = Math.min(i + 1, 3); // Cap at level 3 for now
@@ -118,23 +52,22 @@ export async function addXP(childId: string, amount: number, skipRevalidate: boo
   }
 
   // Check level-specific unlock requirements
-  if (newLevel === 2 && levelState.level === 1) {
+  if (newLevel === 2 && user.level === 1) {
     // Check if Level 1 (letters) is complete
     const { checkLevel1Complete } = await import('./letters');
-    const level1Complete = await checkLevel1Complete(childId);
+    const level1Complete = await checkLevel1Complete(userId);
     if (!level1Complete) {
       newLevel = 1; // Stay at level 1 until letters are mastered
     }
   }
 
-  const leveledUp = newLevel > levelState.level;
+  const leveledUp = newLevel > user.level;
 
-  await prisma.levelState.update({
-    where: { childId },
+  await prisma.user.update({
+    where: { id: userId },
     data: {
       xp: newXP,
       level: newLevel,
-      updatedAt: new Date(),
     },
   });
 
@@ -146,18 +79,19 @@ export async function addXP(childId: string, amount: number, skipRevalidate: boo
   return { level: newLevel, xp: newXP, leveledUp };
 }
 
-export async function checkAndUnlockLevel2(childId: string) {
-  const levelState = await getLevelState(childId);
-  if (levelState.level === 1) {
+export async function checkAndUnlockLevel2(userId: string) {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return false;
+
+  if (user.level === 1) {
     const { checkLevel1Complete } = await import('./letters');
-    const level1Complete = await checkLevel1Complete(childId);
+    const level1Complete = await checkLevel1Complete(userId);
     if (level1Complete) {
       // Unlock level 2
-      await prisma.levelState.update({
-        where: { childId },
+      await prisma.user.update({
+        where: { id: userId },
         data: {
           level: 2,
-          updatedAt: new Date(),
         },
       });
       revalidatePath('/learn');
@@ -170,15 +104,16 @@ export async function checkAndUnlockLevel2(childId: string) {
   return false;
 }
 
-export async function calculateLevelFromProgress(childId: string) {
+export async function calculateLevelFromProgress(userId: string) {
   const progress = await prisma.progress.findMany({
-    where: { childId },
+    where: { userId },
   });
 
   const masteredWords = progress.filter((p) => p.masteryScore >= 80).length;
+  // Note: MissionState needs to support userId
   const missions = await prisma.missionState.findMany({
     where: {
-      childId,
+      userId,
       completed: true,
     },
   });
@@ -190,7 +125,7 @@ export async function calculateLevelFromProgress(childId: string) {
   // Add streak bonus (simplified - would need streak calculation)
   // This is a placeholder
 
-  return addXP(childId, 0); // Just recalculate level
+  return addXP(userId, 0); // Just recalculate level
 }
 
 export async function getXPForLevel(level: number): Promise<number> {

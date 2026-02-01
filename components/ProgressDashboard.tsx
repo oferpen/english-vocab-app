@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { getAllChildren, getActiveChild } from '@/app/actions/children';
 import { getAllProgress } from '@/app/actions/progress';
 import { getStreak } from '@/app/actions/streak';
 import { getLevelState } from '@/app/actions/levels';
@@ -16,9 +15,11 @@ import {
   AlertCircle
 } from 'lucide-react';
 
-export default function ProgressDashboard() {
-  const [children, setChildren] = useState<any[]>([]);
-  const [selectedChildId, setSelectedChildId] = useState<string>('');
+interface ProgressDashboardProps {
+  userId: string;
+}
+
+export default function ProgressDashboard({ userId }: ProgressDashboardProps) {
   const [progress, setProgress] = useState<any[]>([]);
   const [streak, setStreak] = useState(0);
   const [levelState, setLevelState] = useState<any>(null);
@@ -26,51 +27,29 @@ export default function ProgressDashboard() {
 
   useEffect(() => {
     loadData();
-  }, []);
-
-  useEffect(() => {
-    if (selectedChildId) {
-      loadProgress();
-    }
-  }, [selectedChildId]);
+  }, [userId]);
 
   const loadData = async () => {
     setLoading(true);
-    const kids = await getAllChildren();
-    setChildren(kids);
-    if (kids.length > 0) {
-      const active = await getActiveChild();
-      setSelectedChildId(active?.id || kids[0].id);
+    try {
+      const [prog, str, level] = await Promise.all([
+        getAllProgress(userId),
+        getStreak(userId),
+        getLevelState(userId),
+      ]);
+      setProgress(prog);
+      setStreak(str);
+      setLevelState(level);
+    } catch (error) {
+      console.error('Error loading progress data:', error);
     }
     setLoading(false);
-  };
-
-  const loadProgress = async () => {
-    if (!selectedChildId) return;
-    const [prog, str, level] = await Promise.all([
-      getAllProgress(selectedChildId),
-      getStreak(selectedChildId),
-      getLevelState(selectedChildId),
-    ]);
-    setProgress(prog);
-    setStreak(str);
-    setLevelState(level);
   };
 
   if (loading) {
     return (
       <div className="flex justify-center p-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-      </div>
-    );
-  }
-
-  if (children.length === 0) {
-    return (
-      <div className="text-center py-20 bg-white rounded-[3rem] border-2 border-dashed border-neutral-100 mx-4">
-        <AlertCircle className="w-16 h-16 text-neutral-200 mx-auto mb-4" />
-        <h3 className="text-xl font-black text-neutral-400">אין עדיין ילדים במערכת</h3>
-        <p className="text-neutral-300 font-bold mt-2">הוסף ילד בלשונית "ניהול ילדים"</p>
       </div>
     );
   }
@@ -96,22 +75,7 @@ export default function ProgressDashboard() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h2 className="text-3xl font-black text-neutral-800 tracking-tight">דשבורד התקדמות</h2>
-          <p className="text-neutral-500 font-bold mt-1">עקוב אחר קצב הלמידה והישגי הילדים</p>
-        </div>
-
-        <div className="relative w-full md:w-64">
-          <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" />
-          <select
-            value={selectedChildId}
-            onChange={(e) => setSelectedChildId(e.target.value)}
-            className="w-full appearance-none pl-12 pr-6 py-4 bg-white border-2 border-neutral-100 rounded-2xl font-bold text-neutral-800 focus:border-indigo-500 focus:outline-none transition-all shadow-sm"
-          >
-            {children.map((child) => (
-              <option key={child.id} value={child.id}>
-                {child.avatar} {child.name}
-              </option>
-            ))}
-          </select>
+          <p className="text-neutral-500 font-bold mt-1">עקוב אחר קצב הלמידה וההישגים</p>
         </div>
       </div>
 
@@ -206,7 +170,7 @@ export default function ProgressDashboard() {
         {progress.length === 0 && (
           <div className="text-center py-20">
             <BookOpen className="w-12 h-12 text-neutral-100 mx-auto mb-3" />
-            <p className="text-neutral-400 font-black">עדיין אין נתוני למידה לילד זה</p>
+            <p className="text-neutral-400 font-black">עדיין אין נתוני למידה למשתמש זה</p>
           </div>
         )}
       </div>

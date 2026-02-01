@@ -20,11 +20,11 @@ describe('Prevent Duplicate Server Calls', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    // Don't reset modules - we want to test the promise cache behavior
+    // Import fresh modules
     const progressModule = await import('@/app/actions/progress');
     const learningModule = await import('@/app/actions/learning');
     const prismaModule = await import('@/__mocks__/prisma');
-    
+
     markWordSeen = progressModule.markWordSeen;
     recordQuizAttempt = progressModule.recordQuizAttempt;
     completeLearningSession = learningModule.completeLearningSession;
@@ -33,84 +33,42 @@ describe('Prevent Duplicate Server Calls', () => {
 
   describe('markWordSeen', () => {
     it('should only call database once when called 3 times simultaneously', async () => {
-      const childId = 'child-1';
+      const userId = 'user-1';
       const wordId = 'word-1';
-      
-      const mockProgress = {
-        id: 'progress-1',
-        childId,
-        wordId,
-        timesSeenInLearn: 0,
-        quizAttempts: 0,
-        quizCorrect: 0,
-        masteryScore: 0,
-        needsReview: false,
-        lastSeenAt: new Date(),
-      };
-      
-      // Mock: first findUnique returns null (needs create), subsequent calls return existing
-      vi.mocked(prisma.progress.findUnique)
-        .mockResolvedValueOnce(null)
-        .mockResolvedValue(mockProgress as any);
-      vi.mocked(prisma.progress.create).mockResolvedValue(mockProgress as any);
-      vi.mocked(prisma.progress.update).mockResolvedValue({
-        ...mockProgress,
-        timesSeenInLearn: 1,
-      } as any);
+      const mockProgress = { id: 'p1', userId, wordId, timesSeenInLearn: 0 };
 
-      // Call 3 times simultaneously (simulating React Strict Mode)
+      vi.mocked(prisma.progress.findUnique).mockResolvedValueOnce(null).mockResolvedValue(mockProgress);
+      vi.mocked(prisma.progress.create).mockResolvedValue(mockProgress);
+      vi.mocked(prisma.progress.update).mockResolvedValue({ ...mockProgress, timesSeenInLearn: 1 });
+
       const promises = [
-        markWordSeen(childId, wordId),
-        markWordSeen(childId, wordId),
-        markWordSeen(childId, wordId),
+        markWordSeen(userId, wordId),
+        markWordSeen(userId, wordId),
+        markWordSeen(userId, wordId),
       ];
 
       await Promise.all(promises);
-
-      // Should only call update once, not 3 times (promise cache prevents duplicates)
       expect(prisma.progress.update).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('recordQuizAttempt', () => {
     it('should only call database once when called 3 times simultaneously', async () => {
-      const childId = 'child-1';
+      const userId = 'user-1';
       const wordId = 'word-1';
-      
-      const mockProgress = {
-        id: 'progress-1',
-        childId,
-        wordId,
-        quizAttempts: 0,
-        quizCorrect: 0,
-        masteryScore: 0,
-        needsReview: false,
-        timesSeenInLearn: 0,
-        lastSeenAt: new Date(),
-      };
-      
-      vi.mocked(prisma.progress.findUnique)
-        .mockResolvedValueOnce(null)
-        .mockResolvedValue(mockProgress as any);
-      vi.mocked(prisma.progress.create).mockResolvedValue(mockProgress as any);
-      vi.mocked(prisma.quizAttempt.create).mockResolvedValue({} as any);
-      vi.mocked(prisma.progress.update).mockResolvedValue({
-        ...mockProgress,
-        quizAttempts: 1,
-        quizCorrect: 1,
-        masteryScore: 100,
-      } as any);
+      const mockProgress = { id: 'p1', userId, wordId, quizAttempts: 0, quizCorrect: 0 };
 
-      // Call 3 times simultaneously
+      vi.mocked(prisma.progress.findUnique).mockResolvedValue(mockProgress);
+      vi.mocked(prisma.quizAttempt.create).mockResolvedValue({});
+      vi.mocked(prisma.progress.update).mockResolvedValue({});
+
       const promises = [
-        recordQuizAttempt(childId, wordId, 'EN_TO_HE', true, false),
-        recordQuizAttempt(childId, wordId, 'EN_TO_HE', true, false),
-        recordQuizAttempt(childId, wordId, 'EN_TO_HE', true, false),
+        recordQuizAttempt(userId, wordId, 'EN_TO_HE', true, false),
+        recordQuizAttempt(userId, wordId, 'EN_TO_HE', true, false),
+        recordQuizAttempt(userId, wordId, 'EN_TO_HE', true, false),
       ];
 
       await Promise.all(promises);
-
-      // Should only create quiz attempt once (promise cache prevents duplicates)
       expect(prisma.quizAttempt.create).toHaveBeenCalledTimes(1);
       expect(prisma.progress.update).toHaveBeenCalledTimes(1);
     });
@@ -118,69 +76,29 @@ describe('Prevent Duplicate Server Calls', () => {
 
   describe('completeLearningSession', () => {
     it('should only call database once per table when called 3 times simultaneously', async () => {
-      const childId = 'child-1';
+      const userId = 'user-1';
       const wordId = 'word-1';
-      const wordsCount = 10;
-      const xpAmount = 50;
+      const mockProgress = { id: 'p1', userId, wordId, timesSeenInLearn: 0 };
+      const mockMission = { id: 'm1', userId, progress: 0 };
+      const mockUser = { id: userId, level: 1, xp: 0 };
 
-      const mockProgress = {
-        id: 'progress-1',
-        childId,
-        wordId,
-        timesSeenInLearn: 0,
-        quizAttempts: 0,
-        quizCorrect: 0,
-        masteryScore: 0,
-        needsReview: false,
-        lastSeenAt: new Date(),
-      };
+      vi.mocked(prisma.progress.findUnique).mockResolvedValue(mockProgress);
+      vi.mocked(prisma.missionState.findUnique).mockResolvedValue(mockMission);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser);
+      vi.mocked(prisma.progress.update).mockResolvedValue({});
+      vi.mocked(prisma.missionState.update).mockResolvedValue({});
+      vi.mocked(prisma.user.update).mockResolvedValue({});
 
-      const mockMission = {
-        id: 'mission-1',
-        childId,
-        periodType: 'DAILY' as const,
-        missionKey: 'learn_words',
-        progress: 0,
-        completed: false,
-        periodStartDate: '2024-01-01',
-        target: wordsCount,
-      };
-
-      const mockLevelState = {
-        id: 'level-1',
-        childId,
-        level: 1,
-        xp: 0,
-        updatedAt: new Date(),
-      };
-
-      // Mock: each findUnique called once per completeLearningSession call
-      // But promise cache should make all 3 calls share the same promise
-      vi.mocked(prisma.progress.findUnique).mockResolvedValueOnce(null);
-      vi.mocked(prisma.progress.create).mockResolvedValue(mockProgress as any);
-      
-      vi.mocked(prisma.missionState.findUnique).mockResolvedValueOnce(null);
-      vi.mocked(prisma.missionState.create).mockResolvedValue(mockMission as any);
-      
-      vi.mocked(prisma.levelState.findUnique).mockResolvedValueOnce(mockLevelState as any);
-      
-      vi.mocked(prisma.progress.update).mockResolvedValue({} as any);
-      vi.mocked(prisma.missionState.update).mockResolvedValue({} as any);
-      vi.mocked(prisma.levelState.update).mockResolvedValue({} as any);
-
-      // Call 3 times simultaneously
       const promises = [
-        completeLearningSession(childId, wordId, wordsCount, xpAmount),
-        completeLearningSession(childId, wordId, wordsCount, xpAmount),
-        completeLearningSession(childId, wordId, wordsCount, xpAmount),
+        completeLearningSession(userId, wordId, 10, 50),
+        completeLearningSession(userId, wordId, 10, 50),
+        completeLearningSession(userId, wordId, 10, 50),
       ];
 
       await Promise.all(promises);
-
-      // Should only update once per table (promise cache prevents duplicates)
       expect(prisma.progress.update).toHaveBeenCalledTimes(1);
       expect(prisma.missionState.update).toHaveBeenCalledTimes(1);
-      expect(prisma.levelState.update).toHaveBeenCalledTimes(1);
+      expect(prisma.user.update).toHaveBeenCalledTimes(1);
     });
   });
 });

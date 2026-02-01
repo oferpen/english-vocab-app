@@ -15,7 +15,7 @@ import { getAllProgress } from '@/app/actions/progress';
 
 
 interface LearnPathProps {
-  childId: string;
+  userId: string;
   levelState?: any; // Optional - if provided, don't fetch it again
   progress?: any[]; // Optional - if provided, don't fetch it again
   allWords?: any[]; // Optional - if provided, don't fetch words again
@@ -43,7 +43,7 @@ interface PathLesson {
 }
 
 export default function LearnPath({
-  childId,
+  userId,
   levelState: propLevelState,
   progress: propProgress,
   allWords: propAllWords,
@@ -89,10 +89,8 @@ export default function LearnPath({
   };
 
   const getCategoryIcon = (section: PathSection) => {
-    const iconProps = { className: "w-10 h-10", strokeWidth: 2.5 };
-
-    if (!section || !section.id) return <Target {...iconProps} />;
-    if (section.id === 'letters-all') return <Languages {...iconProps} />;
+    if (!section || !section.id) return <span className="text-4xl">🎯</span>;
+    if (section.id === 'letters-all') return <span className="text-4xl">🔤</span>;
 
     let category = '';
     const match = section.id.match(/words-\d+-(.+)/);
@@ -101,8 +99,8 @@ export default function LearnPath({
     } else if (section.title) {
       const reverseMap: Record<string, string> = {
         'מילים בסיסיות': 'Starter',
-        'מילים בסיסיות א': 'Starter A',
-        'מילים בסיסיות ב': 'Starter B',
+        'מילים בסיסיות 1': 'Starter A',
+        'מילים בסיסיות 2': 'Starter B',
         'חיות': 'Animals',
         'אוכל': 'Food',
         'בגדים': 'Clothes',
@@ -113,18 +111,42 @@ export default function LearnPath({
       category = reverseMap[section.title] || section.title;
     }
 
-    const iconMap: Record<string, any> = {
-      'Starter': Target, 'Home': Home, 'School': School, 'Animals': Dog,
-      'Colors': Palette, 'Food': Apple, 'Body': User, 'Family': Users,
-      'Clothes': Shirt, 'Clothing': Shirt, 'Nature': Trees, 'Transportation': Car,
-      'Sports': Trophy, 'Weather': CloudSun, 'Feelings': Smile, 'Numbers': Binary,
-      'Actions': Footprints, 'Time': Clock, 'אחר': Package
+    const iconMap: Record<string, string> = {
+      'Starter': '/images/icons/alphabet.png',
+      'Numbers': '/images/icons/numbers.png',
+      'Food': '/images/icons/food.png',
+      'Animals': '/images/icons/animals.png',
+      'Colors': '/images/icons/colors.png',
+      'Alphabet': '/images/icons/alphabet.png',
     };
 
-    const key = Object.keys(iconMap).find(k => category.includes(k) || k.includes(category));
-    const IconComponent = iconMap[category] || (key ? iconMap[key] : Target);
-    return <IconComponent {...iconProps} />;
+    const emojiMap: Record<string, string> = {
+      'Starter': '🎯', 'Home': '🏠', 'School': '🏫', 'Animals': '🐶',
+      'Colors': '🎨', 'Food': '🍎', 'Body': '👦', 'Family': '👪',
+      'Clothes': '👕', 'Clothing': '👕', 'Nature': '🌳', 'Transportation': '🚗',
+      'Sports': '🏆', 'Weather': '🌤️', 'Feelings': '😊', 'Numbers': '🔢',
+      'Actions': '👣', 'Time': '⏰', 'אחר': '📦'
+    };
+
+    const iconPath = iconMap[category] || Object.entries(iconMap).find(([k]) => category.includes(k) || k.includes(category))?.[1];
+
+    if (iconPath) {
+      return (
+        <div className="w-16 h-16 relative">
+          <img
+            src={iconPath}
+            alt={category}
+            className="w-full h-full object-contain"
+          />
+        </div>
+      );
+    }
+
+    const key = Object.keys(emojiMap).find(k => category.includes(k) || k.includes(category));
+    const emoji = emojiMap[category] || (key ? emojiMap[key] : '🎯');
+    return <span className="text-5xl drop-shadow-sm">{emoji}</span>;
   };
+
 
   const getColorClasses = (color: string) => {
     const colors: Record<string, string> = {
@@ -139,10 +161,10 @@ export default function LearnPath({
   };
 
   const getLevelTitle = (level: number) => {
-    if (level === 1) return 'מתחילים';
-    if (level === 2) return 'רמה 2: מילים';
-    if (level === 3) return 'רמה 3: מתקדם';
-    return `רמה ${level}`;
+    if (level === 1) return 'ראשית הדרך';
+    if (level === 2) return 'ההרפתקה מתחילה';
+    if (level === 3) return 'המשימה הגדולה';
+    return `שלב ${level}`;
   };
 
   const getLevelColor = (level: number) => {
@@ -156,7 +178,7 @@ export default function LearnPath({
   useEffect(() => {
     loadPath();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [childId]);
+  }, [userId]);
 
   // Logic: Scroll to active
   useEffect(() => {
@@ -183,11 +205,11 @@ export default function LearnPath({
       let progress: any[] = propProgress || [];
 
       if (!propLevelState) {
-        try { level = await getLevelState(childId); }
-        catch { level = { level: 1, xp: 0, id: '', childId, updatedAt: new Date() }; }
+        try { level = await getLevelState(userId); }
+        catch { level = { level: 1, xp: 0, id: '', userId, updatedAt: new Date() }; }
       }
       if (!propProgress) {
-        try { progress = await getAllProgress(childId); }
+        try { progress = await getAllProgress(userId); }
         catch { progress = []; }
       }
 
@@ -203,7 +225,7 @@ export default function LearnPath({
         try { letters = await getAllLetters(); } catch { }
       }
       if (!propLetterProgress) {
-        try { letterProgress = await getAllLetterProgress(childId); } catch { }
+        try { letterProgress = await getAllLetterProgress(userId); } catch { }
       }
       const letterProgressMap = new Map(letterProgress.map((lp: any) => [lp.letterId, lp]));
 
@@ -324,7 +346,11 @@ export default function LearnPath({
       const englishCategory = reverseMap[section.title] || category; // Try title first map, then extracted ID
 
       const url = `/learn?category=${encodeURIComponent(englishCategory)}&level=${section.level}`;
-      window.location.assign(url);
+      router.push(url);
+    } else if (section.id.startsWith('letters-')) {
+      // Navigate to letters (which just needs level 1 and no category)
+      const url = `/learn?level=1&mode=learn`;
+      router.push(url);
     } else {
       // Letters
       const firstActive = section.lessons.find(l => l.active && !l.locked);
@@ -337,8 +363,8 @@ export default function LearnPath({
   if (loading) {
     return (
       <div className="p-8 text-center min-h-[50vh] flex flex-col items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-        <p className="mt-4 text-lg text-gray-600">טוען את מפת הלמידה...</p>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary-600 mx-auto"></div>
+        <p className="mt-4 text-xl font-black text-primary-600">מכין את ההרפתקה הבאה...</p>
       </div>
     );
   }
@@ -365,16 +391,16 @@ export default function LearnPath({
             <div className="sticky top-20 z-20 mb-16 flex justify-center">
               <div className={`
                     ${getLevelColor(level)} 
-                    px-6 py-2 rounded-full shadow-lg border backdrop-blur-md bg-white/90
-                    transform hover:scale-105 transition-transform duration-300
-                    flex items-center gap-3
+                    px-8 py-3 rounded-[2rem] shadow-xl border-4 backdrop-blur-md bg-white/95
+                    transform hover:scale-110 transition-all duration-300
+                    flex items-center gap-4 btn-bubbly
                  `}>
-                <div className="w-10 h-10 rounded-full bg-white/50 flex items-center justify-center shadow-inner">
-                  {level === 1 ? <Type className="w-6 h-6 text-indigo-600" /> : level === 2 ? <Bike className="w-6 h-6 text-emerald-600" /> : <Rocket className="w-6 h-6 text-amber-600" />}
+                <div className="w-14 h-14 rounded-2xl bg-white shadow-inner flex items-center justify-center text-3xl">
+                  {level === 1 ? '🌱' : level === 2 ? '🚀' : '👑'}
                 </div>
-                <div>
-                  <span className="block text-[10px] uppercase tracking-wider font-bold opacity-60 leading-none">רמה {level}</span>
-                  <h1 className="text-lg font-bold leading-tight">{getLevelTitle(level).split(':')[1] || getLevelTitle(level)}</h1>
+                <div className="text-right">
+                  <span className="block text-xs uppercase tracking-widest font-black opacity-40 leading-none mb-1">רמה {level}</span>
+                  <h1 className="text-2xl font-black leading-tight text-neutral-800">{getLevelTitle(level).split(':')[1] || getLevelTitle(level)}</h1>
                 </div>
               </div>
             </div>
@@ -399,13 +425,13 @@ export default function LearnPath({
                     <div className="relative flex flex-col items-center">
                       {/* Floating Label */}
                       <div className={`
-                          mb-4 px-4 py-1.5 rounded-2xl text-sm font-black shadow-sm transition-all duration-300 flex items-center gap-2
+                          mb-4 px-6 py-2 rounded-2xl text-lg font-black shadow-lg transition-all duration-300 flex items-center gap-2
                           ${isCompleted
-                          ? 'bg-success-500 text-white border-2 border-white shadow-lg'
-                          : 'bg-white text-neutral-600 border border-neutral-100 shadow-md transform group-hover:-translate-y-1'
+                          ? 'bg-success-500 text-white border-4 border-white shadow-success-200'
+                          : 'bg-white text-neutral-800 border-4 border-primary-50 shadow-xl transform group-hover:-translate-y-2'
                         }
                       `}>
-                        {isCompleted && <CheckCircle2 className="w-4 h-4" />}
+                        {isCompleted && <CheckCircle2 className="w-5 h-5 stroke-[4]" />}
                         {section.title}
                       </div>
 
@@ -413,22 +439,47 @@ export default function LearnPath({
                       <button
                         onClick={(e) => handleJumpHere(section, e)}
                         className={`
-                          w-24 h-24 rounded-full flex items-center justify-center shadow-[0_8px_0_0_rgba(0,0,0,0.1)] border-b-8 relative
+                          w-28 h-28 rounded-3xl flex flex-col items-center justify-center shadow-[0_8px_0_0_rgba(0,0,0,0.1)] border-b-8 relative bg-white
                           transition-all duration-200 active:translate-y-2 active:shadow-none active:border-b-0
                           ${isCompleted
-                            ? 'bg-success-500 border-success-600 text-white shadow-success-600/20'
-                            : `${getColorClasses(section.color).split(' ')[0]} border-black/10 ring-4 ring-white shadow-xl`
+                            ? 'border-success-100 shadow-success-600/10'
+                            : `${getColorClasses(section.color).split(' ')[0]} border-black/5 ring-4 ring-white shadow-xl`
                           }
                         `}
                       >
                         <div className="relative z-10 transform group-hover:scale-110 transition-transform duration-300">
-                          {isUnlocked ? getCategoryIcon(section) : <Lock className="w-10 h-10 opacity-30" />}
+                          {isUnlocked ? (
+                            section.id.startsWith('letters-') ? (
+                              <div className="w-16 h-16">
+                                <img src="/images/icons/alphabet.png" alt="Letters" className="w-full h-full object-contain" />
+                              </div>
+                            ) : getCategoryIcon(section)
+                          ) : <Lock className="w-10 h-10 opacity-30" />}
+                        </div>
+
+                        {/* Stars Indicator */}
+                        <div className="flex gap-0.5 mt-2">
+                          {[1, 2, 3].map((star) => {
+                            const masteryPercent = section.lessons.length > 0
+                              ? (section.lessons.filter(l => l.completed).length / section.lessons.length)
+                              : 0;
+                            const isStarred = masteryPercent >= (star * 0.33);
+                            return (
+                              <Star
+                                key={star}
+                                className={`w-4 h-4 ${isStarred
+                                  ? 'text-amber-400 fill-amber-400'
+                                  : 'text-neutral-200 fill-neutral-100'
+                                  }`}
+                              />
+                            );
+                          })}
                         </div>
                       </button>
 
                       {/* Completion Reward Icon (Pinned to node) */}
                       {isCompleted && (
-                        <div className="absolute -top-2 -right-2 z-20 animate-bounce-subtle">
+                        <div className="absolute -top-4 -right-4 z-20 animate-bounce-subtle">
                           <div className="bg-gradient-to-br from-amber-300 via-amber-400 to-amber-600 rounded-full p-2 shadow-[0_4px_15px_rgba(251,191,36,0.4)] border-4 border-white">
                             <Trophy className="w-6 h-6 text-white fill-white/20" />
                           </div>
@@ -451,7 +502,7 @@ export default function LearnPath({
           <div className="w-20 h-20 bg-neutral-100 rounded-3xl flex items-center justify-center mb-4 border-2 border-dashed border-neutral-300">
             <Rocket className="w-10 h-10 text-neutral-300" />
           </div>
-          <p className="font-bold text-neutral-400">עוד שלבים בקרוב...</p>
+          <p className="font-bold text-neutral-400 text-lg">עוד הרפתקאות בקרוב...</p>
         </div>
 
       </div>

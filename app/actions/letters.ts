@@ -25,11 +25,11 @@ export async function getLetter(id: string) {
   });
 }
 
-export async function getLetterProgress(childId: string, letterId: string) {
+export async function getLetterProgress(userId: string, letterId: string) {
   return prisma.letterProgress.findUnique({
     where: {
-      childId_letterId: {
-        childId,
+      userId_letterId: {
+        userId,
         letterId,
       },
     },
@@ -43,23 +43,23 @@ export async function getLetterProgress(childId: string, letterId: string) {
 const letterProgressCache = new Map<string, Promise<any[]>>();
 
 // This function is called BEFORE React's cache wrapper
-function getAllLetterProgressWithCache(childId: string): Promise<any[]> {
+function getAllLetterProgressWithCache(userId: string): Promise<any[]> {
   // Validate input
-  if (!childId || typeof childId !== 'string') {
-    console.warn('getAllLetterProgress: Invalid childId', childId);
+  if (!userId || typeof userId !== 'string') {
+    console.warn('getAllLetterProgress: Invalid userId', userId);
     return Promise.resolve([]);
   }
 
-  // Check if there's already a pending promise for this childId
-  if (letterProgressCache.has(childId)) {
-    return letterProgressCache.get(childId)!;
+  // Check if there's already a pending promise for this userId
+  if (letterProgressCache.has(userId)) {
+    return letterProgressCache.get(userId)!;
   }
 
   // Create the promise and cache it IMMEDIATELY
   const promise = (async () => {
     try {
       const progress = await prisma.letterProgress.findMany({
-        where: { childId },
+        where: { userId },
         include: {
           letter: {
             select: {
@@ -72,16 +72,16 @@ function getAllLetterProgressWithCache(childId: string): Promise<any[]> {
           },
         },
       });
-      
+
       // Filter out any progress entries with null letters and sort by letter order
       const validProgress = progress
         .filter((p) => p.letter !== null && p.letter !== undefined)
-        .sort((a, b) => {
+        .sort((a: any, b: any) => {
           const orderA = a.letter?.order ?? 0;
           const orderB = b.letter?.order ?? 0;
           return orderA - orderB;
         });
-      
+
       return validProgress;
     } catch (error: any) {
       // If table doesn't exist yet, return empty array
@@ -92,33 +92,33 @@ function getAllLetterProgressWithCache(childId: string): Promise<any[]> {
       console.error('Error in getAllLetterProgress:', {
         error: error?.message || error,
         code: error?.code,
-        childId,
+        userId,
       });
       // Return empty array instead of throwing to prevent 500 errors during revalidation
       return [];
     }
   })();
-  
-  letterProgressCache.set(childId, promise);
-  
+
+  letterProgressCache.set(userId, promise);
+
   // Clean up the cache after the promise resolves
   promise.finally(() => {
     setTimeout(() => {
-      letterProgressCache.delete(childId);
+      letterProgressCache.delete(userId);
     }, 5000);
   });
-  
+
   return promise;
 }
 
 // Export directly - promise cache handles deduplication
 export const getAllLetterProgress = getAllLetterProgressWithCache;
 
-export async function markLetterSeen(childId: string, letterId: string, correct: boolean) {
+export async function markLetterSeen(userId: string, letterId: string, correct: boolean) {
   const existing = await prisma.letterProgress.findUnique({
     where: {
-      childId_letterId: {
-        childId,
+      userId_letterId: {
+        userId,
         letterId,
       },
     },
@@ -143,7 +143,7 @@ export async function markLetterSeen(childId: string, letterId: string, correct:
     // Award XP for mastering a letter
     if (mastered && !existing.mastered) {
       const { addXP } = await import('./levels');
-      await addXP(childId, 5);
+      await addXP(userId, 5);
     }
 
     return { mastered, timesSeen: newTimesSeen, timesCorrect: newTimesCorrect };
@@ -151,7 +151,7 @@ export async function markLetterSeen(childId: string, letterId: string, correct:
     const mastered = correct && true; // First attempt correct = mastered
     await prisma.letterProgress.create({
       data: {
-        childId,
+        userId,
         letterId,
         timesSeen: 1,
         timesCorrect: correct ? 1 : 0,
@@ -162,18 +162,18 @@ export async function markLetterSeen(childId: string, letterId: string, correct:
 
     if (mastered) {
       const { addXP } = await import('./levels');
-      await addXP(childId, 5);
+      await addXP(userId, 5);
     }
 
     return { mastered, timesSeen: 1, timesCorrect: correct ? 1 : 0 };
   }
 }
 
-export async function getUnmasteredLetters(childId: string) {
+export async function getUnmasteredLetters(userId: string) {
   try {
     const allLetters = await getAllLetters();
-    const progress = await getAllLetterProgress(childId);
-    
+    const progress = await getAllLetterProgress(userId);
+
     const masteredLetterIds = new Set(
       progress.filter((p) => p.mastered).map((p) => p.letterId)
     );
@@ -186,12 +186,14 @@ export async function getUnmasteredLetters(childId: string) {
   }
 }
 
-export async function checkLevel1Complete(childId: string): Promise<boolean> {
+export async function checkLevel1Complete(userId: string): Promise<boolean> {
   try {
-    const allLetters = await getAllLetters();
-    const progress = await getAllLetterProgress(childId);
-    
-    const masteredCount = progress.filter((p) => p.mastered).length;
+    const masteredCount = await prisma.letterProgress.count({
+      where: {
+        userId,
+        mastered: true
+      }
+    });
     // Level 1 complete when at least 20 letters are mastered (out of 26)
     return masteredCount >= 20;
   } catch (error: any) {

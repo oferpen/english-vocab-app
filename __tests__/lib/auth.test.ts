@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getCurrentParentAccount } from '@/lib/auth';
+import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/__mocks__/prisma';
 import { getAuthSession } from '@/lib/auth-helper';
 import { cookies } from 'next/headers';
@@ -17,38 +17,36 @@ describe('lib/auth', () => {
         vi.clearAllMocks();
     });
 
-    describe('getCurrentParentAccount', () => {
-        it('should return account for Google session', async () => {
+    describe('getCurrentUser', () => {
+        it('should return user for Google session', async () => {
             (getAuthSession as any).mockResolvedValue({ user: { email: 'google@example.com' } });
-            (prisma.parentAccount.findUnique as any).mockResolvedValue({ id: 'p1', email: 'google@example.com' });
+            (prisma.user.findUnique as any).mockResolvedValue({ id: 'u1', email: 'google@example.com' });
 
-            const result = await getCurrentParentAccount();
-            expect(result.id).toBe('p1');
+            const result = await getCurrentUser();
+            expect(result?.id).toBe('u1');
         });
 
-        it('should return anonymous account for deviceId if no Google session', async () => {
+        it('should return anonymous user for deviceId if no Google session', async () => {
             (getAuthSession as any).mockResolvedValue(null);
             (cookies as any).mockReturnValue({
                 get: vi.fn((name) => name === 'deviceId' ? { value: 'anon-id' } : null)
             });
 
-            const anonAccount = { id: 'p-anon', deviceId: 'anon-id', isAnonymous: true };
-            (prisma.parentAccount.findUnique as any).mockResolvedValue(anonAccount);
+            const anonUser = { id: 'u-anon', deviceId: 'anon-id', isAnonymous: true };
+            (prisma.user.findUnique as any).mockResolvedValue(anonUser);
 
-            const result = await getCurrentParentAccount();
-            expect(result.id).toBe('p-anon');
+            const result = await getCurrentUser();
+            expect(result?.id).toBe('u-anon');
         });
 
-        it('should return null if no session and no deviceId (removal of fallback)', async () => {
+        it('should return null if no session and no deviceId', async () => {
             (getAuthSession as any).mockResolvedValue(null);
             (cookies as any).mockReturnValue({
                 get: vi.fn().mockReturnValue(null)
             });
 
-            // Ensure findFirst is not called anymore (no fallback)
-            const result = await getCurrentParentAccount();
+            const result = await getCurrentUser();
             expect(result).toBeNull();
-            expect(prisma.parentAccount.findFirst).not.toHaveBeenCalled();
         });
     });
 });

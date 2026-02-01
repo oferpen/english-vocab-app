@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useTransition, useRef } from 'react';
-import { recordQuizAttempt } from '@/app/actions/progress';
+import { recordQuizAttempt, revalidateLearnPath } from '@/app/actions/progress';
 import { getAllWords, getWordsByCategory, getAllCategories } from '@/app/actions/words';
 import { getSettings } from '@/app/actions/settings';
 import { updateMissionProgress } from '@/app/actions/missions';
@@ -14,7 +14,7 @@ import { playSuccessSound, playFailureSound } from '@/lib/sounds';
 import { Volume2, SkipBack, CheckCircle2, XCircle, ChevronLeft, Sparkles } from 'lucide-react';
 
 interface QuizTodayProps {
-  childId: string;
+  userId: string;
   todayPlan: any;
   category?: string;
   levelState?: any; // Pass levelState to avoid fetching it again
@@ -22,7 +22,7 @@ interface QuizTodayProps {
   onModeSwitch?: (mode: 'learn' | 'quiz') => void;
 }
 
-export default function QuizToday({ childId, todayPlan, category, levelState: propLevelState, categoryWords: propCategoryWords, onModeSwitch }: QuizTodayProps) {
+export default function QuizToday({ userId, todayPlan, category, levelState: propLevelState, categoryWords: propCategoryWords, onModeSwitch }: QuizTodayProps) {
   const searchParams = useSearchParams();
   const level = searchParams?.get('level');
   const currentMode = searchParams?.get('mode') || 'quiz';
@@ -94,51 +94,36 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
     }
   }, [showResult, selectedAnswerQuestionId]);
 
-  // Find next category when category changes
-  useEffect(() => {
-    const findNextCategory = async () => {
-      if (!category) {
-        setNextCategory(null);
-        return;
-      }
+  // Helper function to find next category from allWords data
+  const findNextCategoryFromWords = (levelWords: any[], currentCategory: string | undefined) => {
+    if (!currentCategory) {
+      setNextCategory(null);
+      return;
+    }
 
-      try {
-        // Use propLevelState if available, otherwise fetch it
-        let currentLevelState = propLevelState;
-        if (!currentLevelState) {
-          const { getLevelState } = await import('@/app/actions/levels');
-          currentLevelState = await getLevelState(childId);
+    try {
+      // Extract unique categories from words at this level, excluding Starter
+      const categoriesSet = new Set<string>();
+      levelWords.forEach((word: any) => {
+        if (word.category && !word.category.startsWith('Starter')) {
+          categoriesSet.add(word.category);
         }
+      });
 
-        // Get all words filtered by level to find categories with words at this level
-        const levelWords = await getAllWords(currentLevelState.level);
+      // Sort categories alphabetically
+      const sortedCategories = Array.from(categoriesSet).sort((a, b) => a.localeCompare(b));
+      const currentIndex = sortedCategories.indexOf(currentCategory);
 
-        // Extract unique categories from words at this level, excluding Starter
-        const categoriesSet = new Set<string>();
-        levelWords.forEach((word: any) => {
-          if (word.category && !word.category.startsWith('Starter')) {
-            categoriesSet.add(word.category);
-          }
-        });
-
-        // Sort categories alphabetically
-        const sortedCategories = Array.from(categoriesSet).sort((a, b) => a.localeCompare(b));
-        const currentIndex = sortedCategories.indexOf(category);
-
-        if (currentIndex >= 0 && currentIndex < sortedCategories.length - 1) {
-          setNextCategory(sortedCategories[currentIndex + 1]);
-        } else {
-          setNextCategory(null); // No next category
-        }
-      } catch (error) {
-        console.error('Error finding next category:', error);
-        setNextCategory(null);
+      if (currentIndex >= 0 && currentIndex < sortedCategories.length - 1) {
+        setNextCategory(sortedCategories[currentIndex + 1]);
+      } else {
+        setNextCategory(null); // No next category
       }
-    };
-
-    findNextCategory();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category, childId, propLevelState]);
+    } catch (error) {
+      console.error('Error finding next category:', error);
+      setNextCategory(null);
+    }
+  };
 
   const generateQuestions = async (resetUsedWords: boolean = false, useAllAvailableWords: boolean = false) => {
     // Prevent multiple simultaneous calls
@@ -154,7 +139,7 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
       let levelState = propLevelState;
       if (!levelState) {
         const { getLevelState } = await import('@/app/actions/levels');
-        levelState = await getLevelState(childId);
+        levelState = await getLevelState(userId);
       }
 
       // Use propCategoryWords if available, otherwise fetch them
@@ -162,20 +147,19 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
       if (propCategoryWords && propCategoryWords.length > 0) {
         filteredWords = propCategoryWords;
       } else if (category) {
-        filteredWords = await getWordsByCategory(category);
+        // Parse level from URL if it's there, otherwise use propLevelState
+        const levelToUse = level ? parseInt(level) : (levelState?.level || 1);
+        filteredWords = await getWordsByCategory(category, levelToUse);
       } else {
         // Fallback: use words from todayPlan if category is not provided (shouldn't happen)
         filteredWords = words;
       }
 
-      // Always fetch allWords to generate wrong answers, even if not using them for quiz questions
-      let allWords: any[] = [];
-      if (useAllAvailableWords) {
-        allWords = await getAllWords(levelState.level);
-      } else {
-        // Still need allWords to generate wrong answers, so fetch them
-        allWords = await getAllWords(levelState.level);
-      }
+      // Fetch allWords to generate wrong answers
+      const allWords = await getAllWords(levelState.level);
+
+      // Find next category using the allWords we just fetched (avoid separate fetch)
+      findNextCategoryFromWords(allWords, category);
 
       const questionList: any[] = [];
 
@@ -341,7 +325,7 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
 
     // Record attempt
     const attemptPromise = recordQuizAttempt(
-      childId,
+      userId,
       question.word.id,
       question.questionType as any,
       correct,
@@ -360,7 +344,7 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
     const question = questions[currentIndex];
     // Record skip as incorrect attempt
     await recordQuizAttempt(
-      childId,
+      userId,
       question.word.id,
       question.questionType as any,
       false,
@@ -391,12 +375,11 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
       const xp = score.correct * 10;
       setXpGained(xp);
       setShowCelebration(true);
-      await updateMissionProgress(childId, 'DAILY', 'complete_quiz', 1, 1);
-      await addXP(childId, xp);
+      await updateMissionProgress(userId, 'DAILY', 'complete_quiz', 1, 1);
+      await addXP(userId, xp);
 
-      // Revalidate path to refresh category completion status
-      const { revalidatePath } = await import('next/cache');
-      revalidatePath('/learn/path');
+      // Revalidate path to refresh category completion status via server action
+      await revalidateLearnPath();
     }
   };
 
@@ -414,8 +397,8 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
       const xp = score.correct * 10;
       setXpGained(xp);
       setShowCelebration(true);
-      await updateMissionProgress(childId, 'DAILY', 'complete_quiz', 1, 1);
-      await addXP(childId, xp);
+      await updateMissionProgress(userId, 'DAILY', 'complete_quiz', 1, 1);
+      await addXP(userId, xp);
     }
   };
 
@@ -537,9 +520,8 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
           onSecondaryAction={nextCategory ? async () => {
             setShowCelebration(false);
             setCompleted(true);
-            // Revalidate path to ensure category completion is updated
-            const { revalidatePath } = await import('next/cache');
-            revalidatePath('/learn/path');
+            // Revalidate path via server action
+            await revalidateLearnPath();
             // Navigate to next category quiz
             const nextCategoryUrl = `/learn?mode=quiz&category=${encodeURIComponent(nextCategory)}${level ? `&level=${level}` : ''}`;
             router.push(nextCategoryUrl);
@@ -597,10 +579,10 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
   return (
     <>
       <Confetti trigger={showConfetti} duration={1000} />
-      <div className="p-4 md:p-8 bg-neutral-50 min-h-screen animate-fade-in flex flex-col max-w-2xl mx-auto">
+      <div className="p-2 md:p-4 bg-neutral-50 animate-fade-in flex flex-col max-w-xl mx-auto min-h-0">
         {/* Progress Bar Header */}
         {!completed && !showCelebration && (
-          <div className="mb-8 w-full">
+          <div className="mb-4 w-full">
             <div className="flex justify-between items-center mb-3">
               <button
                 onClick={handleRestartQuiz}
@@ -613,7 +595,7 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
                 {currentIndex + 1} מתוך {questions.length}
               </span>
             </div>
-            <div className="w-full bg-neutral-200 rounded-full h-5 overflow-hidden shadow-inner p-1">
+            <div className="w-full bg-neutral-200 rounded-full h-3 overflow-hidden shadow-inner p-0.5">
               <div
                 className="bg-primary-500 h-full rounded-full transition-all duration-700 ease-out shadow-sm"
                 style={{ width: `${progress}%` }}
@@ -623,7 +605,7 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
         )}
 
         {/* Question Card */}
-        <div className="bg-white rounded-[2.5rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] p-8 md:p-12 mb-8 border border-neutral-100 animate-slide-up flex-1 flex flex-col justify-between relative overflow-hidden">
+        <div className="bg-white rounded-xl shadow-md p-3 md:p-4 mb-2 border border-neutral-100 animate-slide-up flex-shrink-0 flex flex-col justify-between relative overflow-hidden">
           {!isCurrentQuestionResult && (
             <div className="absolute top-6 right-6">
               <button
@@ -637,37 +619,37 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
           )}
 
           <div className="flex-1">
-            <div className="text-center mb-10">
+            <div className="text-center mb-2">
               {question.questionType === 'EN_TO_HE' && (
                 <>
-                  <h2 className="text-6xl md:text-7xl font-black mb-4 text-primary-600 tracking-tight leading-tight">{question.word.englishWord}</h2>
-                  <p className="text-xl md:text-2xl text-neutral-800 font-bold tracking-tight">מה התרגום בעברית?</p>
+                  <h2 className="text-2xl md:text-3xl font-black mb-1 text-primary-600 tracking-tight leading-tight">{question.word.englishWord}</h2>
+                  <p className="text-sm md:text-base text-neutral-800 font-bold tracking-tight">מה התרגום?</p>
                 </>
               )}
               {question.questionType === 'HE_TO_EN' && (
                 <>
-                  <h2 className="text-6xl md:text-7xl font-black mb-4 text-primary-600 tracking-tight leading-tight">{question.word.hebrewTranslation}</h2>
-                  <p className="text-xl md:text-2xl text-neutral-800 font-bold tracking-tight">מה המילה באנגלית?</p>
+                  <h2 className="text-2xl md:text-3xl font-black mb-1 text-primary-600 tracking-tight leading-tight">{question.word.hebrewTranslation}</h2>
+                  <p className="text-sm md:text-base text-neutral-800 font-bold tracking-tight">מה המילה?</p>
                 </>
               )}
               {question.questionType === 'AUDIO_TO_EN' && (
                 <>
-                  <div className="flex justify-center mb-6">
+                  <div className="flex justify-center mb-4">
                     <button
                       onClick={() => speakWord(question.word.englishWord)}
-                      className="w-24 h-24 rounded-[2rem] bg-primary-100 text-primary-600 flex items-center justify-center shadow-[0_8px_0_0_#e0e7ff] hover:translate-y-1 hover:shadow-[0_4px_0_0_#e0e7ff] transition-all duration-200 active:translate-y-2 active:shadow-none"
+                      className="w-20 h-20 rounded-[1.5rem] bg-primary-100 text-primary-600 flex items-center justify-center shadow-[0_8px_0_0_#e0e7ff] hover:translate-y-1 hover:shadow-[0_4px_0_0_#e0e7ff] transition-all duration-200 active:translate-y-2 active:shadow-none"
                     >
-                      <Volume2 className="w-12 h-12" />
+                      <Volume2 className="w-10 h-10" />
                     </button>
                   </div>
-                  <p className="text-xl md:text-2xl text-neutral-800 font-bold tracking-tight">מה המילה ששמעת?</p>
+                  <p className="text-lg md:text-xl text-neutral-800 font-bold tracking-tight">מה המילה ששמעת?</p>
                 </>
               )}
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-1">
               {question.answers.map((answer: string, idx: number) => {
-                let buttonClass = 'w-full py-5 rounded-2xl text-xl font-bold border-2 transition-all duration-200 shadow-[0_4px_0_0_rgba(0,0,0,0.05)] active:translate-y-1 active:shadow-none ';
+                let buttonClass = 'w-full py-1.5 rounded-lg text-sm md:text-base font-bold border-2 transition-all duration-200 shadow-[0_1px_0_0_rgba(0,0,0,0.05)] active:translate-y-0.5 active:shadow-none ';
 
                 if (isCurrentQuestionResult) {
                   if (isCorrect) {
@@ -709,32 +691,32 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
 
           {/* Feedback Section inside Card */}
           {isCurrentQuestionResult && (
-            <div className="mt-8 animate-slide-up">
+            <div className="mt-2 animate-slide-up">
               {isCorrect ? (
-                <div className="p-5 bg-success-50 border-2 border-success-200 rounded-3xl flex items-center justify-center gap-3">
-                  <div className="bg-success-500 w-8 h-8 rounded-full flex items-center justify-center text-white shadow-sm">
-                    <CheckCircle2 className="w-5 h-5" />
+                <div className="p-2 bg-success-50 border border-success-200 rounded-lg flex items-center justify-center gap-2">
+                  <div className="bg-success-500 w-5 h-5 rounded-full flex items-center justify-center text-white shadow-sm">
+                    <CheckCircle2 className="w-3 h-3" />
                   </div>
-                  <p className="text-success-700 text-xl font-black tracking-tight">נכון! כל הכבוד! 🎉</p>
+                  <p className="text-success-700 text-base font-black tracking-tight">נכון! 🎉</p>
                 </div>
               ) : !retryUsed ? (
-                <div className="p-5 bg-accent-50 border-2 border-accent-200 rounded-3xl text-center space-y-4">
-                  <p className="text-accent-800 text-xl font-black tracking-tight flex items-center justify-center gap-2">
+                <div className="p-2 bg-accent-50 border border-accent-200 rounded-lg text-center space-y-1">
+                  <p className="text-accent-800 text-sm font-black tracking-tight flex items-center justify-center gap-2">
                     לא נורא, נסה שוב
                   </p>
                   <button
                     onClick={handleRetry}
-                    className="w-full bg-accent-500 hover:bg-accent-600 text-white py-4 rounded-2xl font-black transition-all shadow-[0_4px_0_0_#d97706] active:translate-y-1 active:shadow-none"
+                    className="w-full bg-accent-500 hover:bg-accent-600 text-white py-1.5 rounded-md font-black transition-all shadow-[0_2px_0_0_#d97706] active:translate-y-0.5 active:shadow-none"
                   >
                     נסה שוב
                   </button>
                 </div>
               ) : (
-                <div className="p-5 bg-danger-50 border-2 border-danger-200 rounded-3xl text-center flex items-center justify-center gap-3">
-                  <div className="bg-danger-500 w-8 h-8 rounded-full flex items-center justify-center text-white shadow-sm">
-                    <XCircle className="w-5 h-5" />
+                <div className="p-2 bg-danger-50 border border-danger-200 rounded-lg text-center flex items-center justify-center gap-2">
+                  <div className="bg-danger-500 w-5 h-5 rounded-full flex items-center justify-center text-white shadow-sm">
+                    <XCircle className="w-3 h-3" />
                   </div>
-                  <p className="text-danger-800 text-xl font-black tracking-tight">
+                  <p className="text-danger-800 text-sm font-black tracking-tight">
                     התשובה: {question.correctAnswer}
                   </p>
                 </div>
@@ -744,15 +726,15 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
         </div>
 
         {/* Global Action Button Anchor */}
-        <div className="w-full mt-auto pb-8">
+        <div className="w-full mt-2 pb-4 flex-shrink-0">
           {!isCurrentQuestionResult ? (
             <button
               onClick={handleCheck}
               disabled={!selectedAnswer}
               className={`
-                w-full py-5 rounded-2xl text-2xl font-black transition-all duration-200 tracking-tight
+                w-full py-2.5 rounded-lg text-lg font-black transition-all duration-200 tracking-tight
                 ${selectedAnswer
-                  ? 'bg-primary-500 text-white shadow-[0_8px_0_0_#4f46e5] hover:translate-y-1 hover:shadow-[0_4px_0_0_#4f46e5] active:translate-y-2 active:shadow-none'
+                  ? 'bg-primary-500 text-white shadow-[0_4px_0_0_#4f46e5] hover:translate-y-0.5 hover:shadow-[0_2px_0_0_#4f46e5] active:translate-y-1 active:shadow-none'
                   : 'bg-neutral-200 text-neutral-400 cursor-not-allowed shadow-none'
                 }
               `}
@@ -764,12 +746,12 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
               ref={continueButtonRef}
               onClick={handleNext}
               className={`
-                w-full py-5 rounded-2xl text-2xl font-black transition-all duration-200 tracking-tight
+                w-full py-2.5 rounded-lg text-lg font-black transition-all duration-200 tracking-tight
                 ${isCorrect
-                  ? 'bg-success-500 text-white shadow-[0_8px_0_0_#059669] hover:translate-y-1 hover:shadow-[0_4px_0_0_#059669]'
-                  : 'bg-primary-500 text-white shadow-[0_8px_0_0_#4f46e5] hover:translate-y-1 hover:shadow-[0_4px_0_0_#4f46e5]'
+                  ? 'bg-success-500 text-white shadow-[0_4px_0_0_#059669] hover:translate-y-0.5 hover:shadow-[0_2px_0_0_#059669]'
+                  : 'bg-primary-500 text-white shadow-[0_4px_0_0_#4f46e5] hover:translate-y-0.5 hover:shadow-[0_2px_0_0_#4f46e5]'
                 }
-                active:translate-y-2 active:shadow-none
+                active:translate-y-1 active:shadow-none
               `}
             >
               {currentIndex < questions.length - 1 ? 'המשך' : 'סיים חידון ✓'}

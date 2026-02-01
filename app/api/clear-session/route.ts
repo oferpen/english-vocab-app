@@ -3,16 +3,13 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST() {
   try {
-    // Delete all children
-    const deletedChildren = await prisma.childProfile.deleteMany({});
-    
-    // Delete all parent accounts
-    const deletedParents = await prisma.parentAccount.deleteMany({});
-    
+    // Delete all users
+    // Note: Due to cascade delete, this should clear derived data (Progress, QuizAttempts, etc.) if schema is set up right.
+    const deletedUsers = await prisma.user.deleteMany({});
+
     return NextResponse.json({
       success: true,
-      deletedChildren: deletedChildren.count,
-      deletedParents: deletedParents.count,
+      deletedUsers: deletedUsers.count,
     });
   } catch (error: any) {
     return NextResponse.json(

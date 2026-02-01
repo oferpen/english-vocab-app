@@ -6,16 +6,16 @@ const prisma = new PrismaClient();
 async function main() {
     console.log('--- Diagnostic: Checking Progress ---');
 
-    const child = await prisma.childProfile.findFirst({
+    const user = await prisma.user.findFirst({
         orderBy: { updatedAt: 'desc' }
     });
 
-    if (!child) {
-        console.log('No child found');
+    if (!user) {
+        console.log('No user found');
         return;
     }
 
-    console.log(`Child: ${child.name} (${child.id})`);
+    console.log(`User: ${user.name} (${user.id})`);
 
     const categories = ['Starter A', 'Starter B', 'Home', 'School'];
 
@@ -32,7 +32,7 @@ async function main() {
         const wordIds = words.map(w => w.id);
         const progress = await prisma.progress.findMany({
             where: {
-                childId: child.id,
+                userId: user.id,
                 wordId: { in: wordIds }
             }
         });

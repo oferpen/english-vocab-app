@@ -4,18 +4,18 @@ import Link from 'next/link';
 
 interface PageHeaderProps {
   title: string;
-  childName?: string;
+  name?: string;
   avatar?: string | null;
-  currentChildId?: string;
+  userId?: string;
   showParentPanel?: boolean;
   backHref?: string;
 }
 
-export default function PageHeader({ title, childName, avatar, currentChildId, showParentPanel = false, backHref }: PageHeaderProps) {
+export default function PageHeader({ title, name, avatar, userId, showParentPanel = false, backHref }: PageHeaderProps) {
   return (
     <header className="bg-gradient-to-r from-primary-50 to-white border-b border-primary-100 sticky top-0 z-30">
       <div className="flex items-center justify-between p-3 md:p-4">
-        {childName ? (
+        {name ? (
           <div className="flex items-center gap-3 md:gap-4 flex-1">
             {/* Avatar with subtle shadow */}
             <div className="relative">
@@ -24,11 +24,11 @@ export default function PageHeader({ title, childName, avatar, currentChildId, s
                 {avatar || '👶'}
               </span>
             </div>
-            
-            {/* Child info */}
+
+            {/* User info */}
             <div className="flex-1 min-w-0">
               <p className="text-base md:text-lg font-bold text-gray-800 truncate">
-                שלום {childName}!
+                שלום {name}!
               </p>
               {title && (
                 <p className="text-xs md:text-sm text-primary-600 font-medium mt-0.5">
@@ -44,7 +44,7 @@ export default function PageHeader({ title, childName, avatar, currentChildId, s
         ) : (
           <div className="flex-1"></div>
         )}
-        
+
         {/* Back button on the right */}
         {backHref && (
           <Link

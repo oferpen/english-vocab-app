@@ -59,14 +59,10 @@ describe('Mode Switching', () => {
       value: {
         replaceState: vi.fn((state, title, url) => {
           mockReplaceState(state, title, url);
-          console.log('replaceState called with:', url);
           // Update mock params when replaceState is called
           if (url && typeof url === 'string' && url.includes('?')) {
             const queryString = url.split('?')[1];
             mockSearchParams = new URLSearchParams(queryString);
-            console.log('Updated mockSearchParams:', queryString);
-          } else {
-            console.log('Did not update mockSearchParams. content:', url, typeof url);
           }
         }),
         state: {},
@@ -76,6 +72,7 @@ describe('Mode Switching', () => {
 
   it('should not cause page reload when switching modes', async () => {
     const user = userEvent.setup();
+    const userId = 'user-1';
     const todayPlan = {
       id: 'plan-1',
       words: [
@@ -86,7 +83,7 @@ describe('Mode Switching', () => {
 
     render(
       <LearnQuizWrapper
-        childId="child-1"
+        userId={userId}
         todayPlan={todayPlan}
         category="Actions"
         level={2}
@@ -95,8 +92,9 @@ describe('Mode Switching', () => {
       />
     );
 
-    // Find the quiz mode button
-    const quizButton = screen.getByText('חידון');
+    // Find the quiz mode button (חידון)
+    // Using findByText as there might be a small delay in rendering
+    const quizButton = await screen.findByText('חידון');
     expect(quizButton).toBeInTheDocument();
 
     // Click to switch to quiz mode
@@ -111,51 +109,5 @@ describe('Mode Switching', () => {
     // Should NOT call router.replace which causes page reload
     expect(mockReplace).not.toHaveBeenCalled();
     expect(mockPush).not.toHaveBeenCalled();
-  });
-
-  it.skip('should preserve quiz state when switching to learn mode and back', async () => {
-    const user = userEvent.setup();
-    const todayPlan = {
-      id: 'plan-1',
-      words: [
-        { word: { id: 'word-1', englishWord: 'run', hebrewTranslation: 'לרוץ' } },
-        { word: { id: 'word-2', englishWord: 'jump', hebrewTranslation: 'לקפוץ' } },
-      ],
-    };
-
-    render(
-      <LearnQuizWrapper
-        childId="child-1"
-        todayPlan={todayPlan}
-        category="Actions"
-        level={2}
-        levelState={{ level: 2, xp: 100 }}
-        categoryWords={todayPlan.words.map((w: any) => w.word)}
-      />
-    );
-
-    // Switch to quiz mode
-    const quizButton = screen.getByText('חידון');
-    await user.click(quizButton);
-
-    await waitFor(() => {
-      expect(mockReplaceState).toHaveBeenCalled();
-    });
-    mockReplaceState.mockClear();
-
-    // Switch back to learn mode
-    await waitFor(() => {
-      const learnButton = screen.getByText('למידה');
-      expect(learnButton).not.toBeDisabled();
-    });
-
-    await user.click(screen.getByText('למידה'));
-
-    // Components should be preserved (not unmounted)
-    // This is tested by checking that window.history.replaceState is used
-    // instead of router.replace which would cause full page reload
-    await waitFor(() => {
-      expect(mockReplaceState).toHaveBeenCalled();
-    });
   });
 });

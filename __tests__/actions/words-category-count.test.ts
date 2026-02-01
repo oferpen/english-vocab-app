@@ -2,13 +2,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { getWordsByCategory, getAllCategories } from '@/app/actions/words';
 import { prisma } from '@/lib/prisma';
 
-vi.mock('@/lib/prisma', () => ({
-  prisma: {
-    word: {
-      findMany: vi.fn(),
-    },
-  },
+vi.mock('react', () => ({
+  cache: (fn: any) => fn,
 }));
+
+vi.mock('@/lib/prisma', () => import('@/__mocks__/prisma'));
 
 describe('Category Word Counts', () => {
   const categories = [
@@ -42,9 +40,9 @@ describe('Category Word Counts', () => {
           category,
           active: true,
         }));
-        
+
         (prisma.word.findMany as any).mockResolvedValue(mockWords);
-        
+
         const words = await getWordsByCategory(category, 2);
         expect(words.length).toBe(20);
         expect(words.every((w) => w.difficulty === 1)).toBe(true);
@@ -60,9 +58,9 @@ describe('Category Word Counts', () => {
           category,
           active: true,
         }));
-        
+
         (prisma.word.findMany as any).mockResolvedValue(mockWords);
-        
+
         const words = await getWordsByCategory(category, 3);
         expect(words.length).toBe(20);
         expect(words.every((w) => w.difficulty >= 2)).toBe(true);
@@ -78,9 +76,9 @@ describe('Category Word Counts', () => {
           category,
           active: true,
         }));
-        
+
         (prisma.word.findMany as any).mockResolvedValue(mockWords);
-        
+
         const words = await getWordsByCategory(category);
         expect(words.length).toBe(40);
       });
@@ -95,9 +93,9 @@ describe('Category Word Counts', () => {
           category,
           active: true,
         }));
-        
+
         (prisma.word.findMany as any).mockResolvedValue(mockWords);
-        
+
         const words = await getWordsByCategory(category);
         const englishWords = words.map((w) => w.englishWord.toLowerCase());
         const uniqueWords = new Set(englishWords);
@@ -110,7 +108,7 @@ describe('Category Word Counts', () => {
     // Mock categories
     const mockCategories = categories.map(cat => ({ category: cat }));
     (prisma.word.findMany as any).mockResolvedValue(mockCategories);
-    
+
     const allCategories = await getAllCategories();
     categories.forEach((category) => {
       expect(allCategories).toContain(category);

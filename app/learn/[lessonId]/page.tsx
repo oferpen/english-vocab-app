@@ -1,4 +1,4 @@
-import { getCurrentChild } from '@/lib/auth-nextauth';
+import { getCurrentUser } from '@/lib/auth';
 import { getLetter } from '@/app/actions/letters';
 import { getWord } from '@/app/actions/words';
 import LearnLetters from '@/components/LearnLetters';
@@ -21,9 +21,9 @@ interface LessonPageProps {
 }
 
 export default async function LessonPage({ params, searchParams }: LessonPageProps) {
-  const child = await getCurrentChild();
+  const user = await getCurrentUser();
 
-  if (!child) {
+  if (!user) {
     return <GoogleSignIn />;
   }
 
@@ -39,8 +39,8 @@ export default async function LessonPage({ params, searchParams }: LessonPagePro
         <BottomNav />
         <div className="pt-20 md:pt-20">
           <div className="max-w-2xl mx-auto bg-white min-h-screen">
-            <PageHeader title="ללמוד" childName={child.name} avatar={child.avatar} currentChildId={child.id} />
-            <LearnLetters childId={child.id} />
+            <PageHeader title="ללמוד" name={user.name || 'User'} avatar={user.avatar || user.image} />
+            <LearnLetters userId={user.id} />
           </div>
         </div>
       </div>
@@ -57,7 +57,7 @@ export default async function LessonPage({ params, searchParams }: LessonPagePro
     // Create a simple plan with just this word (for individual word learning)
     const todayPlan = {
       id: `word-${word.id}`,
-      childId: child.id,
+      userId: user.id,
       date: getTodayDate(),
       words: [{ word }],
     };
@@ -67,8 +67,8 @@ export default async function LessonPage({ params, searchParams }: LessonPagePro
         <BottomNav />
         <div className="pt-20 md:pt-20">
           <div className="max-w-2xl mx-auto bg-white min-h-screen">
-            <PageHeader title="ללמוד" childName={child.name} avatar={child.avatar} currentChildId={child.id} />
-            <LearnToday childId={child.id} todayPlan={todayPlan} wordId={word.id} category={word.category ?? undefined} />
+            <PageHeader title="ללמוד" name={user.name || 'User'} avatar={user.avatar || user.image} />
+            <LearnToday userId={user.id} todayPlan={todayPlan} wordId={word.id} category={word.category ?? undefined} />
           </div>
         </div>
       </div>

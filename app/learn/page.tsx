@@ -1,9 +1,8 @@
-import { getCurrentChild } from '@/lib/auth-nextauth';
+import { getCurrentUser } from '@/lib/auth';
 import { getLevelState } from '@/app/actions/levels';
 import { getWordsByCategory } from '@/app/actions/words';
 import { getStreak } from '@/app/actions/streak';
 import { getTodayDate } from '@/lib/utils';
-import LearnLetters from '@/components/LearnLetters';
 import LearnQuizWrapper from '@/components/LearnQuizWrapper';
 import GoogleSignIn from '@/components/auth/GoogleSignIn';
 import ModernNavBar from '@/components/ModernNavBar';
@@ -24,9 +23,9 @@ interface LearnPageProps {
 }
 
 export default async function LearnPage({ searchParams }: LearnPageProps) {
-  const child = await getCurrentChild();
+  const user = await getCurrentUser();
 
-  if (!child) {
+  if (!user) {
     return <GoogleSignIn />;
   }
 
@@ -37,58 +36,50 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
   const requestedLevel = params?.level ? parseInt(params.level) : undefined;
   const mode = params?.mode || 'learn';
 
-  // Fetch child's level and streak in parallel
-  let levelState;
+  // Fetch streak (level/xp are on user object directly)
   let streak = 0;
-
   try {
-    const [levelData, streakData] = await Promise.all([
-      getLevelState(child.id).catch(() => ({ level: 1, xp: 0, id: '', childId: child.id, updatedAt: new Date() })),
-      getStreak(child.id).catch(() => 0)
-    ]);
-    levelState = levelData;
-    streak = streakData;
+    streak = await getStreak(user.id).catch(() => 0);
   } catch (error) {
-    levelState = { level: 1, xp: 0, id: '', childId: child.id, updatedAt: new Date() };
+    console.error('Error fetching streak:', error);
   }
 
-  // If a specific letter is requested, force level 1
-  if (letterId) {
-    levelState = { level: 1, xp: levelState.xp, id: levelState.id, childId: child.id, updatedAt: levelState.updatedAt };
-  }
+  const levelState = {
+    level: user.level,
+    xp: user.xp,
+    id: user.id, // technically userId, but used as key 
+    updatedAt: user.updatedAt
+  };
+
+  // If a specific letter is requested, force level 1 for display purposes if needed?
+  // Actually, we should just respect the user's level.
 
   // Helper for NavBar to ensure consistency
   const navBar = (
     <ModernNavBar
-      childName={child.name}
-      avatar={child.avatar || ''}
-      level={levelState.level}
+      name={user.name || 'Student'}
+      avatar={user.avatar || user.image || '🦉'}
+      level={user.level}
       streak={streak}
-      xp={levelState.xp}
+      xp={user.xp}
     />
   );
-
-  const levelTitle = mode === 'quiz' ? 'חידון' : (levelState.level === 1 ? 'ללמוד' : 'ללמוד');
-
-  // Handle quiz mode - Level 1 (letters) now has a dedicated quiz
-  // Words/Categories still work as before
 
   // Load words for word learning/quiz
   let todayPlan = null;
   let categoryWords: any[] = [];
 
   if (category) {
-    const levelToUse = requestedLevel || levelState.level;
+    const levelToUse = requestedLevel || user.level;
 
-    categoryWords = mode === 'quiz'
-      ? await getWordsByCategory(category)
-      : await getWordsByCategory(category, levelToUse);
+    // Fetch category words for the specific level
+    categoryWords = await getWordsByCategory(category, levelToUse);
 
     if (categoryWords.length === 0) {
       return (
         <div className="min-h-screen bg-neutral-50">
           {navBar}
-          <div className="max-w-2xl mx-auto bg-white min-h-screen pt-16 pb-20 md:pb-8 text-center pt-32 px-4 shadow-sm">
+          <div className="max-w-2xl mx-auto bg-white min-h-screen pt-24 pb-10 text-center px-4 shadow-sm">
             <div className="text-8xl mb-6">📭</div>
             <h2 className="text-3xl font-black mb-4 text-neutral-800 tracking-tight">אין מילים בקטגוריה</h2>
             <p className="text-xl text-neutral-600 mb-8">לא נמצאו מילים זמינות ברמה זו.</p>
@@ -100,31 +91,59 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
       );
     }
 
-    todayPlan = {
-      id: mode === 'quiz' ? `category-${category}` : `category-${category}-level-${levelToUse}`,
-      childId: child.id,
-      date: getTodayDate(),
-      words: categoryWords.map(word => ({ word })),
-    };
-  } else if (levelState.level >= 2) {
-    redirect('/learn/path');
+    // Create todayPlan object if category exists
+    // ...
+    if (category) {
+      // ...
+      todayPlan = {
+        id: mode === 'quiz' ? `category-${category}` : `category-${category}-level-${levelToUse}`,
+        userId: user.id, // Using userId
+        date: getTodayDate(),
+        words: categoryWords.map(word => ({ word })),
+      };
+    }
+
+    // ...
+
+    return (
+      <div className="min-h-screen bg-neutral-50">
+        {navBar}
+        <div className="max-w-2xl mx-auto bg-white min-h-screen pt-24 pb-10 shadow-sm">
+          <LearnQuizWrapper
+            userId={user.id}
+            todayPlan={todayPlan}
+            category={category}
+            level={requestedLevel || user.level}
+            wordId={wordId}
+            letterId={letterId}
+            levelState={levelState}
+            categoryWords={categoryWords}
+          />
+        </div>
+      </div>
+    );
   }
 
-  return (
-    <div className="min-h-screen bg-neutral-50">
-      {navBar}
-      <div className="max-w-2xl mx-auto bg-white min-h-screen pt-16 pb-20 md:pb-8 shadow-sm">
-        <LearnQuizWrapper
-          childId={child.id}
-          todayPlan={todayPlan}
-          category={category}
-          level={requestedLevel || levelState.level}
-          wordId={wordId}
-          letterId={letterId}
-          levelState={levelState}
-          categoryWords={categoryWords}
-        />
+  // If no category selected, check if we should show letters (requested level 1 or user level 1)
+  if (!category && (requestedLevel === 1 || user.level >= 1)) {
+    return (
+      <div className="min-h-screen bg-neutral-50">
+        {navBar}
+        <div className="max-w-2xl mx-auto bg-white min-h-screen pt-4 pb-20 md:pb-8 shadow-sm">
+          <LearnQuizWrapper
+            userId={user.id}
+            todayPlan={null}
+            category={undefined}
+            level={requestedLevel || 1}
+            wordId={wordId}
+            letterId={letterId}
+            levelState={levelState}
+          />
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  // If no category selected and not level 1, redirect to path
+  redirect('/learn/path');
 }

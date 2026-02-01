@@ -11,7 +11,7 @@ import { playSuccessSound } from '@/lib/sounds';
 import { Volume2, ChevronRight, ChevronLeft, Sparkles } from 'lucide-react';
 
 interface LearnTodayProps {
-  childId: string;
+  userId: string;
   todayPlan: any;
   wordId?: string;
   category?: string;
@@ -20,7 +20,7 @@ interface LearnTodayProps {
   currentMode?: 'learn' | 'quiz'; // Pass mode as prop for reliable detection
 }
 
-export default function LearnToday({ childId, todayPlan, wordId, category, level, onModeSwitch, currentMode: propMode }: LearnTodayProps) {
+export default function LearnToday({ userId, todayPlan, wordId, category, level, onModeSwitch, currentMode: propMode }: LearnTodayProps) {
   const searchParams = useSearchParams();
   const urlLevel = searchParams?.get('level');
   const levelToUse = level || (urlLevel ? parseInt(urlLevel) : undefined);
@@ -85,7 +85,7 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
       isProcessingRef.current = true;
       setIsProcessing(true);
       startTransition(async () => {
-        await markWordSeen(childId, word.id);
+        await markWordSeen(userId, word.id);
         isProcessingRef.current = false;
         setIsProcessing(false);
       });
@@ -99,7 +99,7 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
       setXpGained(xp);
       setShowCelebration(true);
       setCompleted(true);
-      completeLearningSession(childId, word.id, words.length, xp)
+      completeLearningSession(userId, word.id, words.length, xp)
         .then(() => {
           isProcessingRef.current = false;
           setIsProcessing(false);
@@ -167,33 +167,33 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
 
   return (
     <>
-      <div className="max-w-md mx-auto px-4 py-8 animate-fade-in">
+      <div className="max-w-md mx-auto px-4 py-2 animate-fade-in text-center min-h-0">
         {/* Progress Bar (Pill) */}
-        <div className="mb-8 flex items-center justify-between bg-white px-4 py-2 rounded-full shadow-sm border border-neutral-100">
-          <div className="text-xs font-bold text-neutral-400">מילה {currentIndex + 1} מתוך {words.length}</div>
-          <div className="flex-1 mx-4 bg-neutral-100 rounded-full h-2 overflow-hidden">
+        <div className="mb-1 flex items-center justify-between bg-white px-3 py-1 rounded-full shadow-sm border border-neutral-100">
+          <div className="text-[10px] font-bold text-neutral-400">מילה {currentIndex + 1} / {words.length}</div>
+          <div className="flex-1 mx-3 bg-neutral-100 rounded-full h-1 overflow-hidden">
             <div
               className="h-full bg-primary-500 rounded-full transition-all duration-500 ease-out"
               style={{ width: `${progress}%` }}
             ></div>
           </div>
-          <div className="text-xs font-bold text-primary-600">{Math.round(progress)}%</div>
+          <div className="text-[10px] font-bold text-primary-600">{Math.round(progress)}%</div>
         </div>
 
         {/* Flashcard (3D Effect) */}
-        <div className="relative perspective-1000 group mb-8">
-          <div className="bg-white rounded-[2rem] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-neutral-100 p-8 md:p-12 text-center transition-all duration-300 transform hover:scale-[1.02] hover:shadow-[0_20px_50px_-10px_rgba(0,0,0,0.15)]">
-            <h2 className="text-5xl md:text-6xl font-black text-neutral-800 mb-4 tracking-tight">
+        <div className="relative perspective-1000 group mb-1">
+          <div className="bg-white rounded-lg shadow-sm border border-neutral-100 p-3 md:p-4 text-center transition-all duration-300 transform hover:scale-[1.01]">
+            <h2 className="text-2xl md:text-3xl font-black text-neutral-800 mb-1 tracking-tight">
               {word.englishWord}
             </h2>
-            <p className="text-3xl font-medium text-neutral-400 mb-8" dir="rtl">
+            <p className="text-lg font-medium text-neutral-400 mb-2" dir="rtl">
               {word.hebrewTranslation}
             </p>
             <button
               onClick={() => speakWord(word.englishWord)}
-              className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-50 text-primary-600 hover:bg-primary-100 hover:scale-110 transition-all duration-200 shadow-sm"
+              className="inline-flex items-center justify-center w-10 min-h-10 rounded-full bg-primary-50 text-primary-600 hover:bg-primary-100 hover:scale-110 transition-all duration-200 shadow-sm"
             >
-              <Volume2 className="w-8 h-8" />
+              <Volume2 className="w-5 h-5" />
             </button>
             {word.exampleEn && (
               <div className="mt-8 pt-8 border-t border-neutral-100 text-left">
@@ -209,31 +209,31 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
         </div>
 
         {/* Controls */}
-        <div className="flex gap-4 items-center justify-between mt-4">
+        <div className="flex gap-4 items-center justify-between mt-2 pb-4">
           {/* Prev points Right in RTL */}
           <button
             onClick={handlePrevious}
             disabled={currentIndex === 0 || isProcessing}
             className={`
-                h-14 w-14 rounded-2xl flex items-center justify-center transition-all duration-200 shadow-md
+                h-10 w-10 rounded-lg flex items-center justify-center transition-all duration-200 shadow-sm
                 ${currentIndex === 0
                 ? 'bg-neutral-100 text-neutral-300 cursor-not-allowed'
                 : 'bg-white text-neutral-600 hover:bg-neutral-50 hover:scale-105 active:scale-95'
               }
              `}
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="w-4 h-4" />
           </button>
 
           {/* Next points Left in RTL */}
           <button
             onClick={handleNext}
             disabled={isProcessing}
-            className="flex-1 h-16 rounded-2xl bg-primary-500 text-white font-black text-xl shadow-lg shadow-primary-200 transition-all duration-200 hover:bg-primary-600 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3 tracking-tight"
+            className="flex-1 h-12 rounded-lg bg-primary-500 text-white font-black text-base shadow-md transition-all duration-200 hover:bg-primary-600 active:scale-[0.98] flex items-center justify-center gap-2 tracking-tight"
           >
             <span>הבא</span>
-            <div className="bg-white/20 rounded-full w-8 h-8 flex items-center justify-center">
-              <ChevronLeft className="w-5 h-5" />
+            <div className="bg-white/20 rounded-full w-5 h-5 flex items-center justify-center">
+              <ChevronLeft className="w-4 h-4" />
             </div>
           </button>
         </div>

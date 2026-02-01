@@ -55,13 +55,13 @@ describe('Progress Actions', () => {
         .mockResolvedValueOnce(null)
         .mockResolvedValueOnce({
           id: 'progress-1',
-          childId: 'child-1',
+          userId: 'user-1',
           wordId: 'word-1',
           timesSeenInLearn: 0,
         });
       prisma.progress.create.mockResolvedValue({
         id: 'progress-1',
-        childId: 'child-1',
+        userId: 'user-1',
         wordId: 'word-1',
         timesSeenInLearn: 0,
       });
@@ -70,7 +70,7 @@ describe('Progress Actions', () => {
         timesSeenInLearn: 1,
       });
 
-      await markWordSeen('child-1', 'word-1');
+      await markWordSeen('user-1', 'word-1');
       expect(prisma.progress.create).toHaveBeenCalled();
       expect(prisma.progress.update).toHaveBeenCalled();
     });
@@ -85,7 +85,7 @@ describe('Progress Actions', () => {
         timesSeenInLearn: 3,
       });
 
-      await markWordSeen('child-1', 'word-1');
+      await markWordSeen('user-1', 'word-1');
       expect(prisma.progress.update).toHaveBeenCalled();
     });
   });
@@ -111,7 +111,7 @@ describe('Progress Actions', () => {
         masteryScore: 100,
       });
 
-      await recordQuizAttempt('child-1', 'word-1', 'EN_TO_HE', true, false);
+      await recordQuizAttempt('user-1', 'word-1', 'EN_TO_HE', true, false);
       expect(prisma.quizAttempt.create).toHaveBeenCalled();
       expect(prisma.progress.update).toHaveBeenCalled();
     });
@@ -129,19 +129,19 @@ describe('Progress Actions', () => {
         masteryScore: 80,
       });
 
-      await recordQuizAttempt('child-1', 'word-1', 'EN_TO_HE', true, false);
+      await recordQuizAttempt('user-1', 'word-1', 'EN_TO_HE', true, false);
       expect(prisma.progress.update).toHaveBeenCalled();
     });
 
     it('should prevent duplicate calls when called simultaneously', async () => {
-      const childId = 'child-1';
+      const userId = 'user-1';
       const wordId = 'word-1';
 
       prisma.progress.findUnique
         .mockResolvedValueOnce(null)
         .mockResolvedValue({
           id: 'progress-1',
-          childId,
+          userId,
           wordId,
           quizAttempts: 0,
           quizCorrect: 0,
@@ -162,9 +162,9 @@ describe('Progress Actions', () => {
 
       // Call 3 times simultaneously
       const promises = [
-        recordQuizAttempt(childId, wordId, 'EN_TO_HE', true, false),
-        recordQuizAttempt(childId, wordId, 'EN_TO_HE', true, false),
-        recordQuizAttempt(childId, wordId, 'EN_TO_HE', true, false),
+        recordQuizAttempt(userId, wordId, 'EN_TO_HE', true, false),
+        recordQuizAttempt(userId, wordId, 'EN_TO_HE', true, false),
+        recordQuizAttempt(userId, wordId, 'EN_TO_HE', true, false),
       ];
 
       await Promise.all(promises);
@@ -185,17 +185,17 @@ describe('Progress Actions', () => {
 
       prisma.progress.findMany.mockResolvedValue(mockProgress);
 
-      const words = await getWordsNeedingReview('child-1');
+      const words = await getWordsNeedingReview('user-1');
       expect(words).toEqual(mockProgress);
       expect(prisma.progress.findMany).toHaveBeenCalledWith({
-        where: { childId: 'child-1', needsReview: true },
+        where: { userId: 'user-1', needsReview: true },
         include: { word: true },
       });
     });
   });
 
   describe('getUnseenWords', () => {
-    it('should return words not seen by child', async () => {
+    it('should return words not seen by user', async () => {
       prisma.progress.findMany.mockResolvedValue([
         { wordId: 'word-1' },
         { wordId: 'word-2' },
@@ -205,7 +205,7 @@ describe('Progress Actions', () => {
         { id: 'word-4', englishWord: 'bird' },
       ]);
 
-      const words = await getUnseenWords('child-1');
+      const words = await getUnseenWords('user-1');
       expect(words).toHaveLength(2);
       expect(words.map((w: any) => w.id)).toEqual(['word-3', 'word-4']);
     });

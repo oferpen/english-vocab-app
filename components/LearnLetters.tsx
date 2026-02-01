@@ -10,11 +10,11 @@ import { playSuccessSound } from '@/lib/sounds';
 import { Volume2, X, Check, Sparkles } from 'lucide-react';
 
 interface LearnLettersProps {
-  childId: string;
+  userId: string;
   letterId?: string;
 }
 
-export default function LearnLetters({ childId, letterId }: LearnLettersProps) {
+export default function LearnLetters({ userId, letterId }: LearnLettersProps) {
   const [letters, setLetters] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [completed, setCompleted] = useState(false);
@@ -27,7 +27,7 @@ export default function LearnLetters({ childId, letterId }: LearnLettersProps) {
   useEffect(() => {
     loadLetters();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [childId, letterId]);
+  }, [userId, letterId]);
 
   const loadLetters = async () => {
     try {
@@ -51,14 +51,14 @@ export default function LearnLetters({ childId, letterId }: LearnLettersProps) {
         } else {
           // Letter not found, fall back to unmastered
           const unmastered = await Promise.race([
-            getUnmasteredLetters(childId),
+            getUnmasteredLetters(userId),
             timeoutPromise
           ]) as any[];
           setLetters(unmastered);
         }
       } else {
         const unmastered = await Promise.race([
-          getUnmasteredLetters(childId),
+          getUnmasteredLetters(userId),
           timeoutPromise
         ]) as any[];
 
@@ -66,7 +66,7 @@ export default function LearnLetters({ childId, letterId }: LearnLettersProps) {
           // All letters mastered, check if can advance to level 2
           const { checkLevel1Complete } = await import('@/app/actions/letters');
           const level1Complete = await Promise.race([
-            checkLevel1Complete(childId),
+            checkLevel1Complete(userId),
             timeoutPromise
           ]) as boolean;
 
@@ -116,7 +116,7 @@ export default function LearnLetters({ childId, letterId }: LearnLettersProps) {
 
     // Use startTransition to mark server action as non-urgent, preventing blocking updates
     startTransition(async () => {
-      await markLetterSeen(childId, letter.id, correct);
+      await markLetterSeen(userId, letter.id, correct);
 
       // Play success sound if correct
       if (correct) {
@@ -129,13 +129,13 @@ export default function LearnLetters({ childId, letterId }: LearnLettersProps) {
       if (currentIdx >= letters.length - 1) {
         // Check if level 1 is complete
         const { checkLevel1Complete } = await import('@/app/actions/letters');
-        const level1Complete = await checkLevel1Complete(childId);
+        const level1Complete = await checkLevel1Complete(userId);
 
         if (level1Complete) {
           // Unlock level 2
           const { checkAndUnlockLevel2 } = await import('@/app/actions/levels');
-          await checkAndUnlockLevel2(childId);
-          await addXP(childId, 50); // Award XP for completing level 1
+          await checkAndUnlockLevel2(userId);
+          await addXP(userId, 50); // Award XP for completing level 1
           setShowCelebration(true);
         } else {
           // Reload letters to get next batch
@@ -216,9 +216,9 @@ export default function LearnLetters({ childId, letterId }: LearnLettersProps) {
   return (
     <>
       <Confetti trigger={showConfetti} duration={1500} />
-      <div className="max-w-md mx-auto px-4 py-8 animate-fade-in">
+      <div className="max-w-md mx-auto px-4 py-4 animate-fade-in text-center">
         {/* Progress Bar (Pill) */}
-        <div className="mb-8 flex items-center justify-between bg-white px-4 py-2 rounded-full shadow-sm border border-neutral-100">
+        <div className="mb-4 flex items-center justify-between bg-white px-4 py-2 rounded-full shadow-sm border border-neutral-100">
           <div className="text-xs font-bold text-neutral-400">
             {currentIndex + 1} מתוך {letters.length}
           </div>
@@ -234,25 +234,25 @@ export default function LearnLetters({ childId, letterId }: LearnLettersProps) {
         </div>
 
         {/* Flashcard (3D Effect) */}
-        <div className="relative perspective-1000 group mb-8">
-          <div className="bg-white rounded-[2rem] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-neutral-100 p-8 md:p-12 text-center transition-all duration-300 transform hover:scale-[1.02] hover:shadow-[0_20px_50px_-10px_rgba(0,0,0,0.15)]">
-            <h2 className="text-8xl md:text-9xl font-black text-neutral-800 mb-4 tracking-tight">
+        <div className="relative perspective-1000 group mb-4">
+          <div className="bg-white rounded-[2rem] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-neutral-100 p-6 md:p-8 text-center transition-all duration-300 transform hover:scale-[1.01] hover:shadow-[0_20px_50px_-10px_rgba(0,0,0,0.15)]">
+            <h2 className="text-7xl md:text-8xl font-black text-neutral-800 mb-2 tracking-tight">
               {letter.letter}
             </h2>
-            <div className="space-y-1 mb-8">
-              <p className="text-3xl md:text-4xl font-black text-neutral-800 tracking-tight">
+            <div className="space-y-0.5 mb-4">
+              <p className="text-2xl md:text-3xl font-black text-neutral-800 tracking-tight">
                 {letter.name}
               </p>
               {letter.hebrewName && (
-                <p className="text-2xl md:text-3xl font-medium text-neutral-400">
+                <p className="text-xl md:text-2xl font-medium text-neutral-400">
                   {letter.hebrewName}
                 </p>
               )}
             </div>
 
             {letter.sound && (
-              <div className="bg-neutral-50 rounded-2xl p-4 border border-neutral-100 mb-8 inline-block">
-                <p className="text-lg md:text-xl font-medium text-neutral-500">
+              <div className="bg-neutral-50 rounded-xl p-2 px-4 border border-neutral-100 mb-4 inline-block">
+                <p className="text-base md:text-lg font-medium text-neutral-500">
                   הגייה: <span className="text-neutral-700">{letter.sound}</span>
                 </p>
               </div>
@@ -261,10 +261,10 @@ export default function LearnLetters({ childId, letterId }: LearnLettersProps) {
             <div className="flex justify-center">
               <button
                 onClick={() => speakLetter(letter.letter)}
-                className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary-50 text-primary-600 hover:bg-primary-100 hover:scale-110 active:scale-95 transition-all duration-200 shadow-sm"
+                className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-50 text-primary-600 hover:bg-primary-100 hover:scale-110 active:scale-95 transition-all duration-200 shadow-sm"
                 aria-label="השמע הגייה"
               >
-                <Volume2 className="w-10 h-10" />
+                <Volume2 className="w-8 h-8" />
               </button>
             </div>
           </div>
@@ -273,10 +273,10 @@ export default function LearnLetters({ childId, letterId }: LearnLettersProps) {
         </div>
 
         {/* Action Buttons */}
-        <div className="mb-6">
+        <div className="mb-4">
           <button
             onClick={() => router.push('/learn?mode=quiz')}
-            className="w-full py-4 rounded-2xl bg-primary-50 text-primary-600 font-bold text-lg border-2 border-primary-100 hover:bg-primary-100 transition-all flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-2xl bg-primary-50 text-primary-600 font-bold text-base border-2 border-primary-100 hover:bg-primary-100 transition-all flex items-center justify-center gap-2"
           >
             <Sparkles className="w-5 h-5" />
             <span>התחל חידון אותיות</span>

@@ -5,15 +5,15 @@ import { getTodayDate } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
 
 export async function getMissionState(
-  childId: string,
+  userId: string,
   periodType: 'DAILY' | 'WEEKLY',
   missionKey: string,
   periodStartDate: string
 ) {
   return prisma.missionState.findUnique({
     where: {
-      childId_periodType_missionKey_periodStartDate: {
-        childId,
+      userId_periodType_missionKey_periodStartDate: {
+        userId,
         periodType,
         missionKey,
         periodStartDate,
@@ -23,18 +23,18 @@ export async function getMissionState(
 }
 
 export async function getOrCreateMissionState(
-  childId: string,
+  userId: string,
   periodType: 'DAILY' | 'WEEKLY',
   missionKey: string,
   target: number,
   periodStartDate: string
 ) {
-  let mission = await getMissionState(childId, periodType, missionKey, periodStartDate);
-  
+  let mission = await getMissionState(userId, periodType, missionKey, periodStartDate);
+
   if (!mission) {
     mission = await prisma.missionState.create({
       data: {
-        childId,
+        userId,
         periodType,
         missionKey,
         target,
@@ -44,12 +44,12 @@ export async function getOrCreateMissionState(
       },
     });
   }
-  
+
   return mission;
 }
 
 export async function updateMissionProgress(
-  childId: string,
+  userId: string,
   periodType: 'DAILY' | 'WEEKLY',
   missionKey: string,
   target: number,
@@ -60,7 +60,7 @@ export async function updateMissionProgress(
   const periodStartDate = periodType === 'DAILY' ? today : getWeekStartDate(today);
 
   const mission = await getOrCreateMissionState(
-    childId,
+    userId,
     periodType,
     missionKey,
     target,
@@ -85,13 +85,13 @@ export async function updateMissionProgress(
   return { progress: newProgress, completed };
 }
 
-export async function getAllMissions(childId: string) {
+export async function getAllMissions(userId: string) {
   const today = getTodayDate();
   const weekStart = getWeekStartDate(today);
 
   return prisma.missionState.findMany({
     where: {
-      childId,
+      userId,
       OR: [
         { periodType: 'DAILY', periodStartDate: today },
         { periodType: 'WEEKLY', periodStartDate: weekStart },

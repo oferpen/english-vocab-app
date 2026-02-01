@@ -43,7 +43,8 @@ export default function Confetti({ trigger, duration = 3000 }: ConfettiProps) {
           }}
         />
       ))}
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes confetti-fall {
           0% {
             transform: translateY(-100vh) rotate(0deg);
@@ -57,7 +58,7 @@ export default function Confetti({ trigger, duration = 3000 }: ConfettiProps) {
         .animate-confetti-fall {
           animation: confetti-fall linear forwards;
         }
-      `}</style>
+      ` }} />
     </div>
   );
 }

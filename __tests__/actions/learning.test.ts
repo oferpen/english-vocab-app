@@ -14,9 +14,8 @@ vi.mock('@/lib/prisma', async () => {
         create: vi.fn(),
         update: vi.fn(),
       },
-      levelState: {
+      user: {
         findUnique: vi.fn(),
-        create: vi.fn(),
         update: vi.fn(),
       },
     },
@@ -52,14 +51,14 @@ describe('completeLearningSession', () => {
   });
 
   it('should combine all operations into a single call', async () => {
-    const childId = 'child-1';
+    const userId = 'user-1';
     const wordId = 'word-1';
     const wordsCount = 10;
     const xpAmount = 50;
 
     const mockProgress = {
       id: 'progress-1',
-      childId,
+      userId,
       wordId,
       timesSeenInLearn: 0,
       quizAttempts: 0,
@@ -71,7 +70,7 @@ describe('completeLearningSession', () => {
 
     const mockMission = {
       id: 'mission-1',
-      childId,
+      userId,
       periodType: 'DAILY' as const,
       missionKey: 'learn_words',
       progress: 0,
@@ -80,175 +79,64 @@ describe('completeLearningSession', () => {
       target: wordsCount,
     };
 
-    const mockLevelState = {
-      id: 'level-1',
-      childId,
+    const mockUser = {
+      id: userId,
       level: 1,
       xp: 0,
       updatedAt: new Date(),
     };
 
-    // Mock database calls - completeLearningSession does inline get-or-create
-    // It calls findUnique for all three in parallel, then creates if null
-    prisma.progress.findUnique.mockResolvedValueOnce(null); // Doesn't exist, will create
+    // Mock database calls
+    prisma.progress.findUnique.mockResolvedValueOnce(null);
     prisma.progress.create.mockResolvedValue(mockProgress as any);
 
-    prisma.missionState.findUnique.mockResolvedValueOnce(null); // Doesn't exist, will create
+    prisma.missionState.findUnique.mockResolvedValueOnce(null);
     prisma.missionState.create.mockResolvedValue(mockMission as any);
 
-    prisma.levelState.findUnique.mockResolvedValueOnce(mockLevelState as any); // Exists
+    prisma.user.findUnique.mockResolvedValueOnce(mockUser as any);
 
-    prisma.progress.update.mockResolvedValue({
-      timesSeenInLearn: 1,
-    } as any);
-    prisma.missionState.update.mockResolvedValue({
-      progress: 1,
-      completed: false,
-    } as any);
-    prisma.levelState.update.mockResolvedValue({
-      level: 1,
-      xp: 50,
-    } as any);
+    prisma.progress.update.mockResolvedValue({} as any);
+    prisma.missionState.update.mockResolvedValue({} as any);
+    prisma.user.update.mockResolvedValue({} as any);
 
-    await completeLearningSession(childId, wordId, wordsCount, xpAmount);
+    await completeLearningSession(userId, wordId, wordsCount, xpAmount);
 
     // Should update all three tables
     expect(prisma.progress.update).toHaveBeenCalledTimes(1);
     expect(prisma.missionState.update).toHaveBeenCalledTimes(1);
-    expect(prisma.levelState.update).toHaveBeenCalledTimes(1);
+    expect(prisma.user.update).toHaveBeenCalledTimes(1);
   });
 
   it('should prevent duplicate calls when called simultaneously', async () => {
-    const childId = 'child-1';
+    const userId = 'user-1';
     const wordId = 'word-1';
     const wordsCount = 10;
     const xpAmount = 50;
 
-    const mockProgress = {
-      id: 'progress-1',
-      childId,
-      wordId,
-      timesSeenInLearn: 0,
-      quizAttempts: 0,
-      quizCorrect: 0,
-      masteryScore: 0,
-      needsReview: false,
-      lastSeenAt: new Date(),
-    };
+    const mockProgress = { id: 'p1', userId, wordId, timesSeenInLearn: 0 };
+    const mockMission = { id: 'm1', userId, progress: 0 };
+    const mockUser = { id: userId, level: 1, xp: 0 };
 
-    const mockMission = {
-      id: 'mission-1',
-      childId,
-      periodType: 'DAILY' as const,
-      missionKey: 'learn_words',
-      progress: 0,
-      completed: false,
-      periodStartDate: '2024-01-01',
-      target: wordsCount,
-    };
-
-    const mockLevelState = {
-      id: 'level-1',
-      childId,
-      level: 1,
-      xp: 0,
-      updatedAt: new Date(),
-    };
-
-    // Mock getOrCreateProgress pattern
-    prisma.progress.findUnique.mockResolvedValueOnce(null);
-    prisma.progress.create.mockResolvedValue(mockProgress as any);
-
-    // Mock getOrCreateMissionState pattern
-    prisma.missionState.findUnique.mockResolvedValueOnce(null);
-    prisma.missionState.create.mockResolvedValue(mockMission as any);
-
-    prisma.levelState.findUnique.mockResolvedValueOnce(mockLevelState as any);
+    prisma.progress.findUnique.mockResolvedValue(mockProgress);
+    prisma.missionState.findUnique.mockResolvedValue(mockMission);
+    prisma.user.findUnique.mockResolvedValue(mockUser);
 
     prisma.progress.update.mockResolvedValue({} as any);
     prisma.missionState.update.mockResolvedValue({} as any);
-    prisma.levelState.update.mockResolvedValue({} as any);
+    prisma.user.update.mockResolvedValue({} as any);
 
-    // Call 3 times simultaneously (simulating React Strict Mode)
+    // Call 3 times simultaneously
     const promises = [
-      completeLearningSession(childId, wordId, wordsCount, xpAmount),
-      completeLearningSession(childId, wordId, wordsCount, xpAmount),
-      completeLearningSession(childId, wordId, wordsCount, xpAmount),
+      completeLearningSession(userId, wordId, wordsCount, xpAmount),
+      completeLearningSession(userId, wordId, wordsCount, xpAmount),
+      completeLearningSession(userId, wordId, wordsCount, xpAmount),
     ];
 
     await Promise.all(promises);
 
-    // Should only update once per table, not 3 times
-    expect(prisma.progress.update).toHaveBeenCalledTimes(1);
-    expect(prisma.missionState.update).toHaveBeenCalledTimes(1);
-    expect(prisma.levelState.update).toHaveBeenCalledTimes(1);
-  });
-
-  it('should return the same promise for concurrent calls', async () => {
-    const childId = 'child-1';
-    const wordId = 'word-1';
-    const wordsCount = 10;
-    const xpAmount = 50;
-
-    const mockProgress = {
-      id: 'progress-1',
-      childId,
-      wordId,
-      timesSeenInLearn: 0,
-      quizAttempts: 0,
-      quizCorrect: 0,
-      masteryScore: 0,
-      needsReview: false,
-      lastSeenAt: new Date(),
-    };
-
-    const mockMission = {
-      id: 'mission-1',
-      childId,
-      periodType: 'DAILY' as const,
-      missionKey: 'learn_words',
-      progress: 0,
-      completed: false,
-      periodStartDate: '2024-01-01',
-      target: wordsCount,
-    };
-
-    const mockLevelState = {
-      id: 'level-1',
-      childId,
-      level: 1,
-      xp: 0,
-      updatedAt: new Date(),
-    };
-
-    prisma.progress.findUnique.mockResolvedValueOnce(null);
-    prisma.progress.create.mockResolvedValue(mockProgress as any);
-
-    prisma.missionState.findUnique.mockResolvedValueOnce(null);
-    prisma.missionState.create.mockResolvedValue(mockMission as any);
-
-    prisma.levelState.findUnique.mockResolvedValueOnce(mockLevelState as any);
-
-    prisma.progress.update.mockResolvedValue({} as any);
-    prisma.missionState.update.mockResolvedValue({} as any);
-    prisma.levelState.update.mockResolvedValue({} as any);
-
-    // Call simultaneously
-    const promise1 = completeLearningSession(childId, wordId, wordsCount, xpAmount);
-    const promise2 = completeLearningSession(childId, wordId, wordsCount, xpAmount);
-    const promise3 = completeLearningSession(childId, wordId, wordsCount, xpAmount);
-
-    // All promises should resolve
-    const results = await Promise.all([promise1, promise2, promise3]);
-
-    // All should return the same result structure
-    expect(results[0]).toHaveProperty('success');
-    expect(results[1]).toHaveProperty('success');
-    expect(results[2]).toHaveProperty('success');
-
     // Should only update once per table
     expect(prisma.progress.update).toHaveBeenCalledTimes(1);
     expect(prisma.missionState.update).toHaveBeenCalledTimes(1);
-    expect(prisma.levelState.update).toHaveBeenCalledTimes(1);
+    expect(prisma.user.update).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,11 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { getSettings, updateSettings } from '@/app/actions/settings';
-import { prisma } from '@/__mocks__/prisma';
+import { prisma } from '@/lib/prisma';
 
-const mockGetCurrentParentAccount = vi.fn();
+vi.mock('react', () => ({
+  cache: (fn: any) => fn,
+}));
+
+vi.mock('@/lib/prisma', () => import('@/__mocks__/prisma'));
+
+const mockGetCurrentUser = vi.fn();
 
 vi.mock('@/lib/auth', () => ({
-  getCurrentParentAccount: (...args: any[]) => mockGetCurrentParentAccount(...args),
+  getCurrentUser: (...args: any[]) => mockGetCurrentUser(...args),
 }));
 
 vi.mock('next/cache', () => ({
@@ -19,8 +25,8 @@ describe('Settings Actions', () => {
 
   describe('getSettings', () => {
     it('should return default settings when none exist', async () => {
-      mockGetCurrentParentAccount.mockResolvedValue({
-        id: 'parent-1',
+      mockGetCurrentUser.mockResolvedValue({
+        id: 'user-1',
         settingsJson: '{}',
       });
 
@@ -37,13 +43,12 @@ describe('Settings Actions', () => {
           audioToEn: true,
         },
       };
-      mockGetCurrentParentAccount.mockResolvedValue({
-        id: 'parent-1',
+      mockGetCurrentUser.mockResolvedValue({
+        id: 'user-1',
         settingsJson: JSON.stringify(mockSettings),
       });
 
       const settings = await getSettings();
-      // The merge should preserve the custom questionTypes
       expect(settings.questionTypes.enToHe).toBe(false);
       expect(settings.questionTypes.heToEn).toBe(true);
       expect(settings.questionTypes.audioToEn).toBe(true);
@@ -52,17 +57,17 @@ describe('Settings Actions', () => {
 
   describe('updateSettings', () => {
     it('should update settings', async () => {
-      mockGetCurrentParentAccount.mockResolvedValue({
-        id: 'parent-1',
+      mockGetCurrentUser.mockResolvedValue({
+        id: 'user-1',
         settingsJson: '{}',
       });
-      (prisma.parentAccount.update as any).mockResolvedValue({
-        id: 'parent-1',
+      (prisma.user.update as any).mockResolvedValue({
+        id: 'user-1',
         settingsJson: JSON.stringify({ questionTypes: { enToHe: false, heToEn: true, audioToEn: false } }),
       });
 
       await updateSettings({ questionTypes: { enToHe: false, heToEn: true, audioToEn: false } });
-      expect(prisma.parentAccount.update).toHaveBeenCalled();
+      expect(prisma.user.update).toHaveBeenCalled();
     });
   });
 });

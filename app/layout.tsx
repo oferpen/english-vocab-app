@@ -3,8 +3,12 @@ import './globals.css';
 import Providers from '@/components/Providers';
 
 export const metadata: Metadata = {
-  title: 'EnglishPath - לימוד אנגלית לילדים',
-  description: 'אפליקציה ללימוד אוצר מילים באנגלית - בדרך המהנה ביותר!',
+  title: 'EnglishPath - הרפתקת האנגלית שלכם!',
+  description: 'לימוד אנגלית לילדים בדרך המהנה ביותר - הצטרפו להרפתקה!',
+  icons: {
+    icon: '/favicon.png',
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export default function RootLayout({

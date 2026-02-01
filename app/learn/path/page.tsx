@@ -1,9 +1,8 @@
-import { getCurrentChild } from '@/lib/auth-nextauth';
+import { getCurrentUser } from '@/lib/auth';
 import { getLevelState } from '@/app/actions/levels';
 import { getAllProgress } from '@/app/actions/progress';
 import { getStreak } from '@/app/actions/streak';
 import { getAllWords } from '@/app/actions/words';
-import { getAllChildren } from '@/app/actions/children';
 import { getAllLetters, getAllLetterProgress } from '@/app/actions/letters';
 import LearnPath from '@/components/LearnPath';
 import GoogleSignIn from '@/components/auth/GoogleSignIn';
@@ -17,9 +16,9 @@ export const experimental_ppr = false;
 
 export default async function LearnPathPage() {
   try {
-    const child = await getCurrentChild();
+    const user = await getCurrentUser();
 
-    if (!child) {
+    if (!user) {
       return <GoogleSignIn />;
     }
 
@@ -28,37 +27,33 @@ export default async function LearnPathPage() {
     let progress: any[] = [];
     let streak = 0;
     let allWords: any[] = [];
-    let allChildren: any[] = [];
 
     try {
-      levelState = await getLevelState(child.id);
+      levelState = await getLevelState(user.id);
     } catch (error: any) {
       // Default to level 1 if there's an error
-      levelState = { level: 1, xp: 0, id: '', childId: child.id, updatedAt: new Date() };
+      levelState = { level: 1, xp: 0, id: '', userId: user.id, updatedAt: new Date() };
     }
 
     try {
-      // Fetch progress, streak, all words, all children, letters and letter progress in parallel
+      // Fetch progress, streak, all words, letters and letter progress in parallel
       const [
         progressRes,
         streakRes,
         allWordsRes,
-        allChildrenRes,
         lettersRes,
         letterProgressRes
       ] = await Promise.all([
-        getAllProgress(child.id),
-        getStreak(child.id),
+        getAllProgress(user.id),
+        getStreak(user.id),
         getAllWords(),
-        getAllChildren(),
         getAllLetters(),
-        getAllLetterProgress(child.id),
+        getAllLetterProgress(user.id),
       ]);
 
       progress = progressRes;
       streak = streakRes;
       allWords = allWordsRes;
-      allChildren = allChildrenRes;
       const letters = lettersRes;
       const letterProgress = letterProgressRes;
 
@@ -74,16 +69,15 @@ export default async function LearnPathPage() {
       return (
         <div className="min-h-screen bg-neutral-50">
           <ModernNavBar
-            childName={child.name}
-            avatar={child.avatar || ''}
+            name={user.name || 'User'}
+            avatar={user.avatar || undefined}
             level={levelState.level}
             streak={streak}
             xp={levelState.xp}
-            allChildren={allChildren}
           />
           <div className="max-w-2xl mx-auto bg-white min-h-screen pt-16 pb-20 md:pb-8 shadow-sm">
             <LearnPath
-              childId={child.id}
+              userId={user.id}
               levelState={levelState}
               progress={progress}
               allWords={allWords}

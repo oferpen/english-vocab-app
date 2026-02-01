@@ -1,6 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { getAllWords, getWord, createWord, updateWord, deleteWord } from '@/app/actions/words';
-import { prisma } from '@/__mocks__/prisma';
+import { prisma } from '@/lib/prisma';
+
+vi.mock('react', () => ({
+  cache: (fn: any) => fn,
+}));
+
+vi.mock('@/lib/prisma', () => import('@/__mocks__/prisma'));
 
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
@@ -29,7 +35,7 @@ describe('Words Actions', () => {
 
       await getAllWords(2);
       expect(prisma.word.findMany).toHaveBeenCalledWith({
-        where: { active: true, difficulty: 1 },
+        where: { active: true, level: 2 },
         orderBy: [{ category: 'asc' }, { englishWord: 'asc' }],
       });
     });
@@ -39,7 +45,7 @@ describe('Words Actions', () => {
 
       await getAllWords(3);
       expect(prisma.word.findMany).toHaveBeenCalledWith({
-        where: { active: true, difficulty: { gte: 2 } },
+        where: { active: true, level: 3 },
         orderBy: [{ category: 'asc' }, { englishWord: 'asc' }],
       });
     });

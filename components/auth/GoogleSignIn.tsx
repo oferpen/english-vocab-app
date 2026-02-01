@@ -114,7 +114,11 @@ export default function GoogleSignIn() {
               try {
                 const { startAnonymousSession } = await import('@/app/actions/auth');
                 await startAnonymousSession();
-              } catch (err) {
+              } catch (err: any) {
+                // If it's a Next.js redirect error, let it happen
+                if (err.message?.includes('NEXT_REDIRECT')) {
+                  throw err;
+                }
                 setIsLoading(false);
                 setError('אירעה שגיאה. נסה שוב.');
               }

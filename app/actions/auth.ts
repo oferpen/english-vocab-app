@@ -3,6 +3,7 @@
 import { verifyPIN as verifyPINLib, hasPIN as hasPINLib, setPIN as setPINLib, updatePIN as updatePINLib } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getAuthSession } from '@/lib/auth-helper';
+import { randomUUID } from 'crypto';
 
 export async function verifyPIN(pin: string): Promise<boolean> {
   return verifyPINLib(pin);
@@ -44,7 +45,7 @@ export async function startAnonymousSession() {
 
   // FALLBACK: If middleware hasn't set it yet, set it here
   if (!deviceId) {
-    deviceId = crypto.randomUUID();
+    deviceId = randomUUID();
     cookieStore.set('deviceId', deviceId, {
       maxAge: 60 * 60 * 24 * 365,
       path: '/',
@@ -59,7 +60,7 @@ export async function startAnonymousSession() {
 
   // If it's a Google account, force a NEW deviceId for anonymous learning
   if (parentAccount && !(parentAccount as any).isAnonymous) {
-    const newDeviceId = crypto.randomUUID();
+    const newDeviceId = randomUUID();
     cookieStore.set('deviceId', newDeviceId, {
       maxAge: 60 * 60 * 24 * 365,
       path: '/',

@@ -18,9 +18,6 @@ async function main() {
   const deletedMissionStates = await prisma.missionState.deleteMany({});
   console.log(`✅ Deleted ${deletedMissionStates.count} mission states`);
 
-  const deletedLevelStates = await prisma.levelState.deleteMany({});
-  console.log(`✅ Deleted ${deletedLevelStates.count} level states`);
-
   console.log('✨ All progress data cleared! Users and words remain intact.');
 }
 

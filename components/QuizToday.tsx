@@ -579,7 +579,7 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
   return (
     <>
       <Confetti trigger={showConfetti} duration={1000} />
-      <div className="p-2 md:p-4 bg-neutral-50 animate-fade-in flex flex-col max-w-xl mx-auto min-h-0">
+      <div className="p-4 md:p-6 bg-neutral-50 animate-fade-in flex flex-col max-w-2xl mx-auto min-h-0">
         {/* Progress Bar Header */}
         {!completed && !showCelebration && (
           <div className="mb-4 w-full">
@@ -605,7 +605,7 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
         )}
 
         {/* Question Card */}
-        <div className="bg-white rounded-xl shadow-md p-3 md:p-4 mb-2 border border-neutral-100 animate-slide-up flex-shrink-0 flex flex-col justify-between relative overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-4 border border-neutral-100 animate-slide-up flex-shrink-0 flex flex-col justify-between relative overflow-hidden">
           {!isCurrentQuestionResult && (
             <div className="absolute top-6 right-6">
               <button
@@ -619,37 +619,37 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
           )}
 
           <div className="flex-1">
-            <div className="text-center mb-2">
+            <div className="text-center mb-6">
               {question.questionType === 'EN_TO_HE' && (
                 <>
-                  <h2 className="text-2xl md:text-3xl font-black mb-1 text-primary-600 tracking-tight leading-tight">{question.word.englishWord}</h2>
-                  <p className="text-sm md:text-base text-neutral-800 font-bold tracking-tight">מה התרגום?</p>
+                  <h2 className="text-4xl md:text-5xl font-black mb-2 text-primary-600 tracking-tight leading-tight">{question.word.englishWord}</h2>
+                  <p className="text-lg md:text-xl text-neutral-800 font-bold tracking-tight">מה התרגום?</p>
                 </>
               )}
               {question.questionType === 'HE_TO_EN' && (
                 <>
-                  <h2 className="text-2xl md:text-3xl font-black mb-1 text-primary-600 tracking-tight leading-tight">{question.word.hebrewTranslation}</h2>
-                  <p className="text-sm md:text-base text-neutral-800 font-bold tracking-tight">מה המילה?</p>
+                  <h2 className="text-4xl md:text-5xl font-black mb-2 text-primary-600 tracking-tight leading-tight">{question.word.hebrewTranslation}</h2>
+                  <p className="text-lg md:text-xl text-neutral-800 font-bold tracking-tight">מה המילה?</p>
                 </>
               )}
               {question.questionType === 'AUDIO_TO_EN' && (
                 <>
-                  <div className="flex justify-center mb-4">
+                  <div className="flex justify-center mb-6">
                     <button
                       onClick={() => speakWord(question.word.englishWord)}
-                      className="w-20 h-20 rounded-[1.5rem] bg-primary-100 text-primary-600 flex items-center justify-center shadow-[0_8px_0_0_#e0e7ff] hover:translate-y-1 hover:shadow-[0_4px_0_0_#e0e7ff] transition-all duration-200 active:translate-y-2 active:shadow-none"
+                      className="w-24 h-24 rounded-[2rem] bg-primary-100 text-primary-600 flex items-center justify-center shadow-[0_10px_0_0_#e0e7ff] hover:translate-y-1 hover:shadow-[0_5px_0_0_#e0e7ff] transition-all duration-200 active:translate-y-2 active:shadow-none"
                     >
-                      <Volume2 className="w-10 h-10" />
+                      <Volume2 className="w-12 h-12" />
                     </button>
                   </div>
-                  <p className="text-lg md:text-xl text-neutral-800 font-bold tracking-tight">מה המילה ששמעת?</p>
+                  <p className="text-xl md:text-2xl text-neutral-800 font-bold tracking-tight">מה המילה ששמעת?</p>
                 </>
               )}
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-3">
               {question.answers.map((answer: string, idx: number) => {
-                let buttonClass = 'w-full py-1.5 rounded-lg text-sm md:text-base font-bold border-2 transition-all duration-200 shadow-[0_1px_0_0_rgba(0,0,0,0.05)] active:translate-y-0.5 active:shadow-none ';
+                let buttonClass = 'w-full py-4 rounded-xl text-lg md:text-xl font-bold border-2 transition-all duration-200 shadow-[0_1px_0_0_rgba(0,0,0,0.05)] active:translate-y-0.5 active:shadow-none ';
 
                 if (isCurrentQuestionResult) {
                   if (isCorrect) {
@@ -732,9 +732,9 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
               onClick={handleCheck}
               disabled={!selectedAnswer}
               className={`
-                w-full py-2.5 rounded-lg text-lg font-black transition-all duration-200 tracking-tight
+                w-full py-4 rounded-2xl text-xl font-black transition-all duration-200 tracking-tight
                 ${selectedAnswer
-                  ? 'bg-primary-500 text-white shadow-[0_4px_0_0_#4f46e5] hover:translate-y-0.5 hover:shadow-[0_2px_0_0_#4f46e5] active:translate-y-1 active:shadow-none'
+                  ? 'bg-primary-500 text-white shadow-[0_6px_0_0_#4f46e5] hover:translate-y-0.5 hover:shadow-[0_3px_0_0_#4f46e5] active:translate-y-1 active:shadow-none'
                   : 'bg-neutral-200 text-neutral-400 cursor-not-allowed shadow-none'
                 }
               `}
@@ -746,10 +746,10 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
               ref={continueButtonRef}
               onClick={handleNext}
               className={`
-                w-full py-2.5 rounded-lg text-lg font-black transition-all duration-200 tracking-tight
+                w-full py-4 rounded-2xl text-xl font-black transition-all duration-200 tracking-tight
                 ${isCorrect
-                  ? 'bg-success-500 text-white shadow-[0_4px_0_0_#059669] hover:translate-y-0.5 hover:shadow-[0_2px_0_0_#059669]'
-                  : 'bg-primary-500 text-white shadow-[0_4px_0_0_#4f46e5] hover:translate-y-0.5 hover:shadow-[0_2px_0_0_#4f46e5]'
+                  ? 'bg-success-500 text-white shadow-[0_6px_0_0_#059669] hover:translate-y-0.5 hover:shadow-[0_3px_0_0_#059669]'
+                  : 'bg-primary-500 text-white shadow-[0_6px_0_0_#4f46e5] hover:translate-y-0.5 hover:shadow-[0_3px_0_0_#4f46e5]'
                 }
                 active:translate-y-1 active:shadow-none
               `}

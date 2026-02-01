@@ -3,36 +3,21 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🗑️  Resetting everything - clearing all progress and deleting all profiles...');
+  console.log('🗑️  Resetting everything - clearing all progress and deleting all users...');
 
-  // Delete in order to respect foreign key constraints
-  console.log('Deleting progress data...');
-  const deletedQuizAttempts = await prisma.quizAttempt.deleteMany({});
-  console.log(`✅ Deleted ${deletedQuizAttempts.count} quiz attempts`);
+  // Delete everything related to users
+  // Due to onDelete: Cascade in schema.prisma, deleting Users will delete:
+  // - progress
+  // - quiz_attempts
+  // - mission_states
+  // - letter_progress
 
-  const deletedProgress = await prisma.progress.deleteMany({});
-  console.log(`✅ Deleted ${deletedProgress.count} progress records`);
+  console.log('Deleting all users and their related data...');
+  const deletedUsers = await prisma.user.deleteMany({});
+  console.log(`✅ Deleted ${deletedUsers.count} users and all associated progress.`);
 
-  const deletedLetterProgress = await prisma.letterProgress.deleteMany({});
-  console.log(`✅ Deleted ${deletedLetterProgress.count} letter progress records`);
-
-  const deletedMissionStates = await prisma.missionState.deleteMany({});
-  console.log(`✅ Deleted ${deletedMissionStates.count} mission states`);
-
-  const deletedLevelStates = await prisma.levelState.deleteMany({});
-  console.log(`✅ Deleted ${deletedLevelStates.count} level states`);
-
-  console.log('\nDeleting user profiles...');
-  // Delete all children first (due to foreign key constraints)
-  const deletedChildren = await prisma.childProfile.deleteMany({});
-  console.log(`✅ Deleted ${deletedChildren.count} child profiles`);
-
-  // Delete all parent accounts
-  const deletedParents = await prisma.parentAccount.deleteMany({});
-  console.log(`✅ Deleted ${deletedParents.count} parent accounts`);
-
-  console.log('\n✨ Everything has been reset! Database is now empty.');
-  console.log('You can now create new accounts and start fresh.');
+  console.log('\n✨ Everything has been reset! The user database is now empty.');
+  console.log('Words and Letters remain intact.');
 }
 
 main()

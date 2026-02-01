@@ -167,7 +167,7 @@ export default function LearnToday({ userId, todayPlan, wordId, category, level,
 
   return (
     <>
-      <div className="max-w-md mx-auto px-4 py-2 animate-fade-in text-center min-h-0">
+      <div className="max-w-lg mx-auto px-4 py-4 animate-fade-in text-center min-h-0">
         {/* Progress Bar (Pill) */}
         <div className="mb-1 flex items-center justify-between bg-white px-3 py-1 rounded-full shadow-sm border border-neutral-100">
           <div className="text-[10px] font-bold text-neutral-400">מילה {currentIndex + 1} / {words.length}</div>
@@ -181,25 +181,25 @@ export default function LearnToday({ userId, todayPlan, wordId, category, level,
         </div>
 
         {/* Flashcard (3D Effect) */}
-        <div className="relative perspective-1000 group mb-1">
-          <div className="bg-white rounded-lg shadow-sm border border-neutral-100 p-3 md:p-4 text-center transition-all duration-300 transform hover:scale-[1.01]">
-            <h2 className="text-2xl md:text-3xl font-black text-neutral-800 mb-1 tracking-tight">
+        <div className="relative perspective-1000 group mb-6">
+          <div className="bg-white rounded-3xl shadow-md border border-neutral-100 p-8 md:p-10 text-center transition-all duration-300 transform hover:scale-[1.01]">
+            <h2 className="text-4xl md:text-6xl font-black text-neutral-800 mb-2 tracking-tight">
               {word.englishWord}
             </h2>
-            <p className="text-lg font-medium text-neutral-400 mb-2" dir="rtl">
+            <p className="text-2xl md:text-3xl font-medium text-neutral-400 mb-4" dir="rtl">
               {word.hebrewTranslation}
             </p>
             <button
               onClick={() => speakWord(word.englishWord)}
-              className="inline-flex items-center justify-center w-10 min-h-10 rounded-full bg-primary-50 text-primary-600 hover:bg-primary-100 hover:scale-110 transition-all duration-200 shadow-sm"
+              className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary-50 text-primary-600 hover:bg-primary-100 hover:scale-110 transition-all duration-200 shadow-sm"
             >
-              <Volume2 className="w-5 h-5" />
+              <Volume2 className="w-7 h-7" />
             </button>
             {word.exampleEn && (
-              <div className="mt-8 pt-8 border-t border-neutral-100 text-left">
-                <div className="bg-neutral-50 rounded-xl p-4">
-                  <p className="text-lg font-medium text-neutral-700 mb-1 leading-snug tracking-tight">{word.exampleEn}</p>
-                  <p className="text-base text-neutral-400" dir="rtl">{word.exampleHe}</p>
+              <div className="mt-10 pt-10 border-t border-neutral-100 text-left">
+                <div className="bg-neutral-50 rounded-2xl p-6">
+                  <p className="text-xl md:text-2xl font-medium text-neutral-700 mb-2 leading-snug tracking-tight">{word.exampleEn}</p>
+                  <p className="text-lg md:text-xl text-neutral-400 font-bold" dir="rtl">{word.exampleHe}</p>
                 </div>
               </div>
             )}
@@ -209,31 +209,31 @@ export default function LearnToday({ userId, todayPlan, wordId, category, level,
         </div>
 
         {/* Controls */}
-        <div className="flex gap-4 items-center justify-between mt-2 pb-4">
+        <div className="flex gap-6 items-center justify-between mt-6 pb-6">
           {/* Prev points Right in RTL */}
           <button
             onClick={handlePrevious}
             disabled={currentIndex === 0 || isProcessing}
             className={`
-                h-10 w-10 rounded-lg flex items-center justify-center transition-all duration-200 shadow-sm
+                h-14 w-14 rounded-2xl flex items-center justify-center transition-all duration-200 shadow-md
                 ${currentIndex === 0
                 ? 'bg-neutral-100 text-neutral-300 cursor-not-allowed'
                 : 'bg-white text-neutral-600 hover:bg-neutral-50 hover:scale-105 active:scale-95'
               }
              `}
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-6 h-6" />
           </button>
 
           {/* Next points Left in RTL */}
           <button
             onClick={handleNext}
             disabled={isProcessing}
-            className="flex-1 h-12 rounded-lg bg-primary-500 text-white font-black text-base shadow-md transition-all duration-200 hover:bg-primary-600 active:scale-[0.98] flex items-center justify-center gap-2 tracking-tight"
+            className="flex-1 h-16 rounded-2xl bg-primary-500 text-white font-black text-xl shadow-lg transition-all duration-200 hover:bg-primary-600 active:scale-[0.98] flex items-center justify-center gap-3 tracking-tight"
           >
-            <span>הבא</span>
-            <div className="bg-white/20 rounded-full w-5 h-5 flex items-center justify-center">
-              <ChevronLeft className="w-4 h-4" />
+            <span>המשך</span>
+            <div className="bg-white/20 rounded-full w-7 h-7 flex items-center justify-center">
+              <ChevronLeft className="w-5 h-5" />
             </div>
           </button>
         </div>

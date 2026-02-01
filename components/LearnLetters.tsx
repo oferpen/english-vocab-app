@@ -216,43 +216,43 @@ export default function LearnLetters({ userId, letterId }: LearnLettersProps) {
   return (
     <>
       <Confetti trigger={showConfetti} duration={1500} />
-      <div className="max-w-md mx-auto px-4 py-4 animate-fade-in text-center">
+      <div className="max-w-xl mx-auto px-4 py-6 animate-fade-in text-center">
         {/* Progress Bar (Pill) */}
-        <div className="mb-4 flex items-center justify-between bg-white px-4 py-2 rounded-full shadow-sm border border-neutral-100">
-          <div className="text-xs font-bold text-neutral-400">
+        <div className="mb-6 flex items-center justify-between bg-white px-5 py-3 rounded-full shadow-sm border border-neutral-100">
+          <div className="text-sm font-bold text-neutral-400">
             {currentIndex + 1} מתוך {letters.length}
           </div>
-          <div className="flex-1 mx-4 bg-neutral-100 rounded-full h-2 overflow-hidden">
+          <div className="flex-1 mx-5 bg-neutral-100 rounded-full h-2.5 overflow-hidden">
             <div
               className="h-full bg-primary-500 rounded-full transition-all duration-500 ease-out"
               style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="text-xs font-bold text-primary-600">
+          <div className="text-sm font-bold text-primary-600">
             {Math.round(progress)}%
           </div>
         </div>
 
         {/* Flashcard (3D Effect) */}
-        <div className="relative perspective-1000 group mb-4">
-          <div className="bg-white rounded-[2rem] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-neutral-100 p-6 md:p-8 text-center transition-all duration-300 transform hover:scale-[1.01] hover:shadow-[0_20px_50px_-10px_rgba(0,0,0,0.15)]">
-            <h2 className="text-7xl md:text-8xl font-black text-neutral-800 mb-2 tracking-tight">
+        <div className="relative perspective-1000 group mb-8">
+          <div className="bg-white rounded-3xl shadow-xl border border-neutral-100 p-10 md:p-14 text-center transition-all duration-300 transform hover:scale-[1.01]">
+            <h2 className="text-8xl md:text-9xl font-black text-neutral-800 mb-4 tracking-tight">
               {letter.letter}
             </h2>
-            <div className="space-y-0.5 mb-4">
-              <p className="text-2xl md:text-3xl font-black text-neutral-800 tracking-tight">
+            <div className="space-y-1 mb-6">
+              <p className="text-4xl md:text-5xl font-black text-neutral-800 tracking-tight">
                 {letter.name}
               </p>
               {letter.hebrewName && (
-                <p className="text-xl md:text-2xl font-medium text-neutral-400">
+                <p className="text-2xl md:text-3xl font-medium text-neutral-400">
                   {letter.hebrewName}
                 </p>
               )}
             </div>
 
             {letter.sound && (
-              <div className="bg-neutral-50 rounded-xl p-2 px-4 border border-neutral-100 mb-4 inline-block">
-                <p className="text-base md:text-lg font-medium text-neutral-500">
+              <div className="bg-neutral-50 rounded-2xl p-3 px-6 border border-neutral-100 mb-8 inline-block">
+                <p className="text-xl md:text-2xl font-bold text-neutral-500">
                   הגייה: <span className="text-neutral-700">{letter.sound}</span>
                 </p>
               </div>
@@ -261,10 +261,10 @@ export default function LearnLetters({ userId, letterId }: LearnLettersProps) {
             <div className="flex justify-center">
               <button
                 onClick={() => speakLetter(letter.letter)}
-                className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-50 text-primary-600 hover:bg-primary-100 hover:scale-110 active:scale-95 transition-all duration-200 shadow-sm"
+                className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary-50 text-primary-600 hover:bg-primary-100 hover:scale-110 active:scale-95 transition-all duration-200 shadow-sm"
                 aria-label="השמע הגייה"
               >
-                <Volume2 className="w-8 h-8" />
+                <Volume2 className="w-10 h-10" />
               </button>
             </div>
           </div>
@@ -273,35 +273,35 @@ export default function LearnLetters({ userId, letterId }: LearnLettersProps) {
         </div>
 
         {/* Action Buttons */}
-        <div className="mb-4">
+        <div className="mb-6">
           <button
             onClick={() => router.push('/learn?mode=quiz')}
-            className="w-full py-3 rounded-2xl bg-primary-50 text-primary-600 font-bold text-base border-2 border-primary-100 hover:bg-primary-100 transition-all flex items-center justify-center gap-2"
+            className="w-full py-4 rounded-2xl bg-primary-50 text-primary-600 font-black text-lg border-2 border-primary-100 hover:bg-primary-100 transition-all flex items-center justify-center gap-3"
           >
-            <Sparkles className="w-5 h-5" />
+            <Sparkles className="w-6 h-6" />
             <span>התחל חידון אותיות</span>
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-2 gap-6 mt-6">
           <button
             type="button"
             onClick={(e) => handleMarkLearned(false, e)}
             disabled={isPending}
-            className="h-16 rounded-2xl bg-white border-2 border-neutral-100 text-neutral-400 font-bold text-lg shadow-md hover:bg-neutral-50 hover:border-neutral-200 hover:text-neutral-600 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+            className="h-20 rounded-2xl bg-white border-2 border-neutral-100 text-neutral-400 font-bold text-xl shadow-md hover:bg-neutral-50 hover:border-neutral-200 hover:text-neutral-600 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3"
           >
             <span>לא יודע</span>
-            <X className="w-5 h-5" />
+            <X className="w-6 h-6" />
           </button>
           <button
             type="button"
             onClick={(e) => handleMarkLearned(true, e)}
             disabled={isPending}
-            className="h-16 rounded-2xl bg-success-500 text-white font-black text-xl shadow-lg shadow-success-200 transition-all duration-200 hover:bg-success-600 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 tracking-tight"
+            className="h-20 rounded-2xl bg-success-500 text-white font-black text-2xl shadow-lg shadow-success-200 transition-all duration-200 hover:bg-success-600 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3 tracking-tight"
           >
             <span>יודע!</span>
-            <div className="bg-white/20 rounded-full w-8 h-8 flex items-center justify-center">
-              <Check className="w-5 h-5" />
+            <div className="bg-white/20 rounded-full w-10 h-10 flex items-center justify-center">
+              <Check className="w-6 h-6" />
             </div>
           </button>
         </div>

@@ -108,7 +108,7 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
     return (
       <div className="min-h-screen bg-neutral-50">
         {navBar}
-        <div className="max-w-2xl mx-auto bg-white min-h-screen pt-24 pb-10 shadow-sm">
+        <div className="max-w-3xl mx-auto bg-white min-h-screen pt-24 pb-10 shadow-sm">
           <LearnQuizWrapper
             userId={user.id}
             todayPlan={todayPlan}

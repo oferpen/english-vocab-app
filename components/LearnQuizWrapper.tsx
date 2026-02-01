@@ -62,28 +62,28 @@ export default function LearnQuizWrapper({
   if (level === 1 && !category && !todayPlan) {
     return (
       <>
-        <div className="mb-2 flex gap-2 bg-white rounded-xl p-1.5 shadow-sm border border-gray-100">
+        <div className="mb-6 flex gap-3 bg-white rounded-2xl p-2.5 shadow-sm border border-gray-100">
           <button
             onClick={() => handleModeSwitch('learn')}
             disabled={isSwitching || isPending || mode === 'learn'}
-            className={`flex-1 flex items-center justify-center py-2 px-3 rounded-lg transition-all duration-200 ${mode === 'learn'
-              ? 'border-2 border-primary-500 text-primary-600 font-bold shadow-sm'
-              : 'hover:bg-blue-50 text-gray-600 hover:text-blue-600'
+            className={`flex-1 flex items-center justify-center py-4 px-6 rounded-xl transition-all duration-200 ${mode === 'learn'
+              ? 'border-2 border-primary-500 text-primary-600 font-black shadow-sm bg-primary-50/30'
+              : 'hover:bg-blue-50 text-gray-500 hover:text-blue-600'
               }`}
           >
-            <span className="text-xl mr-2">📖</span>
-            <span className="text-sm font-semibold">למידה</span>
+            <span className="text-3xl mr-3">📖</span>
+            <span className="text-lg font-bold">למידה</span>
           </button>
           <button
             onClick={() => handleModeSwitch('quiz')}
             disabled={isSwitching || isPending || mode === 'quiz'}
-            className={`flex-1 flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-all duration-200 ${mode === 'quiz'
-              ? 'border-2 border-primary-500 text-primary-600 font-bold shadow-sm'
-              : 'hover:bg-purple-50 text-gray-600 hover:text-purple-600'
+            className={`flex-1 flex items-center justify-center py-4 px-6 rounded-xl transition-all duration-200 ${mode === 'quiz'
+              ? 'border-2 border-primary-500 text-primary-600 font-black shadow-sm bg-primary-50/30'
+              : 'hover:bg-purple-50 text-gray-500 hover:text-purple-600'
               }`}
           >
-            <span className="text-2xl mb-1">✏️</span>
-            <span className="text-sm font-semibold">חידון</span>
+            <span className="text-3xl mr-3">✏️</span>
+            <span className="text-lg font-bold">חידון</span>
           </button>
         </div>
 
@@ -108,28 +108,28 @@ export default function LearnQuizWrapper({
   return (
     <>
       {/* Navigation Tabs - Always visible to prevent flickering */}
-      <div className="mb-2 flex gap-2 bg-white rounded-xl p-1.5 shadow-sm border border-gray-100">
+      <div className="mb-6 flex gap-3 bg-white rounded-2xl p-2.5 shadow-sm border border-gray-100">
         <button
           onClick={() => handleModeSwitch('learn')}
           disabled={isSwitching || isPending || mode === 'learn'}
-          className={`flex-1 flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-all duration-200 ${mode === 'learn'
-            ? 'border-2 border-primary-500 text-primary-600 font-bold'
-            : 'hover:bg-blue-50 text-gray-600 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed'
+          className={`flex-1 flex items-center justify-center py-4 px-6 rounded-xl transition-all duration-200 ${mode === 'learn'
+            ? 'border-2 border-primary-500 text-primary-600 font-black shadow-sm bg-primary-50/30'
+            : 'hover:bg-blue-50 text-gray-500 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed'
             }`}
         >
-          <span className="text-2xl mb-1">📖</span>
-          <span className="text-sm font-semibold">למידה</span>
+          <span className="text-3xl mr-3">📖</span>
+          <span className="text-lg font-bold">למידה</span>
         </button>
         <button
           onClick={() => handleModeSwitch('quiz')}
           disabled={isSwitching || isPending || mode === 'quiz'}
-          className={`flex-1 flex flex-col items-center justify-center py-2 px-4 rounded-lg transition-all duration-200 ${mode === 'quiz'
-            ? 'border-2 border-primary-500 text-primary-600 font-bold'
-            : 'hover:bg-purple-50 text-gray-600 hover:text-purple-600 disabled:opacity-50 disabled:cursor-not-allowed'
+          className={`flex-1 flex items-center justify-center py-4 px-6 rounded-xl transition-all duration-200 ${mode === 'quiz'
+            ? 'border-2 border-primary-500 text-primary-600 font-black shadow-sm bg-primary-50/30'
+            : 'hover:bg-purple-50 text-gray-500 hover:text-purple-600 disabled:opacity-50 disabled:cursor-not-allowed'
             }`}
         >
-          <span className="text-2xl mb-1">✏️</span>
-          <span className="text-sm font-semibold">חידון</span>
+          <span className="text-3xl mr-3">✏️</span>
+          <span className="text-lg font-bold">חידון</span>
         </button>
       </div>
 

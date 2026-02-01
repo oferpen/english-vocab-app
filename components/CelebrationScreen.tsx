@@ -68,10 +68,10 @@ export default function CelebrationScreen({
           {/* Trophy Badge (Circular with Glow) */}
           <div className="mb-12 flex justify-center">
             <div className="relative">
-              <div className="w-32 h-32 bg-indigo-600 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(79,70,229,0.3)] border-4 border-indigo-100 ring-8 ring-white z-10 relative">
-                <Trophy className="w-16 h-16 text-white fill-white/10" />
+              <div className="w-32 h-32 bg-amber-400 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(251,191,36,0.5)] border-4 border-amber-100 ring-8 ring-white z-10 relative">
+                <Trophy className="w-16 h-16 text-white fill-white/20" />
               </div>
-              <div className="absolute -inset-2 bg-indigo-200 rounded-full blur-xl opacity-20 animate-pulse"></div>
+              <div className="absolute -inset-4 bg-amber-200 rounded-full blur-2xl opacity-40 animate-pulse"></div>
             </div>
           </div>
 

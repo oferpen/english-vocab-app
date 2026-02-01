@@ -1,6 +1,6 @@
 {
-  "exportedAt": "2026-01-25T17:43:04.560Z",
-  "total": 486,
+  "exportedAt": "2026-01-29T14:41:08.907Z",
+  "total": 504,
   "words": [
     {
       "englishWord": "dance",
@@ -138,6 +138,33 @@
       "exampleHe": "הציפור עפה"
     },
     {
+      "englishWord": "bunny",
+      "hebrewTranslation": "ארנבון",
+      "category": "Animals",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Cute bunny",
+      "exampleHe": "ארנבון חמוד"
+    },
+    {
+      "englishWord": "calf",
+      "hebrewTranslation": "עגל",
+      "category": "Animals",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Baby calf",
+      "exampleHe": "עגל קטן"
+    },
+    {
+      "englishWord": "canary",
+      "hebrewTranslation": "קנרית",
+      "category": "Animals",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "The canary sings",
+      "exampleHe": "הקנרית שרה"
+    },
+    {
       "englishWord": "cat",
       "hebrewTranslation": "חתול",
       "category": "Animals",
@@ -147,6 +174,15 @@
       "exampleHe": "החתול ישן"
     },
     {
+      "englishWord": "chick",
+      "hebrewTranslation": "אפרוח",
+      "category": "Animals",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Yellow chick",
+      "exampleHe": "אפרוח צהוב"
+    },
+    {
       "englishWord": "cow",
       "hebrewTranslation": "פרה",
       "category": "Animals",
@@ -154,6 +190,15 @@
       "active": true,
       "exampleEn": "The cow gives milk",
       "exampleHe": "הפרה נותנת חלב"
+    },
+    {
+      "englishWord": "cub",
+      "hebrewTranslation": "גור",
+      "category": "Animals",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Bear cub",
+      "exampleHe": "גור דוב"
     },
     {
       "englishWord": "deer",
@@ -183,6 +228,15 @@
       "exampleHe": "הברווז שוחה"
     },
     {
+      "englishWord": "duckling",
+      "hebrewTranslation": "ברווזון",
+      "category": "Animals",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Little duckling",
+      "exampleHe": "ברווזון קטן"
+    },
+    {
       "englishWord": "fish",
       "hebrewTranslation": "דג",
       "category": "Animals",
@@ -190,6 +244,15 @@
       "active": true,
       "exampleEn": "Fish live in water",
       "exampleHe": "דגים חיים במים"
+    },
+    {
+      "englishWord": "foal",
+      "hebrewTranslation": "סייח",
+      "category": "Animals",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Baby foal",
+      "exampleHe": "סייח קטן"
     },
     {
       "englishWord": "fox",
@@ -210,6 +273,33 @@
       "exampleHe": "הג'ירף גבוה"
     },
     {
+      "englishWord": "goldfish",
+      "hebrewTranslation": "דג זהב",
+      "category": "Animals",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Goldfish in a bowl",
+      "exampleHe": "דג זהב בקערה"
+    },
+    {
+      "englishWord": "guinea",
+      "hebrewTranslation": "שרקן",
+      "category": "Animals",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "The guinea pig squeaks",
+      "exampleHe": "השרקן מצפצף"
+    },
+    {
+      "englishWord": "hamster",
+      "hebrewTranslation": "אוגר",
+      "category": "Animals",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "The hamster runs",
+      "exampleHe": "האוגר רץ"
+    },
+    {
       "englishWord": "horse",
       "hebrewTranslation": "סוס",
       "category": "Animals",
@@ -217,6 +307,33 @@
       "active": true,
       "exampleEn": "I ride a horse",
       "exampleHe": "אני רוכב על סוס"
+    },
+    {
+      "englishWord": "kid",
+      "hebrewTranslation": "גדי",
+      "category": "Animals",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Baby goat",
+      "exampleHe": "גדי קטן"
+    },
+    {
+      "englishWord": "kitten",
+      "hebrewTranslation": "גור חתול",
+      "category": "Animals",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Cute kitten",
+      "exampleHe": "גור חתול חמוד"
+    },
+    {
+      "englishWord": "lamb",
+      "hebrewTranslation": "טלה",
+      "category": "Animals",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Little lamb",
+      "exampleHe": "טלה קטן"
     },
     {
       "englishWord": "monkey",
@@ -237,6 +354,15 @@
       "exampleHe": "העכבר קטן"
     },
     {
+      "englishWord": "parrot",
+      "hebrewTranslation": "תוכי",
+      "category": "Animals",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "The parrot talks",
+      "exampleHe": "התוכי מדבר"
+    },
+    {
       "englishWord": "pig",
       "hebrewTranslation": "חזיר",
       "category": "Animals",
@@ -246,6 +372,33 @@
       "exampleHe": "החזיר ורוד"
     },
     {
+      "englishWord": "piglet",
+      "hebrewTranslation": "חזרזיר",
+      "category": "Animals",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Small piglet",
+      "exampleHe": "חזרזיר קטן"
+    },
+    {
+      "englishWord": "pony",
+      "hebrewTranslation": "פוני",
+      "category": "Animals",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Ride a pony",
+      "exampleHe": "רכב על פוני"
+    },
+    {
+      "englishWord": "puppy",
+      "hebrewTranslation": "גור כלב",
+      "category": "Animals",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Playful puppy",
+      "exampleHe": "גור כלב שובב"
+    },
+    {
       "englishWord": "rabbit",
       "hebrewTranslation": "ארנב",
       "category": "Animals",
@@ -253,6 +406,15 @@
       "active": true,
       "exampleEn": "The rabbit is cute",
       "exampleHe": "הארנב חמוד"
+    },
+    {
+      "englishWord": "rooster",
+      "hebrewTranslation": "תרנגול",
+      "category": "Animals",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "The rooster crows",
+      "exampleHe": "התרנגול קורא"
     },
     {
       "englishWord": "sheep",
@@ -273,6 +435,24 @@
       "exampleHe": "לנמר יש פסים"
     },
     {
+      "englishWord": "turkey",
+      "hebrewTranslation": "תרנגול הודו",
+      "category": "Animals",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "The turkey gobbles",
+      "exampleHe": "תרנגול ההודו מקרקר"
+    },
+    {
+      "englishWord": "turtle",
+      "hebrewTranslation": "צב",
+      "category": "Animals",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "The turtle walks slowly",
+      "exampleHe": "הצב הולך לאט"
+    },
+    {
       "englishWord": "wolf",
       "hebrewTranslation": "זאב",
       "category": "Animals",
@@ -291,202 +471,13 @@
       "exampleHe": "לזברה יש פסים"
     },
     {
-      "englishWord": "bunny",
-      "hebrewTranslation": "ארנבון",
-      "category": "Animals",
-      "difficulty": 2,
+      "englishWord": "ankle",
+      "hebrewTranslation": "קרסול",
+      "category": "Body",
+      "difficulty": 1,
       "active": true,
-      "exampleEn": "Cute bunny",
-      "exampleHe": "ארנבון חמוד"
-    },
-    {
-      "englishWord": "calf",
-      "hebrewTranslation": "עגל",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Baby calf",
-      "exampleHe": "עגל קטן"
-    },
-    {
-      "englishWord": "canary",
-      "hebrewTranslation": "קנרית",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "The canary sings",
-      "exampleHe": "הקנרית שרה"
-    },
-    {
-      "englishWord": "chick",
-      "hebrewTranslation": "אפרוח",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Yellow chick",
-      "exampleHe": "אפרוח צהוב"
-    },
-    {
-      "englishWord": "cub",
-      "hebrewTranslation": "גור",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Bear cub",
-      "exampleHe": "גור דוב"
-    },
-    {
-      "englishWord": "duckling",
-      "hebrewTranslation": "ברווזון",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Little duckling",
-      "exampleHe": "ברווזון קטן"
-    },
-    {
-      "englishWord": "elephant",
-      "hebrewTranslation": "פיל",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "The elephant is big",
-      "exampleHe": "הפיל גדול"
-    },
-    {
-      "englishWord": "foal",
-      "hebrewTranslation": "סייח",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Baby foal",
-      "exampleHe": "סייח קטן"
-    },
-    {
-      "englishWord": "goldfish",
-      "hebrewTranslation": "דג זהב",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Goldfish in a bowl",
-      "exampleHe": "דג זהב בקערה"
-    },
-    {
-      "englishWord": "guinea",
-      "hebrewTranslation": "שרקן",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "The guinea pig squeaks",
-      "exampleHe": "השרקן מצפצף"
-    },
-    {
-      "englishWord": "hamster",
-      "hebrewTranslation": "אוגר",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "The hamster runs",
-      "exampleHe": "האוגר רץ"
-    },
-    {
-      "englishWord": "kid",
-      "hebrewTranslation": "גדי",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Baby goat",
-      "exampleHe": "גדי קטן"
-    },
-    {
-      "englishWord": "kitten",
-      "hebrewTranslation": "גור חתול",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Cute kitten",
-      "exampleHe": "גור חתול חמוד"
-    },
-    {
-      "englishWord": "lamb",
-      "hebrewTranslation": "טלה",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Little lamb",
-      "exampleHe": "טלה קטן"
-    },
-    {
-      "englishWord": "lion",
-      "hebrewTranslation": "אריה",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "The lion is the king",
-      "exampleHe": "האריה הוא המלך"
-    },
-    {
-      "englishWord": "parrot",
-      "hebrewTranslation": "תוכי",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "The parrot talks",
-      "exampleHe": "התוכי מדבר"
-    },
-    {
-      "englishWord": "piglet",
-      "hebrewTranslation": "חזרזיר",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Small piglet",
-      "exampleHe": "חזרזיר קטן"
-    },
-    {
-      "englishWord": "pony",
-      "hebrewTranslation": "פוני",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Ride a pony",
-      "exampleHe": "רכב על פוני"
-    },
-    {
-      "englishWord": "puppy",
-      "hebrewTranslation": "גור כלב",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Playful puppy",
-      "exampleHe": "גור כלב שובב"
-    },
-    {
-      "englishWord": "rooster",
-      "hebrewTranslation": "תרנגול",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "The rooster crows",
-      "exampleHe": "התרנגול קורא"
-    },
-    {
-      "englishWord": "turkey",
-      "hebrewTranslation": "תרנגול הודו",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "The turkey gobbles",
-      "exampleHe": "תרנגול ההודו מקרקר"
-    },
-    {
-      "englishWord": "turtle",
-      "hebrewTranslation": "צב",
-      "category": "Animals",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "The turtle walks slowly",
-      "exampleHe": "הצב הולך לאט"
+      "exampleEn": "Twisted ankle",
+      "exampleHe": "קרסול מעוקם"
     },
     {
       "englishWord": "arm",
@@ -507,6 +498,15 @@
       "exampleHe": "הגב שלי ישר"
     },
     {
+      "englishWord": "cheek",
+      "hebrewTranslation": "לחי",
+      "category": "Body",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Rosy cheeks",
+      "exampleHe": "לחיים ורודות"
+    },
+    {
       "englishWord": "chest",
       "hebrewTranslation": "חזה",
       "category": "Body",
@@ -514,6 +514,15 @@
       "active": true,
       "exampleEn": "My chest is strong",
       "exampleHe": "החזה שלי חזק"
+    },
+    {
+      "englishWord": "chin",
+      "hebrewTranslation": "סנטר",
+      "category": "Body",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Pointed chin",
+      "exampleHe": "סנטר מחודד"
     },
     {
       "englishWord": "ear",
@@ -543,6 +552,24 @@
       "exampleHe": "יש לי שתי עיניים"
     },
     {
+      "englishWord": "eyebrow",
+      "hebrewTranslation": "גבה",
+      "category": "Body",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Thick eyebrow",
+      "exampleHe": "גבה עבה"
+    },
+    {
+      "englishWord": "eyelash",
+      "hebrewTranslation": "ריס",
+      "category": "Body",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Long eyelash",
+      "exampleHe": "ריס ארוך"
+    },
+    {
       "englishWord": "face",
       "hebrewTranslation": "פנים",
       "category": "Body",
@@ -568,6 +595,24 @@
       "active": true,
       "exampleEn": "I walk with my feet",
       "exampleHe": "אני הולך עם הרגליים"
+    },
+    {
+      "englishWord": "forehead",
+      "hebrewTranslation": "מצח",
+      "category": "Body",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Wide forehead",
+      "exampleHe": "מצח רחב"
+    },
+    {
+      "englishWord": "gum",
+      "hebrewTranslation": "חניכיים",
+      "category": "Body",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Healthy gums",
+      "exampleHe": "חניכיים בריאות"
     },
     {
       "englishWord": "hair",
@@ -597,6 +642,24 @@
       "exampleHe": "הראש שלי כואב"
     },
     {
+      "englishWord": "heel",
+      "hebrewTranslation": "עקב",
+      "category": "Body",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "High heel",
+      "exampleHe": "עקב גבוה"
+    },
+    {
+      "englishWord": "hip",
+      "hebrewTranslation": "ירך",
+      "category": "Body",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Hip bone",
+      "exampleHe": "עצם ירך"
+    },
+    {
       "englishWord": "knee",
       "hebrewTranslation": "ברך",
       "category": "Body",
@@ -615,6 +678,15 @@
       "exampleHe": "אני רץ עם הרגליים"
     },
     {
+      "englishWord": "lip",
+      "hebrewTranslation": "שפה",
+      "category": "Body",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Red lip",
+      "exampleHe": "שפה אדומה"
+    },
+    {
       "englishWord": "mouth",
       "hebrewTranslation": "פה",
       "category": "Body",
@@ -622,6 +694,15 @@
       "active": true,
       "exampleEn": "Open your mouth",
       "exampleHe": "פתח את הפה"
+    },
+    {
+      "englishWord": "nail",
+      "hebrewTranslation": "ציפורן",
+      "category": "Body",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Cut your nails",
+      "exampleHe": "גזור את הציפורניים"
     },
     {
       "englishWord": "neck",
@@ -642,6 +723,15 @@
       "exampleHe": "אני מריח עם האף שלי"
     },
     {
+      "englishWord": "palm",
+      "hebrewTranslation": "כף יד",
+      "category": "Body",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Open palm",
+      "exampleHe": "כף יד פתוחה"
+    },
+    {
       "englishWord": "shoulder",
       "hebrewTranslation": "כתף",
       "category": "Body",
@@ -649,6 +739,15 @@
       "active": true,
       "exampleEn": "My shoulder is strong",
       "exampleHe": "הכתף שלי חזקה"
+    },
+    {
+      "englishWord": "sole",
+      "hebrewTranslation": "כף רגל",
+      "category": "Body",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Sole of foot",
+      "exampleHe": "כף הרגל"
     },
     {
       "englishWord": "stomach",
@@ -660,6 +759,51 @@
       "exampleHe": "הבטן שלי מלאה"
     },
     {
+      "englishWord": "teeth",
+      "hebrewTranslation": "שיניים",
+      "category": "Body",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Brush your teeth",
+      "exampleHe": "צחצח שיניים"
+    },
+    {
+      "englishWord": "thigh",
+      "hebrewTranslation": "ירך עליונה",
+      "category": "Body",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Strong thigh",
+      "exampleHe": "ירך עליונה חזקה"
+    },
+    {
+      "englishWord": "thumb",
+      "hebrewTranslation": "אגודל",
+      "category": "Body",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Thumbs up",
+      "exampleHe": "אגודל למעלה"
+    },
+    {
+      "englishWord": "toe",
+      "hebrewTranslation": "בוהן",
+      "category": "Body",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Big toe",
+      "exampleHe": "בוהן גדולה"
+    },
+    {
+      "englishWord": "tongue",
+      "hebrewTranslation": "לשון",
+      "category": "Body",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Stick out tongue",
+      "exampleHe": "הוצא לשון"
+    },
+    {
       "englishWord": "tooth",
       "hebrewTranslation": "שן",
       "category": "Body",
@@ -669,172 +813,10 @@
       "exampleHe": "צחצח שיניים"
     },
     {
-      "englishWord": "ankle",
-      "hebrewTranslation": "קרסול",
-      "category": "Body",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Twisted ankle",
-      "exampleHe": "קרסול מעוקם"
-    },
-    {
-      "englishWord": "cheek",
-      "hebrewTranslation": "לחי",
-      "category": "Body",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Rosy cheeks",
-      "exampleHe": "לחיים ורודות"
-    },
-    {
-      "englishWord": "chin",
-      "hebrewTranslation": "סנטר",
-      "category": "Body",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Pointed chin",
-      "exampleHe": "סנטר מחודד"
-    },
-    {
-      "englishWord": "eyebrow",
-      "hebrewTranslation": "גבה",
-      "category": "Body",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Thick eyebrow",
-      "exampleHe": "גבה עבה"
-    },
-    {
-      "englishWord": "eyelash",
-      "hebrewTranslation": "ריס",
-      "category": "Body",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Long eyelash",
-      "exampleHe": "ריס ארוך"
-    },
-    {
-      "englishWord": "forehead",
-      "hebrewTranslation": "מצח",
-      "category": "Body",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Wide forehead",
-      "exampleHe": "מצח רחב"
-    },
-    {
-      "englishWord": "gum",
-      "hebrewTranslation": "חניכיים",
-      "category": "Body",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Healthy gums",
-      "exampleHe": "חניכיים בריאות"
-    },
-    {
-      "englishWord": "heel",
-      "hebrewTranslation": "עקב",
-      "category": "Body",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "High heel",
-      "exampleHe": "עקב גבוה"
-    },
-    {
-      "englishWord": "hip",
-      "hebrewTranslation": "ירך",
-      "category": "Body",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Hip bone",
-      "exampleHe": "עצם ירך"
-    },
-    {
-      "englishWord": "lip",
-      "hebrewTranslation": "שפה",
-      "category": "Body",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Red lip",
-      "exampleHe": "שפה אדומה"
-    },
-    {
-      "englishWord": "nail",
-      "hebrewTranslation": "ציפורן",
-      "category": "Body",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Cut your nails",
-      "exampleHe": "גזור את הציפורניים"
-    },
-    {
-      "englishWord": "palm",
-      "hebrewTranslation": "כף יד",
-      "category": "Body",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Open palm",
-      "exampleHe": "כף יד פתוחה"
-    },
-    {
-      "englishWord": "sole",
-      "hebrewTranslation": "כף רגל",
-      "category": "Body",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Sole of foot",
-      "exampleHe": "כף הרגל"
-    },
-    {
-      "englishWord": "teeth",
-      "hebrewTranslation": "שיניים",
-      "category": "Body",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Brush your teeth",
-      "exampleHe": "צחצח שיניים"
-    },
-    {
-      "englishWord": "thigh",
-      "hebrewTranslation": "ירך עליונה",
-      "category": "Body",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Strong thigh",
-      "exampleHe": "ירך עליונה חזקה"
-    },
-    {
-      "englishWord": "thumb",
-      "hebrewTranslation": "אגודל",
-      "category": "Body",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Thumbs up",
-      "exampleHe": "אגודל למעלה"
-    },
-    {
-      "englishWord": "toe",
-      "hebrewTranslation": "בוהן",
-      "category": "Body",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Big toe",
-      "exampleHe": "בוהן גדולה"
-    },
-    {
-      "englishWord": "tongue",
-      "hebrewTranslation": "לשון",
-      "category": "Body",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Stick out tongue",
-      "exampleHe": "הוצא לשון"
-    },
-    {
       "englishWord": "waist",
       "hebrewTranslation": "מותן",
       "category": "Body",
-      "difficulty": 2,
+      "difficulty": 1,
       "active": true,
       "exampleEn": "Small waist",
       "exampleHe": "מותן קטן"
@@ -843,7 +825,7 @@
       "englishWord": "wrist",
       "hebrewTranslation": "שורש כף יד",
       "category": "Body",
-      "difficulty": 2,
+      "difficulty": 1,
       "active": true,
       "exampleEn": "Watch on wrist",
       "exampleHe": "שעון על שורש כף היד"
@@ -858,6 +840,33 @@
       "exampleHe": "מגפיים לחורף"
     },
     {
+      "englishWord": "buckle",
+      "hebrewTranslation": "אבזם",
+      "category": "Clothes",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Belt buckle",
+      "exampleHe": "אבזם חגורה"
+    },
+    {
+      "englishWord": "button",
+      "hebrewTranslation": "כפתור",
+      "category": "Clothes",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Button your shirt",
+      "exampleHe": "כפתר את החולצה"
+    },
+    {
+      "englishWord": "cloth",
+      "hebrewTranslation": "טקסטיל",
+      "category": "Clothes",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Clean cloth",
+      "exampleHe": "טקסטיל נקי"
+    },
+    {
       "englishWord": "coat",
       "hebrewTranslation": "מעיל",
       "category": "Clothes",
@@ -865,6 +874,24 @@
       "active": true,
       "exampleEn": "Winter coat",
       "exampleHe": "מעיל חורף"
+    },
+    {
+      "englishWord": "collar",
+      "hebrewTranslation": "צווארון",
+      "category": "Clothes",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Shirt collar",
+      "exampleHe": "צווארון חולצה"
+    },
+    {
+      "englishWord": "cuff",
+      "hebrewTranslation": "מפרק",
+      "category": "Clothes",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Shirt cuff",
+      "exampleHe": "מפרק חולצה"
     },
     {
       "englishWord": "dress",
@@ -876,6 +903,15 @@
       "exampleHe": "שמלה יפה"
     },
     {
+      "englishWord": "fabric",
+      "hebrewTranslation": "בד",
+      "category": "Clothes",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Soft fabric",
+      "exampleHe": "בד רך"
+    },
+    {
       "englishWord": "hat",
       "hebrewTranslation": "כובע",
       "category": "Clothes",
@@ -885,6 +921,15 @@
       "exampleHe": "חבוש כובע"
     },
     {
+      "englishWord": "hem",
+      "hebrewTranslation": "שוליים",
+      "category": "Clothes",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Dress hem",
+      "exampleHe": "שולי שמלה"
+    },
+    {
       "englishWord": "jacket",
       "hebrewTranslation": "מעיל",
       "category": "Clothes",
@@ -892,6 +937,33 @@
       "active": true,
       "exampleEn": "Warm jacket",
       "exampleHe": "מעיל חם"
+    },
+    {
+      "englishWord": "label",
+      "hebrewTranslation": "תווית",
+      "category": "Clothes",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Clothing label",
+      "exampleHe": "תווית בגד"
+    },
+    {
+      "englishWord": "lace",
+      "hebrewTranslation": "שרוך",
+      "category": "Clothes",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Shoe lace",
+      "exampleHe": "שרוך נעל"
+    },
+    {
+      "englishWord": "needle",
+      "hebrewTranslation": "מחט",
+      "category": "Clothes",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Sharp needle",
+      "exampleHe": "מחט חדה"
     },
     {
       "englishWord": "pajamas",
@@ -912,6 +984,33 @@
       "exampleHe": "מכנסיים שחורים"
     },
     {
+      "englishWord": "patch",
+      "hebrewTranslation": "טלאי",
+      "category": "Clothes",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Knee patch",
+      "exampleHe": "טלאי ברך"
+    },
+    {
+      "englishWord": "pin",
+      "hebrewTranslation": "סיכה",
+      "category": "Clothes",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Safety pin",
+      "exampleHe": "סיכת ביטחון"
+    },
+    {
+      "englishWord": "pocket",
+      "hebrewTranslation": "כיס",
+      "category": "Clothes",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Put in pocket",
+      "exampleHe": "שים בכיס"
+    },
+    {
       "englishWord": "scarf",
       "hebrewTranslation": "צעיף",
       "category": "Clothes",
@@ -919,6 +1018,15 @@
       "active": true,
       "exampleEn": "Wool scarf",
       "exampleHe": "צעיף צמר"
+    },
+    {
+      "englishWord": "seam",
+      "hebrewTranslation": "תפר",
+      "category": "Clothes",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Sew a seam",
+      "exampleHe": "תפר תפר"
     },
     {
       "englishWord": "shirt",
@@ -957,6 +1065,15 @@
       "exampleHe": "חצאית ארוכה"
     },
     {
+      "englishWord": "sleeve",
+      "hebrewTranslation": "שרוול",
+      "category": "Clothes",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Long sleeve",
+      "exampleHe": "שרוול ארוך"
+    },
+    {
       "englishWord": "slippers",
       "hebrewTranslation": "נעלי בית",
       "category": "Clothes",
@@ -973,6 +1090,15 @@
       "active": true,
       "exampleEn": "Warm socks",
       "exampleHe": "גרביים חמות"
+    },
+    {
+      "englishWord": "strap",
+      "hebrewTranslation": "רצועה",
+      "category": "Clothes",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Bag strap",
+      "exampleHe": "רצועת תיק"
     },
     {
       "englishWord": "sweater",
@@ -993,6 +1119,24 @@
       "exampleHe": "חולצת טי לבנה"
     },
     {
+      "englishWord": "tag",
+      "hebrewTranslation": "תווית",
+      "category": "Clothes",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Price tag",
+      "exampleHe": "תווית מחיר"
+    },
+    {
+      "englishWord": "thread",
+      "hebrewTranslation": "חוט",
+      "category": "Clothes",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Sewing thread",
+      "exampleHe": "חוט תפירה"
+    },
+    {
       "englishWord": "tie",
       "hebrewTranslation": "עניבה",
       "category": "Clothes",
@@ -1011,172 +1155,10 @@
       "exampleHe": "תחתונים נקיים"
     },
     {
-      "englishWord": "buckle",
-      "hebrewTranslation": "אבזם",
-      "category": "Clothes",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Belt buckle",
-      "exampleHe": "אבזם חגורה"
-    },
-    {
-      "englishWord": "button",
-      "hebrewTranslation": "כפתור",
-      "category": "Clothes",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Button your shirt",
-      "exampleHe": "כפתר את החולצה"
-    },
-    {
-      "englishWord": "cloth",
-      "hebrewTranslation": "טקסטיל",
-      "category": "Clothes",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Clean cloth",
-      "exampleHe": "טקסטיל נקי"
-    },
-    {
-      "englishWord": "collar",
-      "hebrewTranslation": "צווארון",
-      "category": "Clothes",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Shirt collar",
-      "exampleHe": "צווארון חולצה"
-    },
-    {
-      "englishWord": "cuff",
-      "hebrewTranslation": "מפרק",
-      "category": "Clothes",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Shirt cuff",
-      "exampleHe": "מפרק חולצה"
-    },
-    {
-      "englishWord": "fabric",
-      "hebrewTranslation": "בד",
-      "category": "Clothes",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Soft fabric",
-      "exampleHe": "בד רך"
-    },
-    {
-      "englishWord": "hem",
-      "hebrewTranslation": "שוליים",
-      "category": "Clothes",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Dress hem",
-      "exampleHe": "שולי שמלה"
-    },
-    {
-      "englishWord": "label",
-      "hebrewTranslation": "תווית",
-      "category": "Clothes",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Clothing label",
-      "exampleHe": "תווית בגד"
-    },
-    {
-      "englishWord": "lace",
-      "hebrewTranslation": "שרוך",
-      "category": "Clothes",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Shoe lace",
-      "exampleHe": "שרוך נעל"
-    },
-    {
-      "englishWord": "needle",
-      "hebrewTranslation": "מחט",
-      "category": "Clothes",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Sharp needle",
-      "exampleHe": "מחט חדה"
-    },
-    {
-      "englishWord": "patch",
-      "hebrewTranslation": "טלאי",
-      "category": "Clothes",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Knee patch",
-      "exampleHe": "טלאי ברך"
-    },
-    {
-      "englishWord": "pin",
-      "hebrewTranslation": "סיכה",
-      "category": "Clothes",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Safety pin",
-      "exampleHe": "סיכת ביטחון"
-    },
-    {
-      "englishWord": "pocket",
-      "hebrewTranslation": "כיס",
-      "category": "Clothes",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Put in pocket",
-      "exampleHe": "שים בכיס"
-    },
-    {
-      "englishWord": "seam",
-      "hebrewTranslation": "תפר",
-      "category": "Clothes",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Sew a seam",
-      "exampleHe": "תפר תפר"
-    },
-    {
-      "englishWord": "sleeve",
-      "hebrewTranslation": "שרוול",
-      "category": "Clothes",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Long sleeve",
-      "exampleHe": "שרוול ארוך"
-    },
-    {
-      "englishWord": "strap",
-      "hebrewTranslation": "רצועה",
-      "category": "Clothes",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Bag strap",
-      "exampleHe": "רצועת תיק"
-    },
-    {
-      "englishWord": "tag",
-      "hebrewTranslation": "תווית",
-      "category": "Clothes",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Price tag",
-      "exampleHe": "תווית מחיר"
-    },
-    {
-      "englishWord": "thread",
-      "hebrewTranslation": "חוט",
-      "category": "Clothes",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Sewing thread",
-      "exampleHe": "חוט תפירה"
-    },
-    {
       "englishWord": "zipper",
       "hebrewTranslation": "רוכסן",
       "category": "Clothes",
-      "difficulty": 2,
+      "difficulty": 1,
       "active": true,
       "exampleEn": "Zip up",
       "exampleHe": "רוכסן למעלה"
@@ -1209,6 +1191,24 @@
       "exampleHe": "השמיים כחולים"
     },
     {
+      "englishWord": "bold",
+      "hebrewTranslation": "מודגש",
+      "category": "Colors",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Bold color",
+      "exampleHe": "צבע מודגש"
+    },
+    {
+      "englishWord": "bright",
+      "hebrewTranslation": "זוהר",
+      "category": "Colors",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Bright yellow",
+      "exampleHe": "צהוב זוהר"
+    },
+    {
       "englishWord": "brown",
       "hebrewTranslation": "חום",
       "category": "Colors",
@@ -1225,6 +1225,51 @@
       "active": true,
       "exampleEn": "Cyan sky",
       "exampleHe": "שמיים ציאן"
+    },
+    {
+      "englishWord": "dark",
+      "hebrewTranslation": "כהה",
+      "category": "Colors",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Dark green",
+      "exampleHe": "ירוק כהה"
+    },
+    {
+      "englishWord": "deep",
+      "hebrewTranslation": "עמוק",
+      "category": "Colors",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Deep blue",
+      "exampleHe": "כחול עמוק"
+    },
+    {
+      "englishWord": "dull",
+      "hebrewTranslation": "מעומעם",
+      "category": "Colors",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Dull color",
+      "exampleHe": "צבע מעומעם"
+    },
+    {
+      "englishWord": "faded",
+      "hebrewTranslation": "דהוי",
+      "category": "Colors",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Faded jeans",
+      "exampleHe": "ג'ינס דהוי"
+    },
+    {
+      "englishWord": "glossy",
+      "hebrewTranslation": "מבריק",
+      "category": "Colors",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Glossy surface",
+      "exampleHe": "משטח מבריק"
     },
     {
       "englishWord": "gold",
@@ -1272,6 +1317,24 @@
       "exampleHe": "חולצה חומה אדמדמה"
     },
     {
+      "englishWord": "matte",
+      "hebrewTranslation": "מט",
+      "category": "Colors",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Matte finish",
+      "exampleHe": "גימור מט"
+    },
+    {
+      "englishWord": "muted",
+      "hebrewTranslation": "מעומעם",
+      "category": "Colors",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Muted tone",
+      "exampleHe": "גוון מעומעם"
+    },
+    {
       "englishWord": "navy",
       "hebrewTranslation": "כחול כהה",
       "category": "Colors",
@@ -1279,6 +1342,33 @@
       "active": true,
       "exampleEn": "Navy blue",
       "exampleHe": "כחול כהה"
+    },
+    {
+      "englishWord": "neon",
+      "hebrewTranslation": "ניאון",
+      "category": "Colors",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Neon green",
+      "exampleHe": "ירוק ניאון"
+    },
+    {
+      "englishWord": "pale",
+      "hebrewTranslation": "חיוור",
+      "category": "Colors",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Pale pink",
+      "exampleHe": "ורוד חיוור"
+    },
+    {
+      "englishWord": "pastel",
+      "hebrewTranslation": "פסטל",
+      "category": "Colors",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Pastel blue",
+      "exampleHe": "כחול פסטל"
     },
     {
       "englishWord": "pink",
@@ -1308,6 +1398,24 @@
       "exampleHe": "התפוח אדום"
     },
     {
+      "englishWord": "rich",
+      "hebrewTranslation": "עשיר",
+      "category": "Colors",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Rich purple",
+      "exampleHe": "סגול עשיר"
+    },
+    {
+      "englishWord": "shiny",
+      "hebrewTranslation": "מבריק",
+      "category": "Colors",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Shiny gold",
+      "exampleHe": "זהב מבריק"
+    },
+    {
       "englishWord": "silver",
       "hebrewTranslation": "כסף",
       "category": "Colors",
@@ -1315,6 +1423,33 @@
       "active": true,
       "exampleEn": "Silver coin",
       "exampleHe": "מטבע כסף"
+    },
+    {
+      "englishWord": "soft",
+      "hebrewTranslation": "רך",
+      "category": "Colors",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Soft color",
+      "exampleHe": "צבע רך"
+    },
+    {
+      "englishWord": "subtle",
+      "hebrewTranslation": "עדין",
+      "category": "Colors",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Subtle shade",
+      "exampleHe": "גוון עדין"
+    },
+    {
+      "englishWord": "transparent",
+      "hebrewTranslation": "שקוף",
+      "category": "Colors",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Transparent glass",
+      "exampleHe": "זכוכית שקופה"
     },
     {
       "englishWord": "turquoise",
@@ -1326,6 +1461,15 @@
       "exampleHe": "ים טורקיז"
     },
     {
+      "englishWord": "vibrant",
+      "hebrewTranslation": "חי",
+      "category": "Colors",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Vibrant orange",
+      "exampleHe": "כתום חי"
+    },
+    {
       "englishWord": "violet",
       "hebrewTranslation": "סגול כהה",
       "category": "Colors",
@@ -1333,6 +1477,15 @@
       "active": true,
       "exampleEn": "Violet flowers",
       "exampleHe": "פרחים סגולים"
+    },
+    {
+      "englishWord": "vivid",
+      "hebrewTranslation": "עז",
+      "category": "Colors",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Vivid red",
+      "exampleHe": "אדום עז"
     },
     {
       "englishWord": "white",
@@ -1353,175 +1506,31 @@
       "exampleHe": "השמש צהובה"
     },
     {
-      "englishWord": "bold",
-      "hebrewTranslation": "מודגש",
-      "category": "Colors",
-      "difficulty": 2,
+      "englishWord": "adult",
+      "hebrewTranslation": "מבוגר",
+      "category": "Family",
+      "difficulty": 1,
       "active": true,
-      "exampleEn": "Bold color",
-      "exampleHe": "צבע מודגש"
+      "exampleEn": "Responsible adult",
+      "exampleHe": "מבוגר אחראי"
     },
     {
-      "englishWord": "bright",
-      "hebrewTranslation": "זוהר",
-      "category": "Colors",
-      "difficulty": 2,
+      "englishWord": "aunt",
+      "hebrewTranslation": "דודה",
+      "category": "Family",
+      "difficulty": 1,
       "active": true,
-      "exampleEn": "Bright yellow",
-      "exampleHe": "צהוב זוהר"
+      "exampleEn": "My aunt",
+      "exampleHe": "הדודה שלי"
     },
     {
-      "englishWord": "dark",
-      "hebrewTranslation": "כהה",
-      "category": "Colors",
-      "difficulty": 2,
+      "englishWord": "baby",
+      "hebrewTranslation": "תינוק",
+      "category": "Family",
+      "difficulty": 1,
       "active": true,
-      "exampleEn": "Dark green",
-      "exampleHe": "ירוק כהה"
-    },
-    {
-      "englishWord": "deep",
-      "hebrewTranslation": "עמוק",
-      "category": "Colors",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Deep blue",
-      "exampleHe": "כחול עמוק"
-    },
-    {
-      "englishWord": "dull",
-      "hebrewTranslation": "מעומעם",
-      "category": "Colors",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Dull color",
-      "exampleHe": "צבע מעומעם"
-    },
-    {
-      "englishWord": "faded",
-      "hebrewTranslation": "דהוי",
-      "category": "Colors",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Faded jeans",
-      "exampleHe": "ג'ינס דהוי"
-    },
-    {
-      "englishWord": "glossy",
-      "hebrewTranslation": "מבריק",
-      "category": "Colors",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Glossy surface",
-      "exampleHe": "משטח מבריק"
-    },
-    {
-      "englishWord": "matte",
-      "hebrewTranslation": "מט",
-      "category": "Colors",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Matte finish",
-      "exampleHe": "גימור מט"
-    },
-    {
-      "englishWord": "muted",
-      "hebrewTranslation": "מעומעם",
-      "category": "Colors",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Muted tone",
-      "exampleHe": "גוון מעומעם"
-    },
-    {
-      "englishWord": "neon",
-      "hebrewTranslation": "ניאון",
-      "category": "Colors",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Neon green",
-      "exampleHe": "ירוק ניאון"
-    },
-    {
-      "englishWord": "pale",
-      "hebrewTranslation": "חיוור",
-      "category": "Colors",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Pale pink",
-      "exampleHe": "ורוד חיוור"
-    },
-    {
-      "englishWord": "pastel",
-      "hebrewTranslation": "פסטל",
-      "category": "Colors",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Pastel blue",
-      "exampleHe": "כחול פסטל"
-    },
-    {
-      "englishWord": "rich",
-      "hebrewTranslation": "עשיר",
-      "category": "Colors",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Rich purple",
-      "exampleHe": "סגול עשיר"
-    },
-    {
-      "englishWord": "shiny",
-      "hebrewTranslation": "מבריק",
-      "category": "Colors",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Shiny gold",
-      "exampleHe": "זהב מבריק"
-    },
-    {
-      "englishWord": "soft",
-      "hebrewTranslation": "רך",
-      "category": "Colors",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Soft color",
-      "exampleHe": "צבע רך"
-    },
-    {
-      "englishWord": "subtle",
-      "hebrewTranslation": "עדין",
-      "category": "Colors",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Subtle shade",
-      "exampleHe": "גוון עדין"
-    },
-    {
-      "englishWord": "transparent",
-      "hebrewTranslation": "שקוף",
-      "category": "Colors",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Transparent glass",
-      "exampleHe": "זכוכית שקופה"
-    },
-    {
-      "englishWord": "vibrant",
-      "hebrewTranslation": "חי",
-      "category": "Colors",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Vibrant orange",
-      "exampleHe": "כתום חי"
-    },
-    {
-      "englishWord": "vivid",
-      "hebrewTranslation": "עז",
-      "category": "Colors",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Vivid red",
-      "exampleHe": "אדום עז"
+      "exampleEn": "Cute baby",
+      "exampleHe": "תינוק חמוד"
     },
     {
       "englishWord": "brother",
@@ -1542,6 +1551,15 @@
       "exampleHe": "הילד משחק"
     },
     {
+      "englishWord": "cousin",
+      "hebrewTranslation": "בן דוד",
+      "category": "Family",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "My cousin",
+      "exampleHe": "בן הדוד שלי"
+    },
+    {
       "englishWord": "daughter",
       "hebrewTranslation": "בת",
       "category": "Family",
@@ -1549,6 +1567,15 @@
       "active": true,
       "exampleEn": "My daughter is beautiful",
       "exampleHe": "הבת שלי יפה"
+    },
+    {
+      "englishWord": "elder",
+      "hebrewTranslation": "קשיש",
+      "category": "Family",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Wise elder",
+      "exampleHe": "קשיש חכם"
     },
     {
       "englishWord": "father",
@@ -1560,6 +1587,15 @@
       "exampleHe": "אבא שלי גבוה"
     },
     {
+      "englishWord": "granddaughter",
+      "hebrewTranslation": "נכדה",
+      "category": "Family",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "My granddaughter",
+      "exampleHe": "הנכדה שלי"
+    },
+    {
       "englishWord": "grandfather",
       "hebrewTranslation": "סבא",
       "category": "Family",
@@ -1567,6 +1603,15 @@
       "active": true,
       "exampleEn": "Grandfather tells stories",
       "exampleHe": "סבא מספר סיפורים"
+    },
+    {
+      "englishWord": "grandma",
+      "hebrewTranslation": "סבתא",
+      "category": "Family",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "My grandma",
+      "exampleHe": "הסבתא שלי"
     },
     {
       "englishWord": "grandmother",
@@ -1578,6 +1623,15 @@
       "exampleHe": "סבתא אופה עוגיות"
     },
     {
+      "englishWord": "grandpa",
+      "hebrewTranslation": "סבא",
+      "category": "Family",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "My grandpa",
+      "exampleHe": "הסבא שלי"
+    },
+    {
       "englishWord": "grandparents",
       "hebrewTranslation": "סבא וסבתא",
       "category": "Family",
@@ -1587,6 +1641,33 @@
       "exampleHe": "אני מבקר את סבא וסבתא"
     },
     {
+      "englishWord": "grandson",
+      "hebrewTranslation": "נכד",
+      "category": "Family",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "My grandson",
+      "exampleHe": "הנכד שלי"
+    },
+    {
+      "englishWord": "guardian",
+      "hebrewTranslation": "אפוטרופוס",
+      "category": "Family",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Legal guardian",
+      "exampleHe": "אפוטרופוס חוקי"
+    },
+    {
+      "englishWord": "husband",
+      "hebrewTranslation": "בעל",
+      "category": "Family",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "My husband",
+      "exampleHe": "הבעל שלי"
+    },
+    {
       "englishWord": "mother",
       "hebrewTranslation": "אמא",
       "category": "Family",
@@ -1594,6 +1675,33 @@
       "active": true,
       "exampleEn": "I love my mother",
       "exampleHe": "אני אוהב את אמא שלי"
+    },
+    {
+      "englishWord": "nephew",
+      "hebrewTranslation": "אחיין",
+      "category": "Family",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "My nephew",
+      "exampleHe": "האחיין שלי"
+    },
+    {
+      "englishWord": "niece",
+      "hebrewTranslation": "אחיינית",
+      "category": "Family",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "My niece",
+      "exampleHe": "האחיינית שלי"
+    },
+    {
+      "englishWord": "parent",
+      "hebrewTranslation": "הורה",
+      "category": "Family",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Good parent",
+      "exampleHe": "הורה טוב"
     },
     {
       "englishWord": "parents",
@@ -1623,136 +1731,10 @@
       "exampleHe": "הבן שלי חכם"
     },
     {
-      "englishWord": "adult",
-      "hebrewTranslation": "מבוגר",
-      "category": "Family",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Responsible adult",
-      "exampleHe": "מבוגר אחראי"
-    },
-    {
-      "englishWord": "aunt",
-      "hebrewTranslation": "דודה",
-      "category": "Family",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "My aunt",
-      "exampleHe": "הדודה שלי"
-    },
-    {
-      "englishWord": "baby",
-      "hebrewTranslation": "תינוק",
-      "category": "Family",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Cute baby",
-      "exampleHe": "תינוק חמוד"
-    },
-    {
-      "englishWord": "cousin",
-      "hebrewTranslation": "בן דוד",
-      "category": "Family",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "My cousin",
-      "exampleHe": "בן הדוד שלי"
-    },
-    {
-      "englishWord": "elder",
-      "hebrewTranslation": "קשיש",
-      "category": "Family",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Wise elder",
-      "exampleHe": "קשיש חכם"
-    },
-    {
-      "englishWord": "granddaughter",
-      "hebrewTranslation": "נכדה",
-      "category": "Family",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "My granddaughter",
-      "exampleHe": "הנכדה שלי"
-    },
-    {
-      "englishWord": "grandma",
-      "hebrewTranslation": "סבתא",
-      "category": "Family",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "My grandma",
-      "exampleHe": "הסבתא שלי"
-    },
-    {
-      "englishWord": "grandpa",
-      "hebrewTranslation": "סבא",
-      "category": "Family",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "My grandpa",
-      "exampleHe": "הסבא שלי"
-    },
-    {
-      "englishWord": "grandson",
-      "hebrewTranslation": "נכד",
-      "category": "Family",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "My grandson",
-      "exampleHe": "הנכד שלי"
-    },
-    {
-      "englishWord": "guardian",
-      "hebrewTranslation": "אפוטרופוס",
-      "category": "Family",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Legal guardian",
-      "exampleHe": "אפוטרופוס חוקי"
-    },
-    {
-      "englishWord": "husband",
-      "hebrewTranslation": "בעל",
-      "category": "Family",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "My husband",
-      "exampleHe": "הבעל שלי"
-    },
-    {
-      "englishWord": "nephew",
-      "hebrewTranslation": "אחיין",
-      "category": "Family",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "My nephew",
-      "exampleHe": "האחיין שלי"
-    },
-    {
-      "englishWord": "niece",
-      "hebrewTranslation": "אחיינית",
-      "category": "Family",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "My niece",
-      "exampleHe": "האחיינית שלי"
-    },
-    {
-      "englishWord": "parent",
-      "hebrewTranslation": "הורה",
-      "category": "Family",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Good parent",
-      "exampleHe": "הורה טוב"
-    },
-    {
       "englishWord": "teen",
       "hebrewTranslation": "נער",
       "category": "Family",
-      "difficulty": 2,
+      "difficulty": 1,
       "active": true,
       "exampleEn": "Teenager",
       "exampleHe": "נער"
@@ -1761,7 +1743,7 @@
       "englishWord": "toddler",
       "hebrewTranslation": "פעוט",
       "category": "Family",
-      "difficulty": 2,
+      "difficulty": 1,
       "active": true,
       "exampleEn": "Little toddler",
       "exampleHe": "פעוט קטן"
@@ -1770,7 +1752,7 @@
       "englishWord": "twin",
       "hebrewTranslation": "תאום",
       "category": "Family",
-      "difficulty": 2,
+      "difficulty": 1,
       "active": true,
       "exampleEn": "Twin brother",
       "exampleHe": "אח תאום"
@@ -1779,7 +1761,7 @@
       "englishWord": "uncle",
       "hebrewTranslation": "דוד",
       "category": "Family",
-      "difficulty": 2,
+      "difficulty": 1,
       "active": true,
       "exampleEn": "My uncle",
       "exampleHe": "הדוד שלי"
@@ -1788,7 +1770,7 @@
       "englishWord": "wife",
       "hebrewTranslation": "אישה",
       "category": "Family",
-      "difficulty": 2,
+      "difficulty": 1,
       "active": true,
       "exampleEn": "My wife",
       "exampleHe": "האישה שלי"
@@ -1821,6 +1803,42 @@
       "exampleHe": "קנה לחם"
     },
     {
+      "englishWord": "burger",
+      "hebrewTranslation": "המבורגר",
+      "category": "Food",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Cheese burger",
+      "exampleHe": "המבורגר עם גבינה"
+    },
+    {
+      "englishWord": "butter",
+      "hebrewTranslation": "חמאה",
+      "category": "Food",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Bread with butter",
+      "exampleHe": "לחם עם חמאה"
+    },
+    {
+      "englishWord": "cake",
+      "hebrewTranslation": "עוגה",
+      "category": "Food",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Birthday cake",
+      "exampleHe": "עוגת יום הולדת"
+    },
+    {
+      "englishWord": "candy",
+      "hebrewTranslation": "ממתק",
+      "category": "Food",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Sweet candy",
+      "exampleHe": "ממתק מתוק"
+    },
+    {
       "englishWord": "carrot",
       "hebrewTranslation": "גזר",
       "category": "Food",
@@ -1828,6 +1846,15 @@
       "active": true,
       "exampleEn": "Rabbits eat carrots",
       "exampleHe": "ארנבים אוכלים גזר"
+    },
+    {
+      "englishWord": "cereal",
+      "hebrewTranslation": "דגנים",
+      "category": "Food",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Breakfast cereal",
+      "exampleHe": "דגני בוקר"
     },
     {
       "englishWord": "cheese",
@@ -1848,6 +1875,15 @@
       "exampleHe": "אני אוכל עוף"
     },
     {
+      "englishWord": "cookie",
+      "hebrewTranslation": "עוגייה",
+      "category": "Food",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Chocolate cookie",
+      "exampleHe": "עוגיית שוקולד"
+    },
+    {
       "englishWord": "egg",
       "hebrewTranslation": "ביצה",
       "category": "Food",
@@ -1855,6 +1891,24 @@
       "active": true,
       "exampleEn": "Eat an egg",
       "exampleHe": "אכול ביצה"
+    },
+    {
+      "englishWord": "fries",
+      "hebrewTranslation": "צ'יפס",
+      "category": "Food",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "French fries",
+      "exampleHe": "צ'יפס"
+    },
+    {
+      "englishWord": "honey",
+      "hebrewTranslation": "דבש",
+      "category": "Food",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Sweet honey",
+      "exampleHe": "דבש מתוק"
     },
     {
       "englishWord": "ice cream",
@@ -1866,6 +1920,24 @@
       "exampleHe": "גלידה קרה"
     },
     {
+      "englishWord": "jam",
+      "hebrewTranslation": "ריבה",
+      "category": "Food",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Strawberry jam",
+      "exampleHe": "ריבת תות"
+    },
+    {
+      "englishWord": "juice",
+      "hebrewTranslation": "מיץ",
+      "category": "Food",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Orange juice",
+      "exampleHe": "מיץ תפוזים"
+    },
+    {
       "englishWord": "milk",
       "hebrewTranslation": "חלב",
       "category": "Food",
@@ -1873,6 +1945,15 @@
       "active": true,
       "exampleEn": "Drink milk",
       "exampleHe": "שתה חלב"
+    },
+    {
+      "englishWord": "oil",
+      "hebrewTranslation": "שמן",
+      "category": "Food",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Cooking oil",
+      "exampleHe": "שמן בישול"
     },
     {
       "englishWord": "orange",
@@ -1893,6 +1974,24 @@
       "exampleHe": "אני אוהב פסטה"
     },
     {
+      "englishWord": "pepper",
+      "hebrewTranslation": "פלפל",
+      "category": "Food",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Black pepper",
+      "exampleHe": "פלפל שחור"
+    },
+    {
+      "englishWord": "pizza",
+      "hebrewTranslation": "פיצה",
+      "category": "Food",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Pizza slice",
+      "exampleHe": "פרוסת פיצה"
+    },
+    {
       "englishWord": "rice",
       "hebrewTranslation": "אורז",
       "category": "Food",
@@ -1902,6 +2001,42 @@
       "exampleHe": "אורז לבן"
     },
     {
+      "englishWord": "salad",
+      "hebrewTranslation": "סלט",
+      "category": "Food",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Fresh salad",
+      "exampleHe": "סלט טרי"
+    },
+    {
+      "englishWord": "salt",
+      "hebrewTranslation": "מלח",
+      "category": "Food",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Add salt",
+      "exampleHe": "הוסף מלח"
+    },
+    {
+      "englishWord": "sandwich",
+      "hebrewTranslation": "כריך",
+      "category": "Food",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Cheese sandwich",
+      "exampleHe": "כריך גבינה"
+    },
+    {
+      "englishWord": "soup",
+      "hebrewTranslation": "מרק",
+      "category": "Food",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Hot soup",
+      "exampleHe": "מרק חם"
+    },
+    {
       "englishWord": "strawberry",
       "hebrewTranslation": "תות",
       "category": "Food",
@@ -1909,6 +2044,15 @@
       "active": true,
       "exampleEn": "Red strawberry",
       "exampleHe": "תות אדום"
+    },
+    {
+      "englishWord": "sugar",
+      "hebrewTranslation": "סוכר",
+      "category": "Food",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Add sugar",
+      "exampleHe": "הוסף סוכר"
     },
     {
       "englishWord": "tomato",
@@ -1929,175 +2073,49 @@
       "exampleHe": "אני שותה מים"
     },
     {
-      "englishWord": "burger",
-      "hebrewTranslation": "המבורגר",
-      "category": "Food",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Cheese burger",
-      "exampleHe": "המבורגר עם גבינה"
-    },
-    {
-      "englishWord": "butter",
-      "hebrewTranslation": "חמאה",
-      "category": "Food",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Bread with butter",
-      "exampleHe": "לחם עם חמאה"
-    },
-    {
-      "englishWord": "cake",
-      "hebrewTranslation": "עוגה",
-      "category": "Food",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Birthday cake",
-      "exampleHe": "עוגת יום הולדת"
-    },
-    {
-      "englishWord": "candy",
-      "hebrewTranslation": "ממתק",
-      "category": "Food",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Sweet candy",
-      "exampleHe": "ממתק מתוק"
-    },
-    {
-      "englishWord": "cereal",
-      "hebrewTranslation": "דגנים",
-      "category": "Food",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Breakfast cereal",
-      "exampleHe": "דגני בוקר"
-    },
-    {
-      "englishWord": "cookie",
-      "hebrewTranslation": "עוגייה",
-      "category": "Food",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Chocolate cookie",
-      "exampleHe": "עוגיית שוקולד"
-    },
-    {
-      "englishWord": "fries",
-      "hebrewTranslation": "צ'יפס",
-      "category": "Food",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "French fries",
-      "exampleHe": "צ'יפס"
-    },
-    {
-      "englishWord": "honey",
-      "hebrewTranslation": "דבש",
-      "category": "Food",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Sweet honey",
-      "exampleHe": "דבש מתוק"
-    },
-    {
-      "englishWord": "jam",
-      "hebrewTranslation": "ריבה",
-      "category": "Food",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Strawberry jam",
-      "exampleHe": "ריבת תות"
-    },
-    {
-      "englishWord": "juice",
-      "hebrewTranslation": "מיץ",
-      "category": "Food",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Orange juice",
-      "exampleHe": "מיץ תפוזים"
-    },
-    {
-      "englishWord": "oil",
-      "hebrewTranslation": "שמן",
-      "category": "Food",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Cooking oil",
-      "exampleHe": "שמן בישול"
-    },
-    {
-      "englishWord": "pepper",
-      "hebrewTranslation": "פלפל",
-      "category": "Food",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Black pepper",
-      "exampleHe": "פלפל שחור"
-    },
-    {
-      "englishWord": "pizza",
-      "hebrewTranslation": "פיצה",
-      "category": "Food",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Pizza slice",
-      "exampleHe": "פרוסת פיצה"
-    },
-    {
-      "englishWord": "salad",
-      "hebrewTranslation": "סלט",
-      "category": "Food",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Fresh salad",
-      "exampleHe": "סלט טרי"
-    },
-    {
-      "englishWord": "salt",
-      "hebrewTranslation": "מלח",
-      "category": "Food",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Add salt",
-      "exampleHe": "הוסף מלח"
-    },
-    {
-      "englishWord": "sandwich",
-      "hebrewTranslation": "כריך",
-      "category": "Food",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Cheese sandwich",
-      "exampleHe": "כריך גבינה"
-    },
-    {
-      "englishWord": "soup",
-      "hebrewTranslation": "מרק",
-      "category": "Food",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Hot soup",
-      "exampleHe": "מרק חם"
-    },
-    {
-      "englishWord": "sugar",
-      "hebrewTranslation": "סוכר",
-      "category": "Food",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Add sugar",
-      "exampleHe": "הוסף סוכר"
-    },
-    {
       "englishWord": "yogurt",
       "hebrewTranslation": "יוגורט",
       "category": "Food",
-      "difficulty": 2,
+      "difficulty": 1,
       "active": true,
       "exampleEn": "Strawberry yogurt",
       "exampleHe": "יוגורט תות"
+    },
+    {
+      "englishWord": "appliance",
+      "hebrewTranslation": "מכשיר",
+      "category": "Home",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Kitchen appliance",
+      "exampleHe": "מכשיר מטבח"
+    },
+    {
+      "englishWord": "attic",
+      "hebrewTranslation": "עליית גג",
+      "category": "Home",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Old attic",
+      "exampleHe": "עליית גג ישנה"
+    },
+    {
+      "englishWord": "balcony",
+      "hebrewTranslation": "מרפסת",
+      "category": "Home",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Beautiful balcony",
+      "exampleHe": "מרפסת יפה"
+    },
+    {
+      "englishWord": "basement",
+      "hebrewTranslation": "מרתף",
+      "category": "Home",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Dark basement",
+      "exampleHe": "מרתף חשוך"
     },
     {
       "englishWord": "bathroom",
@@ -2118,40 +2136,31 @@
       "exampleHe": "אני ישן במיטה שלי"
     },
     {
-      "englishWord": "blanket",
-      "hebrewTranslation": "שמיכה",
+      "englishWord": "cabinet",
+      "hebrewTranslation": "ארון",
       "category": "Home",
       "difficulty": 1,
       "active": true,
-      "exampleEn": "Warm blanket",
-      "exampleHe": "שמיכה חמה"
+      "exampleEn": "Kitchen cabinet",
+      "exampleHe": "ארון מטבח"
     },
     {
-      "englishWord": "bottle",
-      "hebrewTranslation": "בקבוק",
+      "englishWord": "candle",
+      "hebrewTranslation": "נר",
       "category": "Home",
       "difficulty": 1,
       "active": true,
-      "exampleEn": "Water bottle",
-      "exampleHe": "בקבוק מים"
+      "exampleEn": "Light a candle",
+      "exampleHe": "הדלק נר"
     },
     {
-      "englishWord": "box",
-      "hebrewTranslation": "קופסה",
+      "englishWord": "carpet",
+      "hebrewTranslation": "שטיח",
       "category": "Home",
       "difficulty": 1,
       "active": true,
-      "exampleEn": "Big box",
-      "exampleHe": "קופסה גדולה"
-    },
-    {
-      "englishWord": "clock",
-      "hebrewTranslation": "שעון",
-      "category": "Home",
-      "difficulty": 1,
-      "active": true,
-      "exampleEn": "What time is it?",
-      "exampleHe": "מה השעה?"
+      "exampleEn": "Soft carpet",
+      "exampleHe": "שטיח רך"
     },
     {
       "englishWord": "computer",
@@ -2163,6 +2172,51 @@
       "exampleHe": "אני משתמש במחשב"
     },
     {
+      "englishWord": "curtain",
+      "hebrewTranslation": "וילון",
+      "category": "Home",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Close the curtain",
+      "exampleHe": "סגור את הוילון"
+    },
+    {
+      "englishWord": "cushion",
+      "hebrewTranslation": "כרית",
+      "category": "Home",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Comfortable cushion",
+      "exampleHe": "כרית נוחה"
+    },
+    {
+      "englishWord": "decoration",
+      "hebrewTranslation": "קישוט",
+      "category": "Home",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Holiday decoration",
+      "exampleHe": "קישוט חג"
+    },
+    {
+      "englishWord": "drawer",
+      "hebrewTranslation": "מגירה",
+      "category": "Home",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Open the drawer",
+      "exampleHe": "פתח את המגירה"
+    },
+    {
+      "englishWord": "fence",
+      "hebrewTranslation": "גדר",
+      "category": "Home",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Wooden fence",
+      "exampleHe": "גדר עץ"
+    },
+    {
       "englishWord": "fork",
       "hebrewTranslation": "מזלג",
       "category": "Home",
@@ -2172,6 +2226,33 @@
       "exampleHe": "אכול עם מזלג"
     },
     {
+      "englishWord": "frame",
+      "hebrewTranslation": "מסגרת",
+      "category": "Home",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Picture frame",
+      "exampleHe": "מסגרת תמונה"
+    },
+    {
+      "englishWord": "furniture",
+      "hebrewTranslation": "ריהוט",
+      "category": "Home",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Beautiful furniture",
+      "exampleHe": "ריהוט יפה"
+    },
+    {
+      "englishWord": "garage",
+      "hebrewTranslation": "מוסך",
+      "category": "Home",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Car garage",
+      "exampleHe": "מוסך מכוניות"
+    },
+    {
       "englishWord": "garden",
       "hebrewTranslation": "גן",
       "category": "Home",
@@ -2179,6 +2260,15 @@
       "active": true,
       "exampleEn": "We play in the garden",
       "exampleHe": "אנחנו משחקים בגן"
+    },
+    {
+      "englishWord": "gate",
+      "hebrewTranslation": "שער",
+      "category": "Home",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Open the gate",
+      "exampleHe": "פתח את השער"
     },
     {
       "englishWord": "house",
@@ -2199,15 +2289,6 @@
       "exampleHe": "אמא במטבח"
     },
     {
-      "englishWord": "knife",
-      "hebrewTranslation": "סכין",
-      "category": "Home",
-      "difficulty": 1,
-      "active": true,
-      "exampleEn": "Sharp knife",
-      "exampleHe": "סכין חדה"
-    },
-    {
       "englishWord": "lamp",
       "hebrewTranslation": "מנורה",
       "category": "Home",
@@ -2226,15 +2307,6 @@
       "exampleHe": "הטלפון שלי חדש"
     },
     {
-      "englishWord": "pillow",
-      "hebrewTranslation": "כרית",
-      "category": "Home",
-      "difficulty": 1,
-      "active": true,
-      "exampleEn": "Soft pillow",
-      "exampleHe": "כרית רכה"
-    },
-    {
       "englishWord": "plate",
       "hebrewTranslation": "צלחת",
       "category": "Home",
@@ -2242,6 +2314,15 @@
       "active": true,
       "exampleEn": "Put food on the plate",
       "exampleHe": "שים אוכל על הצלחת"
+    },
+    {
+      "englishWord": "porch",
+      "hebrewTranslation": "מרפסת כניסה",
+      "category": "Home",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Front porch",
+      "exampleHe": "מרפסת כניסה"
     },
     {
       "englishWord": "refrigerator",
@@ -2260,6 +2341,24 @@
       "active": true,
       "exampleEn": "My room is big",
       "exampleHe": "החדר שלי גדול"
+    },
+    {
+      "englishWord": "shed",
+      "hebrewTranslation": "סככה",
+      "category": "Home",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Garden shed",
+      "exampleHe": "סככת גן"
+    },
+    {
+      "englishWord": "shelf",
+      "hebrewTranslation": "מדף",
+      "category": "Home",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Book shelf",
+      "exampleHe": "מדף ספרים"
     },
     {
       "englishWord": "sofa",
@@ -2298,193 +2397,22 @@
       "exampleHe": "צפה בטלוויזיה"
     },
     {
-      "englishWord": "toy",
-      "hebrewTranslation": "צעצוע",
-      "category": "Home",
-      "difficulty": 1,
-      "active": true,
-      "exampleEn": "This is my favorite toy",
-      "exampleHe": "זה הצעצוע האהוב עליי"
-    },
-    {
-      "englishWord": "appliance",
-      "hebrewTranslation": "מכשיר",
-      "category": "Home",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Kitchen appliance",
-      "exampleHe": "מכשיר מטבח"
-    },
-    {
-      "englishWord": "attic",
-      "hebrewTranslation": "עליית גג",
-      "category": "Home",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Old attic",
-      "exampleHe": "עליית גג ישנה"
-    },
-    {
-      "englishWord": "balcony",
-      "hebrewTranslation": "מרפסת",
-      "category": "Home",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Beautiful balcony",
-      "exampleHe": "מרפסת יפה"
-    },
-    {
-      "englishWord": "basement",
-      "hebrewTranslation": "מרתף",
-      "category": "Home",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Dark basement",
-      "exampleHe": "מרתף חשוך"
-    },
-    {
-      "englishWord": "cabinet",
-      "hebrewTranslation": "ארון",
-      "category": "Home",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Kitchen cabinet",
-      "exampleHe": "ארון מטבח"
-    },
-    {
-      "englishWord": "candle",
-      "hebrewTranslation": "נר",
-      "category": "Home",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Light a candle",
-      "exampleHe": "הדלק נר"
-    },
-    {
-      "englishWord": "carpet",
-      "hebrewTranslation": "שטיח",
-      "category": "Home",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Soft carpet",
-      "exampleHe": "שטיח רך"
-    },
-    {
-      "englishWord": "curtain",
-      "hebrewTranslation": "וילון",
-      "category": "Home",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Close the curtain",
-      "exampleHe": "סגור את הוילון"
-    },
-    {
-      "englishWord": "cushion",
-      "hebrewTranslation": "כרית",
-      "category": "Home",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Comfortable cushion",
-      "exampleHe": "כרית נוחה"
-    },
-    {
-      "englishWord": "decoration",
-      "hebrewTranslation": "קישוט",
-      "category": "Home",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Holiday decoration",
-      "exampleHe": "קישוט חג"
-    },
-    {
-      "englishWord": "drawer",
-      "hebrewTranslation": "מגירה",
-      "category": "Home",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Open the drawer",
-      "exampleHe": "פתח את המגירה"
-    },
-    {
-      "englishWord": "fence",
-      "hebrewTranslation": "גדר",
-      "category": "Home",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Wooden fence",
-      "exampleHe": "גדר עץ"
-    },
-    {
-      "englishWord": "frame",
-      "hebrewTranslation": "מסגרת",
-      "category": "Home",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Picture frame",
-      "exampleHe": "מסגרת תמונה"
-    },
-    {
-      "englishWord": "furniture",
-      "hebrewTranslation": "ריהוט",
-      "category": "Home",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Beautiful furniture",
-      "exampleHe": "ריהוט יפה"
-    },
-    {
-      "englishWord": "garage",
-      "hebrewTranslation": "מוסך",
-      "category": "Home",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Car garage",
-      "exampleHe": "מוסך מכוניות"
-    },
-    {
-      "englishWord": "gate",
-      "hebrewTranslation": "שער",
-      "category": "Home",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Open the gate",
-      "exampleHe": "פתח את השער"
-    },
-    {
-      "englishWord": "porch",
-      "hebrewTranslation": "מרפסת כניסה",
-      "category": "Home",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Front porch",
-      "exampleHe": "מרפסת כניסה"
-    },
-    {
-      "englishWord": "shed",
-      "hebrewTranslation": "סככה",
-      "category": "Home",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Garden shed",
-      "exampleHe": "סככת גן"
-    },
-    {
-      "englishWord": "shelf",
-      "hebrewTranslation": "מדף",
-      "category": "Home",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Book shelf",
-      "exampleHe": "מדף ספרים"
-    },
-    {
       "englishWord": "vase",
       "hebrewTranslation": "אגרטל",
       "category": "Home",
-      "difficulty": 2,
+      "difficulty": 1,
       "active": true,
       "exampleEn": "Flower vase",
       "exampleHe": "אגרטל פרחים"
+    },
+    {
+      "englishWord": "bark",
+      "hebrewTranslation": "קליפה",
+      "category": "Nature",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Tree bark",
+      "exampleHe": "קליפת עץ"
     },
     {
       "englishWord": "beach",
@@ -2496,6 +2424,60 @@
       "exampleHe": "אני משחק בחוף"
     },
     {
+      "englishWord": "bloom",
+      "hebrewTranslation": "פרח",
+      "category": "Nature",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Flower blooms",
+      "exampleHe": "הפרח פורח"
+    },
+    {
+      "englishWord": "branch",
+      "hebrewTranslation": "ענף",
+      "category": "Nature",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Tree branch",
+      "exampleHe": "ענף עץ"
+    },
+    {
+      "englishWord": "bud",
+      "hebrewTranslation": "ניצן",
+      "category": "Nature",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Flower bud",
+      "exampleHe": "ניצן פרח"
+    },
+    {
+      "englishWord": "bush",
+      "hebrewTranslation": "שיח",
+      "category": "Nature",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Green bush",
+      "exampleHe": "שיח ירוק"
+    },
+    {
+      "englishWord": "fern",
+      "hebrewTranslation": "שרך",
+      "category": "Nature",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Green fern",
+      "exampleHe": "שרך ירוק"
+    },
+    {
+      "englishWord": "flower",
+      "hebrewTranslation": "פרח",
+      "category": "Nature",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Beautiful flower",
+      "exampleHe": "פרח יפה"
+    },
+    {
       "englishWord": "forest",
       "hebrewTranslation": "יער",
       "category": "Nature",
@@ -2503,6 +2485,15 @@
       "active": true,
       "exampleEn": "The forest is dark",
       "exampleHe": "היער חשוך"
+    },
+    {
+      "englishWord": "grass",
+      "hebrewTranslation": "דשא",
+      "category": "Nature",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Green grass",
+      "exampleHe": "דשא ירוק"
     },
     {
       "englishWord": "lake",
@@ -2523,6 +2514,15 @@
       "exampleHe": "עלה ירוק"
     },
     {
+      "englishWord": "moss",
+      "hebrewTranslation": "טחב",
+      "category": "Nature",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Green moss",
+      "exampleHe": "טחב ירוק"
+    },
+    {
       "englishWord": "mountain",
       "hebrewTranslation": "הר",
       "category": "Nature",
@@ -2539,6 +2539,15 @@
       "active": true,
       "exampleEn": "The ocean is big",
       "exampleHe": "האוקיינוס גדול"
+    },
+    {
+      "englishWord": "petal",
+      "hebrewTranslation": "עלה כותרת",
+      "category": "Nature",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Rose petal",
+      "exampleHe": "עלה כותרת ורד"
     },
     {
       "englishWord": "river",
@@ -2559,6 +2568,15 @@
       "exampleHe": "סלע גדול"
     },
     {
+      "englishWord": "root",
+      "hebrewTranslation": "שורש",
+      "category": "Nature",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Tree root",
+      "exampleHe": "שורש עץ"
+    },
+    {
       "englishWord": "sand",
       "hebrewTranslation": "חול",
       "category": "Nature",
@@ -2568,109 +2586,10 @@
       "exampleHe": "חול צהוב"
     },
     {
-      "englishWord": "bark",
-      "hebrewTranslation": "קליפה",
-      "category": "Nature",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Tree bark",
-      "exampleHe": "קליפת עץ"
-    },
-    {
-      "englishWord": "bloom",
-      "hebrewTranslation": "פרח",
-      "category": "Nature",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Flower blooms",
-      "exampleHe": "הפרח פורח"
-    },
-    {
-      "englishWord": "branch",
-      "hebrewTranslation": "ענף",
-      "category": "Nature",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Tree branch",
-      "exampleHe": "ענף עץ"
-    },
-    {
-      "englishWord": "bud",
-      "hebrewTranslation": "ניצן",
-      "category": "Nature",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Flower bud",
-      "exampleHe": "ניצן פרח"
-    },
-    {
-      "englishWord": "bush",
-      "hebrewTranslation": "שיח",
-      "category": "Nature",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Green bush",
-      "exampleHe": "שיח ירוק"
-    },
-    {
-      "englishWord": "fern",
-      "hebrewTranslation": "שרך",
-      "category": "Nature",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Green fern",
-      "exampleHe": "שרך ירוק"
-    },
-    {
-      "englishWord": "flower",
-      "hebrewTranslation": "פרח",
-      "category": "Nature",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Beautiful flower",
-      "exampleHe": "פרח יפה"
-    },
-    {
-      "englishWord": "grass",
-      "hebrewTranslation": "דשא",
-      "category": "Nature",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Green grass",
-      "exampleHe": "דשא ירוק"
-    },
-    {
-      "englishWord": "moss",
-      "hebrewTranslation": "טחב",
-      "category": "Nature",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Green moss",
-      "exampleHe": "טחב ירוק"
-    },
-    {
-      "englishWord": "petal",
-      "hebrewTranslation": "עלה כותרת",
-      "category": "Nature",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Rose petal",
-      "exampleHe": "עלה כותרת ורד"
-    },
-    {
-      "englishWord": "root",
-      "hebrewTranslation": "שורש",
-      "category": "Nature",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Tree root",
-      "exampleHe": "שורש עץ"
-    },
-    {
       "englishWord": "seed",
       "hebrewTranslation": "זרע",
       "category": "Nature",
-      "difficulty": 2,
+      "difficulty": 1,
       "active": true,
       "exampleEn": "Plant a seed",
       "exampleHe": "זרע זרע"
@@ -2679,7 +2598,7 @@
       "englishWord": "sprout",
       "hebrewTranslation": "נבט",
       "category": "Nature",
-      "difficulty": 2,
+      "difficulty": 1,
       "active": true,
       "exampleEn": "New sprout",
       "exampleHe": "נבט חדש"
@@ -2688,7 +2607,7 @@
       "englishWord": "stem",
       "hebrewTranslation": "גבעול",
       "category": "Nature",
-      "difficulty": 2,
+      "difficulty": 1,
       "active": true,
       "exampleEn": "Plant stem",
       "exampleHe": "גבעול צמח"
@@ -2697,7 +2616,7 @@
       "englishWord": "thorn",
       "hebrewTranslation": "קוץ",
       "category": "Nature",
-      "difficulty": 2,
+      "difficulty": 1,
       "active": true,
       "exampleEn": "Rose thorn",
       "exampleHe": "קוץ ורד"
@@ -2706,7 +2625,7 @@
       "englishWord": "tree",
       "hebrewTranslation": "עץ",
       "category": "Nature",
-      "difficulty": 2,
+      "difficulty": 1,
       "active": true,
       "exampleEn": "Tall tree",
       "exampleHe": "עץ גבוה"
@@ -2715,7 +2634,7 @@
       "englishWord": "vine",
       "hebrewTranslation": "גפן",
       "category": "Nature",
-      "difficulty": 2,
+      "difficulty": 1,
       "active": true,
       "exampleEn": "Grape vine",
       "exampleHe": "גפן ענבים"
@@ -2724,10 +2643,64 @@
       "englishWord": "weed",
       "hebrewTranslation": "עשב שוטה",
       "category": "Nature",
-      "difficulty": 2,
+      "difficulty": 1,
       "active": true,
       "exampleEn": "Pull weeds",
       "exampleHe": "עקור עשבים שוטים"
+    },
+    {
+      "englishWord": "eight",
+      "hebrewTranslation": "שמונה",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Eight legs",
+      "exampleHe": "שמונה רגליים"
+    },
+    {
+      "englishWord": "eighteen",
+      "hebrewTranslation": "שמונה עשרה",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Eighteen holes",
+      "exampleHe": "שמונה עשר חורים"
+    },
+    {
+      "englishWord": "eighty",
+      "hebrewTranslation": "שמונים",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Eighty days",
+      "exampleHe": "שמונים ימים"
+    },
+    {
+      "englishWord": "eleven",
+      "hebrewTranslation": "אחת עשרה",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Eleven players",
+      "exampleHe": "אחד עשר שחקנים"
+    },
+    {
+      "englishWord": "fifteen",
+      "hebrewTranslation": "חמש עשרה",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Fifteen minutes",
+      "exampleHe": "חמש עשרה דקות"
+    },
+    {
+      "englishWord": "fifty",
+      "hebrewTranslation": "חמישים",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Fifty percent",
+      "exampleHe": "חמישים אחוז"
     },
     {
       "englishWord": "five",
@@ -2739,6 +2712,15 @@
       "exampleHe": "חמש אצבעות"
     },
     {
+      "englishWord": "forty",
+      "hebrewTranslation": "ארבעים",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Forty thieves",
+      "exampleHe": "ארבעים גנבים"
+    },
+    {
       "englishWord": "four",
       "hebrewTranslation": "ארבעה",
       "category": "Numbers",
@@ -2746,6 +2728,42 @@
       "active": true,
       "exampleEn": "Four chairs",
       "exampleHe": "ארבעה כיסאות"
+    },
+    {
+      "englishWord": "fourteen",
+      "hebrewTranslation": "ארבע עשרה",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Fourteen days",
+      "exampleHe": "ארבעה עשר ימים"
+    },
+    {
+      "englishWord": "nine",
+      "hebrewTranslation": "תשע",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Nine lives",
+      "exampleHe": "תשע נשמות"
+    },
+    {
+      "englishWord": "nineteen",
+      "hebrewTranslation": "תשע עשרה",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Nineteen ninety",
+      "exampleHe": "אלף תשע מאות תשעים"
+    },
+    {
+      "englishWord": "ninety",
+      "hebrewTranslation": "תשעים",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Ninety degrees",
+      "exampleHe": "תשעים מעלות"
     },
     {
       "englishWord": "one",
@@ -2757,6 +2775,69 @@
       "exampleHe": "תפוח אחד"
     },
     {
+      "englishWord": "one hundred",
+      "hebrewTranslation": "מאה",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "One hundred percent",
+      "exampleHe": "מאה אחוז"
+    },
+    {
+      "englishWord": "seven",
+      "hebrewTranslation": "שבע",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Seven days",
+      "exampleHe": "שבעה ימים"
+    },
+    {
+      "englishWord": "seventeen",
+      "hebrewTranslation": "שבע עשרה",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Seventeen years",
+      "exampleHe": "שבע עשרה שנים"
+    },
+    {
+      "englishWord": "seventy",
+      "hebrewTranslation": "שבעים",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Seventy years",
+      "exampleHe": "שבעים שנה"
+    },
+    {
+      "englishWord": "six",
+      "hebrewTranslation": "שש",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Six balloons",
+      "exampleHe": "שישה בלונים"
+    },
+    {
+      "englishWord": "sixteen",
+      "hebrewTranslation": "שש עשרה",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Sweet sixteen",
+      "exampleHe": "שש עשרה מתוק"
+    },
+    {
+      "englishWord": "sixty",
+      "hebrewTranslation": "שישים",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Sixty seconds",
+      "exampleHe": "שישים שניות"
+    },
+    {
       "englishWord": "ten",
       "hebrewTranslation": "עשרה",
       "category": "Numbers",
@@ -2764,6 +2845,24 @@
       "active": true,
       "exampleEn": "Ten students",
       "exampleHe": "עשרה תלמידים"
+    },
+    {
+      "englishWord": "thirteen",
+      "hebrewTranslation": "שלוש עשרה",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Thirteen candles",
+      "exampleHe": "שלוש עשרה נרות"
+    },
+    {
+      "englishWord": "thirty",
+      "hebrewTranslation": "שלושים",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Thirty days",
+      "exampleHe": "שלושים ימים"
     },
     {
       "englishWord": "three",
@@ -2775,6 +2874,24 @@
       "exampleHe": "שלושה חתולים"
     },
     {
+      "englishWord": "twelve",
+      "hebrewTranslation": "שתים עשרה",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Twelve months",
+      "exampleHe": "שניים עשר חודשים"
+    },
+    {
+      "englishWord": "twenty",
+      "hebrewTranslation": "עשרים",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Twenty dollars",
+      "exampleHe": "עשרים דולר"
+    },
+    {
       "englishWord": "two",
       "hebrewTranslation": "שניים",
       "category": "Numbers",
@@ -2782,6 +2899,15 @@
       "active": true,
       "exampleEn": "Two books",
       "exampleHe": "שני ספרים"
+    },
+    {
+      "englishWord": "zero",
+      "hebrewTranslation": "אפס",
+      "category": "Numbers",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Zero cookies",
+      "exampleHe": "אפס עוגיות"
     },
     {
       "englishWord": "backpack",
@@ -2793,6 +2919,24 @@
       "exampleHe": "שים ספרים בתיק שלך"
     },
     {
+      "englishWord": "bag",
+      "hebrewTranslation": "תיק",
+      "category": "School",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "School bag",
+      "exampleHe": "תיק בית ספר"
+    },
+    {
+      "englishWord": "binder",
+      "hebrewTranslation": "קלסר",
+      "category": "School",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "School binder",
+      "exampleHe": "קלסר בית ספר"
+    },
+    {
       "englishWord": "blackboard",
       "hebrewTranslation": "לוח",
       "category": "School",
@@ -2800,6 +2944,24 @@
       "active": true,
       "exampleEn": "Look at the blackboard",
       "exampleHe": "הסתכל על הלוח"
+    },
+    {
+      "englishWord": "board",
+      "hebrewTranslation": "לוח",
+      "category": "School",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Look at the board",
+      "exampleHe": "הסתכל על הלוח"
+    },
+    {
+      "englishWord": "book",
+      "hebrewTranslation": "ספר",
+      "category": "School",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Read a book",
+      "exampleHe": "קרא ספר"
     },
     {
       "englishWord": "calculator",
@@ -2811,6 +2973,24 @@
       "exampleHe": "השתמש במחשבון"
     },
     {
+      "englishWord": "chair",
+      "hebrewTranslation": "כיסא",
+      "category": "School",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Sit on a chair",
+      "exampleHe": "שב על כיסא"
+    },
+    {
+      "englishWord": "chalk",
+      "hebrewTranslation": "גיר",
+      "category": "School",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Write with chalk",
+      "exampleHe": "כתוב עם גיר"
+    },
+    {
       "englishWord": "classroom",
       "hebrewTranslation": "כיתה",
       "category": "School",
@@ -2818,6 +2998,42 @@
       "active": true,
       "exampleEn": "Our classroom is big",
       "exampleHe": "הכיתה שלנו גדולה"
+    },
+    {
+      "englishWord": "clip",
+      "hebrewTranslation": "קליפ",
+      "category": "School",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Paper clip",
+      "exampleHe": "קליפ נייר"
+    },
+    {
+      "englishWord": "compass",
+      "hebrewTranslation": "מחוגה",
+      "category": "School",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Draw a circle",
+      "exampleHe": "צייר עיגול"
+    },
+    {
+      "englishWord": "crayon",
+      "hebrewTranslation": "צבעוני",
+      "category": "School",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Draw with crayons",
+      "exampleHe": "צייר עם צבעונים"
+    },
+    {
+      "englishWord": "desk",
+      "hebrewTranslation": "שולחן",
+      "category": "School",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Write on the desk",
+      "exampleHe": "כתוב על השולחן"
     },
     {
       "englishWord": "eraser",
@@ -2829,13 +3045,22 @@
       "exampleHe": "השתמש במחק"
     },
     {
-      "englishWord": "friend",
-      "hebrewTranslation": "חבר",
+      "englishWord": "folder",
+      "hebrewTranslation": "תיקייה",
       "category": "School",
       "difficulty": 1,
       "active": true,
-      "exampleEn": "My friend is kind",
-      "exampleHe": "החבר שלי נחמד"
+      "exampleEn": "Put papers in folder",
+      "exampleHe": "שים ניירות בתיקייה"
+    },
+    {
+      "englishWord": "glue",
+      "hebrewTranslation": "דבק",
+      "category": "School",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Use glue",
+      "exampleHe": "השתמש בדבק"
     },
     {
       "englishWord": "grade",
@@ -2845,6 +3070,15 @@
       "active": true,
       "exampleEn": "I got a good grade",
       "exampleHe": "קיבלתי ציון טוב"
+    },
+    {
+      "englishWord": "highlighter",
+      "hebrewTranslation": "מרקר",
+      "category": "School",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Highlight text",
+      "exampleHe": "סמן טקסט"
     },
     {
       "englishWord": "homework",
@@ -2874,13 +3108,13 @@
       "exampleHe": "השאל ספרים מהספרייה"
     },
     {
-      "englishWord": "lunch",
-      "hebrewTranslation": "ארוחת צהריים",
+      "englishWord": "marker",
+      "hebrewTranslation": "טוש",
       "category": "School",
       "difficulty": 1,
       "active": true,
-      "exampleEn": "Eat lunch at school",
-      "exampleHe": "אכול ארוחת צהריים בבית ספר"
+      "exampleEn": "Color with a marker",
+      "exampleHe": "צבע עם טוש"
     },
     {
       "englishWord": "notebook",
@@ -2890,6 +3124,15 @@
       "active": true,
       "exampleEn": "Write in your notebook",
       "exampleHe": "כתוב במחברת שלך"
+    },
+    {
+      "englishWord": "paper",
+      "hebrewTranslation": "נייר",
+      "category": "School",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Write on paper",
+      "exampleHe": "כתוב על נייר"
     },
     {
       "englishWord": "pen",
@@ -2919,6 +3162,15 @@
       "exampleHe": "שחק במגרש המשחקים"
     },
     {
+      "englishWord": "protractor",
+      "hebrewTranslation": "מעברת",
+      "category": "School",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Measure angles",
+      "exampleHe": "מדוד זוויות"
+    },
+    {
       "englishWord": "recess",
       "hebrewTranslation": "הפסקה",
       "category": "School",
@@ -2946,6 +3198,33 @@
       "exampleHe": "אני הולך לבית ספר"
     },
     {
+      "englishWord": "scissors",
+      "hebrewTranslation": "מספריים",
+      "category": "School",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Cut with scissors",
+      "exampleHe": "גזור עם מספריים"
+    },
+    {
+      "englishWord": "sharpener",
+      "hebrewTranslation": "מחדד",
+      "category": "School",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Sharpen a pencil",
+      "exampleHe": "חדד עיפרון"
+    },
+    {
+      "englishWord": "stapler",
+      "hebrewTranslation": "מהדק",
+      "category": "School",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Use a stapler",
+      "exampleHe": "השתמש במהדק"
+    },
+    {
       "englishWord": "student",
       "hebrewTranslation": "תלמיד",
       "category": "School",
@@ -2953,6 +3232,15 @@
       "active": true,
       "exampleEn": "I am a student",
       "exampleHe": "אני תלמיד"
+    },
+    {
+      "englishWord": "tape",
+      "hebrewTranslation": "סקוטש",
+      "category": "School",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Sticky tape",
+      "exampleHe": "סקוטש דביק"
     },
     {
       "englishWord": "teacher",
@@ -2973,184 +3261,13 @@
       "exampleHe": "יש לי מבחן מחר"
     },
     {
-      "englishWord": "bag",
-      "hebrewTranslation": "תיק",
-      "category": "School",
-      "difficulty": 2,
+      "englishWord": "badge",
+      "hebrewTranslation": "תג",
+      "category": "Sports",
+      "difficulty": 1,
       "active": true,
-      "exampleEn": "School bag",
-      "exampleHe": "תיק בית ספר"
-    },
-    {
-      "englishWord": "binder",
-      "hebrewTranslation": "קלסר",
-      "category": "School",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "School binder",
-      "exampleHe": "קלסר בית ספר"
-    },
-    {
-      "englishWord": "board",
-      "hebrewTranslation": "לוח",
-      "category": "School",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Look at the board",
-      "exampleHe": "הסתכל על הלוח"
-    },
-    {
-      "englishWord": "book",
-      "hebrewTranslation": "ספר",
-      "category": "School",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Read a book",
-      "exampleHe": "קרא ספר"
-    },
-    {
-      "englishWord": "chair",
-      "hebrewTranslation": "כיסא",
-      "category": "School",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Sit on a chair",
-      "exampleHe": "שב על כיסא"
-    },
-    {
-      "englishWord": "chalk",
-      "hebrewTranslation": "גיר",
-      "category": "School",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Write with chalk",
-      "exampleHe": "כתוב עם גיר"
-    },
-    {
-      "englishWord": "clip",
-      "hebrewTranslation": "קליפ",
-      "category": "School",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Paper clip",
-      "exampleHe": "קליפ נייר"
-    },
-    {
-      "englishWord": "compass",
-      "hebrewTranslation": "מחוגה",
-      "category": "School",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Draw a circle",
-      "exampleHe": "צייר עיגול"
-    },
-    {
-      "englishWord": "crayon",
-      "hebrewTranslation": "צבעוני",
-      "category": "School",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Draw with crayons",
-      "exampleHe": "צייר עם צבעונים"
-    },
-    {
-      "englishWord": "desk",
-      "hebrewTranslation": "שולחן",
-      "category": "School",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Write on the desk",
-      "exampleHe": "כתוב על השולחן"
-    },
-    {
-      "englishWord": "folder",
-      "hebrewTranslation": "תיקייה",
-      "category": "School",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Put papers in folder",
-      "exampleHe": "שים ניירות בתיקייה"
-    },
-    {
-      "englishWord": "glue",
-      "hebrewTranslation": "דבק",
-      "category": "School",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Use glue",
-      "exampleHe": "השתמש בדבק"
-    },
-    {
-      "englishWord": "highlighter",
-      "hebrewTranslation": "מרקר",
-      "category": "School",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Highlight text",
-      "exampleHe": "סמן טקסט"
-    },
-    {
-      "englishWord": "marker",
-      "hebrewTranslation": "טוש",
-      "category": "School",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Color with a marker",
-      "exampleHe": "צבע עם טוש"
-    },
-    {
-      "englishWord": "paper",
-      "hebrewTranslation": "נייר",
-      "category": "School",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Write on paper",
-      "exampleHe": "כתוב על נייר"
-    },
-    {
-      "englishWord": "protractor",
-      "hebrewTranslation": "מעברת",
-      "category": "School",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Measure angles",
-      "exampleHe": "מדוד זוויות"
-    },
-    {
-      "englishWord": "scissors",
-      "hebrewTranslation": "מספריים",
-      "category": "School",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Cut with scissors",
-      "exampleHe": "גזור עם מספריים"
-    },
-    {
-      "englishWord": "sharpener",
-      "hebrewTranslation": "מחדד",
-      "category": "School",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Sharpen a pencil",
-      "exampleHe": "חדד עיפרון"
-    },
-    {
-      "englishWord": "stapler",
-      "hebrewTranslation": "מהדק",
-      "category": "School",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Use a stapler",
-      "exampleHe": "השתמש במהדק"
-    },
-    {
-      "englishWord": "tape",
-      "hebrewTranslation": "סקוטש",
-      "category": "School",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Sticky tape",
-      "exampleHe": "סקוטש דביק"
+      "exampleEn": "Team badge",
+      "exampleHe": "תג קבוצה"
     },
     {
       "englishWord": "ball",
@@ -3171,6 +3288,24 @@
       "exampleHe": "כדורסל זה כיף"
     },
     {
+      "englishWord": "bat",
+      "hebrewTranslation": "מחבט",
+      "category": "Sports",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Baseball bat",
+      "exampleHe": "מחבט בייסבול"
+    },
+    {
+      "englishWord": "cleats",
+      "hebrewTranslation": "נעלי כדורגל",
+      "category": "Sports",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Soccer cleats",
+      "exampleHe": "נעלי כדורגל"
+    },
+    {
       "englishWord": "coach",
       "hebrewTranslation": "מאמן",
       "category": "Sports",
@@ -3178,6 +3313,15 @@
       "active": true,
       "exampleEn": "My coach is nice",
       "exampleHe": "המאמן שלי נחמד"
+    },
+    {
+      "englishWord": "cup",
+      "hebrewTranslation": "כוס",
+      "category": "Sports",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "World cup",
+      "exampleHe": "גביע עולם"
     },
     {
       "englishWord": "exercise",
@@ -3207,6 +3351,15 @@
       "exampleHe": "משחק כיף"
     },
     {
+      "englishWord": "gloves",
+      "hebrewTranslation": "כפפות",
+      "category": "Sports",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Baseball gloves",
+      "exampleHe": "כפפות בייסבול"
+    },
+    {
       "englishWord": "goal",
       "hebrewTranslation": "שער",
       "category": "Sports",
@@ -3214,6 +3367,33 @@
       "active": true,
       "exampleEn": "Score a goal",
       "exampleHe": "כבש שער"
+    },
+    {
+      "englishWord": "goggles",
+      "hebrewTranslation": "משקפי מגן",
+      "category": "Sports",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Swimming goggles",
+      "exampleHe": "משקפי שחייה"
+    },
+    {
+      "englishWord": "helmet",
+      "hebrewTranslation": "קסדה",
+      "category": "Sports",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Bike helmet",
+      "exampleHe": "קסדת אופניים"
+    },
+    {
+      "englishWord": "jersey",
+      "hebrewTranslation": "ג'רסי",
+      "category": "Sports",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Team jersey",
+      "exampleHe": "ג'רסי קבוצה"
     },
     {
       "englishWord": "jump",
@@ -3234,6 +3414,33 @@
       "exampleHe": "מדליית זהב"
     },
     {
+      "englishWord": "net",
+      "hebrewTranslation": "רשת",
+      "category": "Sports",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Tennis net",
+      "exampleHe": "רשת טניס"
+    },
+    {
+      "englishWord": "paddle",
+      "hebrewTranslation": "משוט",
+      "category": "Sports",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Kayak paddle",
+      "exampleHe": "משוט קיאק"
+    },
+    {
+      "englishWord": "pads",
+      "hebrewTranslation": "מגנים",
+      "category": "Sports",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Knee pads",
+      "exampleHe": "מגני ברכיים"
+    },
+    {
       "englishWord": "player",
       "hebrewTranslation": "שחקן",
       "category": "Sports",
@@ -3252,6 +3459,24 @@
       "exampleHe": "מירוץ ריצה"
     },
     {
+      "englishWord": "racket",
+      "hebrewTranslation": "מחבט",
+      "category": "Sports",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Tennis racket",
+      "exampleHe": "מחבט טניס"
+    },
+    {
+      "englishWord": "ribbon",
+      "hebrewTranslation": "סרט",
+      "category": "Sports",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "First place ribbon",
+      "exampleHe": "סרט מקום ראשון"
+    },
+    {
       "englishWord": "running",
       "hebrewTranslation": "ריצה",
       "category": "Sports",
@@ -3259,6 +3484,33 @@
       "active": true,
       "exampleEn": "I like running",
       "exampleHe": "אני אוהב לרוץ"
+    },
+    {
+      "englishWord": "scoreboard",
+      "hebrewTranslation": "לוח תוצאות",
+      "category": "Sports",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Check scoreboard",
+      "exampleHe": "בדוק לוח תוצאות"
+    },
+    {
+      "englishWord": "skates",
+      "hebrewTranslation": "מחליקיים",
+      "category": "Sports",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Ice skates",
+      "exampleHe": "מחליקיים קרח"
+    },
+    {
+      "englishWord": "skis",
+      "hebrewTranslation": "מגלשיים",
+      "category": "Sports",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Snow skis",
+      "exampleHe": "מגלשיים שלג"
     },
     {
       "englishWord": "soccer",
@@ -3315,6 +3567,42 @@
       "exampleHe": "אני משחק טניס"
     },
     {
+      "englishWord": "timer",
+      "hebrewTranslation": "שעון עצר",
+      "category": "Sports",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Stop timer",
+      "exampleHe": "עצור שעון עצר"
+    },
+    {
+      "englishWord": "trophy",
+      "hebrewTranslation": "גביע",
+      "category": "Sports",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Win a trophy",
+      "exampleHe": "זכה בגביע"
+    },
+    {
+      "englishWord": "uniform",
+      "hebrewTranslation": "מדים",
+      "category": "Sports",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Team uniform",
+      "exampleHe": "מדים קבוצה"
+    },
+    {
+      "englishWord": "whistle",
+      "hebrewTranslation": "משרוקית",
+      "category": "Sports",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Referee whistle",
+      "exampleHe": "משרוקית שופט"
+    },
+    {
       "englishWord": "winner",
       "hebrewTranslation": "מנצח",
       "category": "Sports",
@@ -3324,243 +3612,18 @@
       "exampleHe": "אני המנצח"
     },
     {
-      "englishWord": "badge",
-      "hebrewTranslation": "תג",
-      "category": "Sports",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Team badge",
-      "exampleHe": "תג קבוצה"
-    },
-    {
-      "englishWord": "bat",
-      "hebrewTranslation": "מחבט",
-      "category": "Sports",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Baseball bat",
-      "exampleHe": "מחבט בייסבול"
-    },
-    {
-      "englishWord": "cleats",
-      "hebrewTranslation": "נעלי כדורגל",
-      "category": "Sports",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Soccer cleats",
-      "exampleHe": "נעלי כדורגל"
-    },
-    {
-      "englishWord": "cup",
-      "hebrewTranslation": "כוס",
-      "category": "Sports",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "World cup",
-      "exampleHe": "גביע עולם"
-    },
-    {
-      "englishWord": "gloves",
-      "hebrewTranslation": "כפפות",
-      "category": "Sports",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Baseball gloves",
-      "exampleHe": "כפפות בייסבול"
-    },
-    {
-      "englishWord": "goggles",
-      "hebrewTranslation": "משקפי מגן",
-      "category": "Sports",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Swimming goggles",
-      "exampleHe": "משקפי שחייה"
-    },
-    {
-      "englishWord": "helmet",
-      "hebrewTranslation": "קסדה",
-      "category": "Sports",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Bike helmet",
-      "exampleHe": "קסדת אופניים"
-    },
-    {
-      "englishWord": "jersey",
-      "hebrewTranslation": "ג'רסי",
-      "category": "Sports",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Team jersey",
-      "exampleHe": "ג'רסי קבוצה"
-    },
-    {
-      "englishWord": "net",
-      "hebrewTranslation": "רשת",
-      "category": "Sports",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Tennis net",
-      "exampleHe": "רשת טניס"
-    },
-    {
-      "englishWord": "paddle",
-      "hebrewTranslation": "משוט",
-      "category": "Sports",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Kayak paddle",
-      "exampleHe": "משוט קיאק"
-    },
-    {
-      "englishWord": "pads",
-      "hebrewTranslation": "מגנים",
-      "category": "Sports",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Knee pads",
-      "exampleHe": "מגני ברכיים"
-    },
-    {
-      "englishWord": "racket",
-      "hebrewTranslation": "מחבט",
-      "category": "Sports",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Tennis racket",
-      "exampleHe": "מחבט טניס"
-    },
-    {
-      "englishWord": "ribbon",
-      "hebrewTranslation": "סרט",
-      "category": "Sports",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "First place ribbon",
-      "exampleHe": "סרט מקום ראשון"
-    },
-    {
-      "englishWord": "scoreboard",
-      "hebrewTranslation": "לוח תוצאות",
-      "category": "Sports",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Check scoreboard",
-      "exampleHe": "בדוק לוח תוצאות"
-    },
-    {
-      "englishWord": "skates",
-      "hebrewTranslation": "מחליקיים",
-      "category": "Sports",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Ice skates",
-      "exampleHe": "מחליקיים קרח"
-    },
-    {
-      "englishWord": "skis",
-      "hebrewTranslation": "מגלשיים",
-      "category": "Sports",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Snow skis",
-      "exampleHe": "מגלשיים שלג"
-    },
-    {
-      "englishWord": "timer",
-      "hebrewTranslation": "שעון עצר",
-      "category": "Sports",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Stop timer",
-      "exampleHe": "עצור שעון עצר"
-    },
-    {
-      "englishWord": "trophy",
-      "hebrewTranslation": "גביע",
-      "category": "Sports",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Win a trophy",
-      "exampleHe": "זכה בגביע"
-    },
-    {
-      "englishWord": "uniform",
-      "hebrewTranslation": "מדים",
-      "category": "Sports",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Team uniform",
-      "exampleHe": "מדים קבוצה"
-    },
-    {
-      "englishWord": "whistle",
-      "hebrewTranslation": "משרוקית",
-      "category": "Sports",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Referee whistle",
-      "exampleHe": "משרוקית שופט"
-    },
-    {
       "englishWord": "Big",
       "hebrewTranslation": "גדול",
-      "category": "Starter",
+      "category": "Starter A",
       "difficulty": 1,
       "active": true,
       "exampleEn": "Big house",
       "exampleHe": "בית גדול"
     },
     {
-      "englishWord": "Come",
-      "hebrewTranslation": "לבוא",
-      "category": "Starter",
-      "difficulty": 1,
-      "active": true,
-      "exampleEn": "Come here",
-      "exampleHe": "בוא לכאן"
-    },
-    {
-      "englishWord": "Drink",
-      "hebrewTranslation": "לשתות",
-      "category": "Starter",
-      "difficulty": 1,
-      "active": true,
-      "exampleEn": "Drink water",
-      "exampleHe": "שתה מים"
-    },
-    {
-      "englishWord": "Eat",
-      "hebrewTranslation": "לאכול",
-      "category": "Starter",
-      "difficulty": 1,
-      "active": true,
-      "exampleEn": "Eat food",
-      "exampleHe": "אכול אוכל"
-    },
-    {
-      "englishWord": "Go",
-      "hebrewTranslation": "ללכת",
-      "category": "Starter",
-      "difficulty": 1,
-      "active": true,
-      "exampleEn": "Go home",
-      "exampleHe": "לך הביתה"
-    },
-    {
-      "englishWord": "Happy",
-      "hebrewTranslation": "שמח",
-      "category": "Starter",
-      "difficulty": 1,
-      "active": true,
-      "exampleEn": "I am happy",
-      "exampleHe": "אני שמח"
-    },
-    {
       "englishWord": "I",
       "hebrewTranslation": "אני",
-      "category": "Starter",
+      "category": "Starter A",
       "difficulty": 1,
       "active": true,
       "exampleEn": "I am here",
@@ -3569,7 +3632,7 @@
     {
       "englishWord": "Me",
       "hebrewTranslation": "אותי",
-      "category": "Starter",
+      "category": "Starter A",
       "difficulty": 1,
       "active": true,
       "exampleEn": "Look at me",
@@ -3578,34 +3641,16 @@
     {
       "englishWord": "No",
       "hebrewTranslation": "לא",
-      "category": "Starter",
+      "category": "Starter A",
       "difficulty": 1,
       "active": true,
       "exampleEn": "No, thank you",
       "exampleHe": "לא, תודה"
     },
     {
-      "englishWord": "Play",
-      "hebrewTranslation": "לשחק",
-      "category": "Starter",
-      "difficulty": 1,
-      "active": true,
-      "exampleEn": "Play with me",
-      "exampleHe": "שחק איתי"
-    },
-    {
-      "englishWord": "Sad",
-      "hebrewTranslation": "עצוב",
-      "category": "Starter",
-      "difficulty": 1,
-      "active": true,
-      "exampleEn": "I am sad",
-      "exampleHe": "אני עצוב"
-    },
-    {
       "englishWord": "Small",
       "hebrewTranslation": "קטן",
-      "category": "Starter",
+      "category": "Starter A",
       "difficulty": 1,
       "active": true,
       "exampleEn": "Small cat",
@@ -3614,7 +3659,7 @@
     {
       "englishWord": "Yes",
       "hebrewTranslation": "כן",
-      "category": "Starter",
+      "category": "Starter A",
       "difficulty": 1,
       "active": true,
       "exampleEn": "Yes, please",
@@ -3623,11 +3668,128 @@
     {
       "englishWord": "You",
       "hebrewTranslation": "אתה",
-      "category": "Starter",
+      "category": "Starter A",
       "difficulty": 1,
       "active": true,
       "exampleEn": "You are nice",
       "exampleHe": "אתה נחמד"
+    },
+    {
+      "englishWord": "her",
+      "hebrewTranslation": "היא",
+      "category": "Starter A",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": null,
+      "exampleHe": null
+    },
+    {
+      "englishWord": "him",
+      "hebrewTranslation": "הוא",
+      "category": "Starter A",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": null,
+      "exampleHe": null
+    },
+    {
+      "englishWord": "Come",
+      "hebrewTranslation": "לבוא",
+      "category": "Starter B",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Come here",
+      "exampleHe": "בוא לכאן"
+    },
+    {
+      "englishWord": "Drink",
+      "hebrewTranslation": "לשתות",
+      "category": "Starter B",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Drink water",
+      "exampleHe": "שתה מים"
+    },
+    {
+      "englishWord": "Eat",
+      "hebrewTranslation": "לאכול",
+      "category": "Starter B",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Eat food",
+      "exampleHe": "אכול אוכל"
+    },
+    {
+      "englishWord": "Go",
+      "hebrewTranslation": "ללכת",
+      "category": "Starter B",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Go home",
+      "exampleHe": "לך הביתה"
+    },
+    {
+      "englishWord": "Happy",
+      "hebrewTranslation": "שמח",
+      "category": "Starter B",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "I am happy",
+      "exampleHe": "אני שמח"
+    },
+    {
+      "englishWord": "Play",
+      "hebrewTranslation": "לשחק",
+      "category": "Starter B",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Play with me",
+      "exampleHe": "שחק איתי"
+    },
+    {
+      "englishWord": "Sad",
+      "hebrewTranslation": "עצוב",
+      "category": "Starter B",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "I am sad",
+      "exampleHe": "אני עצוב"
+    },
+    {
+      "englishWord": "man",
+      "hebrewTranslation": "איש",
+      "category": "Starter B",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": null,
+      "exampleHe": null
+    },
+    {
+      "englishWord": "them",
+      "hebrewTranslation": "הם",
+      "category": "Starter B",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": null,
+      "exampleHe": null
+    },
+    {
+      "englishWord": "us",
+      "hebrewTranslation": "אנחנו",
+      "category": "Starter B",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": null,
+      "exampleHe": null
+    },
+    {
+      "englishWord": "woman",
+      "hebrewTranslation": "אישה",
+      "category": "Starter B",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": null,
+      "exampleHe": null
     },
     {
       "englishWord": "afternoon",
@@ -3693,6 +3855,15 @@
       "exampleHe": "אתמול היה כיף"
     },
     {
+      "englishWord": "belt",
+      "hebrewTranslation": "חגורה",
+      "category": "Transportation",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Seat belt",
+      "exampleHe": "חגורת בטיחות"
+    },
+    {
       "englishWord": "bike",
       "hebrewTranslation": "אופניים",
       "category": "Transportation",
@@ -3711,6 +3882,15 @@
       "exampleHe": "הסירה שטה"
     },
     {
+      "englishWord": "brake",
+      "hebrewTranslation": "בלם",
+      "category": "Transportation",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Press brake",
+      "exampleHe": "לחץ על הבלם"
+    },
+    {
       "englishWord": "bridge",
       "hebrewTranslation": "גשר",
       "category": "Transportation",
@@ -3718,6 +3898,15 @@
       "active": true,
       "exampleEn": "Cross the bridge",
       "exampleHe": "חצה את הגשר"
+    },
+    {
+      "englishWord": "bumper",
+      "hebrewTranslation": "פגוש",
+      "category": "Transportation",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Car bumper",
+      "exampleHe": "פגוש מכונית"
     },
     {
       "englishWord": "bus",
@@ -3738,6 +3927,15 @@
       "exampleHe": "אני נוהג במכונית"
     },
     {
+      "englishWord": "door",
+      "hebrewTranslation": "דלת",
+      "category": "Transportation",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Car door",
+      "exampleHe": "דלת מכונית"
+    },
+    {
       "englishWord": "driver",
       "hebrewTranslation": "נהג",
       "category": "Transportation",
@@ -3747,6 +3945,33 @@
       "exampleHe": "נהג טוב"
     },
     {
+      "englishWord": "engine",
+      "hebrewTranslation": "מנוע",
+      "category": "Transportation",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Car engine",
+      "exampleHe": "מנוע מכונית"
+    },
+    {
+      "englishWord": "gas",
+      "hebrewTranslation": "דלק",
+      "category": "Transportation",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Fill gas",
+      "exampleHe": "מלא דלק"
+    },
+    {
+      "englishWord": "handle",
+      "hebrewTranslation": "ידית",
+      "category": "Transportation",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Door handle",
+      "exampleHe": "ידית דלת"
+    },
+    {
       "englishWord": "helicopter",
       "hebrewTranslation": "מסוק",
       "category": "Transportation",
@@ -3754,6 +3979,60 @@
       "active": true,
       "exampleEn": "The helicopter flies",
       "exampleHe": "המסוק עף"
+    },
+    {
+      "englishWord": "hood",
+      "hebrewTranslation": "מכסה מנוע",
+      "category": "Transportation",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Car hood",
+      "exampleHe": "מכסה מנוע מכונית"
+    },
+    {
+      "englishWord": "horn",
+      "hebrewTranslation": "צופר",
+      "category": "Transportation",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Car horn",
+      "exampleHe": "צופר מכונית"
+    },
+    {
+      "englishWord": "key",
+      "hebrewTranslation": "מפתח",
+      "category": "Transportation",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Car key",
+      "exampleHe": "מפתח מכונית"
+    },
+    {
+      "englishWord": "light",
+      "hebrewTranslation": "אור",
+      "category": "Transportation",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Car light",
+      "exampleHe": "אור מכונית"
+    },
+    {
+      "englishWord": "lock",
+      "hebrewTranslation": "מנעול",
+      "category": "Transportation",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Car lock",
+      "exampleHe": "מנעול מכונית"
+    },
+    {
+      "englishWord": "mirror",
+      "hebrewTranslation": "מראה",
+      "category": "Transportation",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Side mirror",
+      "exampleHe": "מראה צד"
     },
     {
       "englishWord": "motorcycle",
@@ -3772,6 +4051,15 @@
       "active": true,
       "exampleEn": "Parking lot",
       "exampleHe": "מגרש חניה"
+    },
+    {
+      "englishWord": "pedal",
+      "hebrewTranslation": "דוושה",
+      "category": "Transportation",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Gas pedal",
+      "exampleHe": "דוושת דלק"
     },
     {
       "englishWord": "plane",
@@ -3801,6 +4089,15 @@
       "exampleHe": "רכב על קורקינט"
     },
     {
+      "englishWord": "seat",
+      "hebrewTranslation": "מושב",
+      "category": "Transportation",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Car seat",
+      "exampleHe": "מושב מכונית"
+    },
+    {
       "englishWord": "ship",
       "hebrewTranslation": "ספינה",
       "category": "Transportation",
@@ -3808,6 +4105,15 @@
       "active": true,
       "exampleEn": "Big ship",
       "exampleHe": "ספינה גדולה"
+    },
+    {
+      "englishWord": "steering",
+      "hebrewTranslation": "הגה",
+      "category": "Transportation",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Steering wheel",
+      "exampleHe": "גלגל הגה"
     },
     {
       "englishWord": "street",
@@ -3837,6 +4143,15 @@
       "exampleHe": "קח מונית"
     },
     {
+      "englishWord": "tire",
+      "hebrewTranslation": "צמיג",
+      "category": "Transportation",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Flat tire",
+      "exampleHe": "צמיג שטוח"
+    },
+    {
       "englishWord": "train",
       "hebrewTranslation": "רכבת",
       "category": "Transportation",
@@ -3855,6 +4170,15 @@
       "exampleHe": "המשאית גדולה"
     },
     {
+      "englishWord": "trunk",
+      "hebrewTranslation": "תא מטען",
+      "category": "Transportation",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Car trunk",
+      "exampleHe": "תא מטען מכונית"
+    },
+    {
       "englishWord": "van",
       "hebrewTranslation": "טנדר",
       "category": "Transportation",
@@ -3864,172 +4188,10 @@
       "exampleHe": "טנדר גדול"
     },
     {
-      "englishWord": "belt",
-      "hebrewTranslation": "חגורה",
-      "category": "Transportation",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Seat belt",
-      "exampleHe": "חגורת בטיחות"
-    },
-    {
-      "englishWord": "brake",
-      "hebrewTranslation": "בלם",
-      "category": "Transportation",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Press brake",
-      "exampleHe": "לחץ על הבלם"
-    },
-    {
-      "englishWord": "bumper",
-      "hebrewTranslation": "פגוש",
-      "category": "Transportation",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Car bumper",
-      "exampleHe": "פגוש מכונית"
-    },
-    {
-      "englishWord": "door",
-      "hebrewTranslation": "דלת",
-      "category": "Transportation",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Car door",
-      "exampleHe": "דלת מכונית"
-    },
-    {
-      "englishWord": "engine",
-      "hebrewTranslation": "מנוע",
-      "category": "Transportation",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Car engine",
-      "exampleHe": "מנוע מכונית"
-    },
-    {
-      "englishWord": "gas",
-      "hebrewTranslation": "דלק",
-      "category": "Transportation",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Fill gas",
-      "exampleHe": "מלא דלק"
-    },
-    {
-      "englishWord": "handle",
-      "hebrewTranslation": "ידית",
-      "category": "Transportation",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Door handle",
-      "exampleHe": "ידית דלת"
-    },
-    {
-      "englishWord": "hood",
-      "hebrewTranslation": "מכסה מנוע",
-      "category": "Transportation",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Car hood",
-      "exampleHe": "מכסה מנוע מכונית"
-    },
-    {
-      "englishWord": "horn",
-      "hebrewTranslation": "צופר",
-      "category": "Transportation",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Car horn",
-      "exampleHe": "צופר מכונית"
-    },
-    {
-      "englishWord": "key",
-      "hebrewTranslation": "מפתח",
-      "category": "Transportation",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Car key",
-      "exampleHe": "מפתח מכונית"
-    },
-    {
-      "englishWord": "light",
-      "hebrewTranslation": "אור",
-      "category": "Transportation",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Car light",
-      "exampleHe": "אור מכונית"
-    },
-    {
-      "englishWord": "lock",
-      "hebrewTranslation": "מנעול",
-      "category": "Transportation",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Car lock",
-      "exampleHe": "מנעול מכונית"
-    },
-    {
-      "englishWord": "mirror",
-      "hebrewTranslation": "מראה",
-      "category": "Transportation",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Side mirror",
-      "exampleHe": "מראה צד"
-    },
-    {
-      "englishWord": "pedal",
-      "hebrewTranslation": "דוושה",
-      "category": "Transportation",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Gas pedal",
-      "exampleHe": "דוושת דלק"
-    },
-    {
-      "englishWord": "seat",
-      "hebrewTranslation": "מושב",
-      "category": "Transportation",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Car seat",
-      "exampleHe": "מושב מכונית"
-    },
-    {
-      "englishWord": "steering",
-      "hebrewTranslation": "הגה",
-      "category": "Transportation",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Steering wheel",
-      "exampleHe": "גלגל הגה"
-    },
-    {
-      "englishWord": "tire",
-      "hebrewTranslation": "צמיג",
-      "category": "Transportation",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Flat tire",
-      "exampleHe": "צמיג שטוח"
-    },
-    {
-      "englishWord": "trunk",
-      "hebrewTranslation": "תא מטען",
-      "category": "Transportation",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Car trunk",
-      "exampleHe": "תא מטען מכונית"
-    },
-    {
       "englishWord": "wheel",
       "hebrewTranslation": "גלגל",
       "category": "Transportation",
-      "difficulty": 2,
+      "difficulty": 1,
       "active": true,
       "exampleEn": "Car wheel",
       "exampleHe": "גלגל מכונית"
@@ -4038,7 +4200,7 @@
       "englishWord": "window",
       "hebrewTranslation": "חלון",
       "category": "Transportation",
-      "difficulty": 2,
+      "difficulty": 1,
       "active": true,
       "exampleEn": "Car window",
       "exampleHe": "חלון מכונית"
@@ -4051,6 +4213,24 @@
       "active": true,
       "exampleEn": "Colorful autumn",
       "exampleHe": "סתיו צבעוני"
+    },
+    {
+      "englishWord": "breeze",
+      "hebrewTranslation": "בריזה",
+      "category": "Weather",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Cool breeze",
+      "exampleHe": "בריזה נעימה"
+    },
+    {
+      "englishWord": "cloud",
+      "hebrewTranslation": "ענן",
+      "category": "Weather",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "White cloud",
+      "exampleHe": "ענן לבן"
     },
     {
       "englishWord": "cloudy",
@@ -4080,6 +4260,33 @@
       "exampleHe": "רוח נעימה"
     },
     {
+      "englishWord": "drop",
+      "hebrewTranslation": "טיפה",
+      "category": "Weather",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Rain drop",
+      "exampleHe": "טיפת גשם"
+    },
+    {
+      "englishWord": "fall",
+      "hebrewTranslation": "סתיו",
+      "category": "Weather",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Beautiful fall",
+      "exampleHe": "סתיו יפה"
+    },
+    {
+      "englishWord": "flake",
+      "hebrewTranslation": "פתית",
+      "category": "Weather",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Snow flake",
+      "exampleHe": "פתית שלג"
+    },
+    {
       "englishWord": "fog",
       "hebrewTranslation": "ערפל",
       "category": "Weather",
@@ -4087,6 +4294,24 @@
       "active": true,
       "exampleEn": "Thick fog",
       "exampleHe": "ערפל כבד"
+    },
+    {
+      "englishWord": "ground",
+      "hebrewTranslation": "אדמה",
+      "category": "Weather",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Wet ground",
+      "exampleHe": "אדמה רטובה"
+    },
+    {
+      "englishWord": "gust",
+      "hebrewTranslation": "משב רוח",
+      "category": "Weather",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Strong gust",
+      "exampleHe": "משב רוח חזק"
     },
     {
       "englishWord": "hot",
@@ -4098,6 +4323,15 @@
       "exampleHe": "היום חם"
     },
     {
+      "englishWord": "ice",
+      "hebrewTranslation": "קרח",
+      "category": "Weather",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Slippery ice",
+      "exampleHe": "קרח חלק"
+    },
+    {
       "englishWord": "lightning",
       "hebrewTranslation": "ברק",
       "category": "Weather",
@@ -4105,6 +4339,33 @@
       "active": true,
       "exampleEn": "Bright lightning",
       "exampleHe": "ברק בהיר"
+    },
+    {
+      "englishWord": "moon",
+      "hebrewTranslation": "ירח",
+      "category": "Weather",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Full moon",
+      "exampleHe": "ירח מלא"
+    },
+    {
+      "englishWord": "puddle",
+      "hebrewTranslation": "שלולית",
+      "category": "Weather",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Water puddle",
+      "exampleHe": "שלולית מים"
+    },
+    {
+      "englishWord": "rain",
+      "hebrewTranslation": "גשם",
+      "category": "Weather",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Heavy rain",
+      "exampleHe": "גשם חזק"
     },
     {
       "englishWord": "rainbow",
@@ -4134,6 +4395,33 @@
       "exampleHe": "עונת אביב"
     },
     {
+      "englishWord": "shade",
+      "hebrewTranslation": "צל",
+      "category": "Weather",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Cool shade",
+      "exampleHe": "צל קריר"
+    },
+    {
+      "englishWord": "sky",
+      "hebrewTranslation": "שמיים",
+      "category": "Weather",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Blue sky",
+      "exampleHe": "שמיים כחולים"
+    },
+    {
+      "englishWord": "snow",
+      "hebrewTranslation": "שלג",
+      "category": "Weather",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "White snow",
+      "exampleHe": "שלג לבן"
+    },
+    {
       "englishWord": "snowy",
       "hebrewTranslation": "מושלג",
       "category": "Weather",
@@ -4152,6 +4440,15 @@
       "exampleHe": "אביב יפה"
     },
     {
+      "englishWord": "star",
+      "hebrewTranslation": "כוכב",
+      "category": "Weather",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Bright star",
+      "exampleHe": "כוכב בהיר"
+    },
+    {
       "englishWord": "storm",
       "hebrewTranslation": "סערה",
       "category": "Weather",
@@ -4168,6 +4465,15 @@
       "active": true,
       "exampleEn": "Hot summer",
       "exampleHe": "קיץ חם"
+    },
+    {
+      "englishWord": "sun",
+      "hebrewTranslation": "שמש",
+      "category": "Weather",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Bright sun",
+      "exampleHe": "שמש בהירה"
     },
     {
       "englishWord": "sunny",
@@ -4206,6 +4512,15 @@
       "exampleHe": "מזג אוויר נעים"
     },
     {
+      "englishWord": "wind",
+      "hebrewTranslation": "רוח",
+      "category": "Weather",
+      "difficulty": 1,
+      "active": true,
+      "exampleEn": "Strong wind",
+      "exampleHe": "רוח חזקה"
+    },
+    {
       "englishWord": "windy",
       "hebrewTranslation": "רוח",
       "category": "Weather",
@@ -4222,159 +4537,6 @@
       "active": true,
       "exampleEn": "Cold winter",
       "exampleHe": "חורף קר"
-    },
-    {
-      "englishWord": "breeze",
-      "hebrewTranslation": "בריזה",
-      "category": "Weather",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Cool breeze",
-      "exampleHe": "בריזה נעימה"
-    },
-    {
-      "englishWord": "cloud",
-      "hebrewTranslation": "ענן",
-      "category": "Weather",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "White cloud",
-      "exampleHe": "ענן לבן"
-    },
-    {
-      "englishWord": "drop",
-      "hebrewTranslation": "טיפה",
-      "category": "Weather",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Rain drop",
-      "exampleHe": "טיפת גשם"
-    },
-    {
-      "englishWord": "fall",
-      "hebrewTranslation": "סתיו",
-      "category": "Weather",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Beautiful fall",
-      "exampleHe": "סתיו יפה"
-    },
-    {
-      "englishWord": "flake",
-      "hebrewTranslation": "פתית",
-      "category": "Weather",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Snow flake",
-      "exampleHe": "פתית שלג"
-    },
-    {
-      "englishWord": "ground",
-      "hebrewTranslation": "אדמה",
-      "category": "Weather",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Wet ground",
-      "exampleHe": "אדמה רטובה"
-    },
-    {
-      "englishWord": "gust",
-      "hebrewTranslation": "משב רוח",
-      "category": "Weather",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Strong gust",
-      "exampleHe": "משב רוח חזק"
-    },
-    {
-      "englishWord": "ice",
-      "hebrewTranslation": "קרח",
-      "category": "Weather",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Slippery ice",
-      "exampleHe": "קרח חלק"
-    },
-    {
-      "englishWord": "moon",
-      "hebrewTranslation": "ירח",
-      "category": "Weather",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Full moon",
-      "exampleHe": "ירח מלא"
-    },
-    {
-      "englishWord": "puddle",
-      "hebrewTranslation": "שלולית",
-      "category": "Weather",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Water puddle",
-      "exampleHe": "שלולית מים"
-    },
-    {
-      "englishWord": "rain",
-      "hebrewTranslation": "גשם",
-      "category": "Weather",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Heavy rain",
-      "exampleHe": "גשם חזק"
-    },
-    {
-      "englishWord": "shade",
-      "hebrewTranslation": "צל",
-      "category": "Weather",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Cool shade",
-      "exampleHe": "צל קריר"
-    },
-    {
-      "englishWord": "sky",
-      "hebrewTranslation": "שמיים",
-      "category": "Weather",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Blue sky",
-      "exampleHe": "שמיים כחולים"
-    },
-    {
-      "englishWord": "snow",
-      "hebrewTranslation": "שלג",
-      "category": "Weather",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "White snow",
-      "exampleHe": "שלג לבן"
-    },
-    {
-      "englishWord": "star",
-      "hebrewTranslation": "כוכב",
-      "category": "Weather",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Bright star",
-      "exampleHe": "כוכב בהיר"
-    },
-    {
-      "englishWord": "sun",
-      "hebrewTranslation": "שמש",
-      "category": "Weather",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Bright sun",
-      "exampleHe": "שמש בהירה"
-    },
-    {
-      "englishWord": "wind",
-      "hebrewTranslation": "רוח",
-      "category": "Weather",
-      "difficulty": 2,
-      "active": true,
-      "exampleEn": "Strong wind",
-      "exampleHe": "רוח חזקה"
     }
   ]
 }

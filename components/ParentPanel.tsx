@@ -73,7 +73,7 @@ export default function ParentPanel({ session: initialSession }: ParentPanelProp
   }
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/' });
+    await signOut({ callbackUrl: '/?loggedOut=true' });
   };
 
   const handleExit = () => {

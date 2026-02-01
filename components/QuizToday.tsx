@@ -548,9 +548,6 @@ export default function QuizToday({ childId, todayPlan, category, levelState: pr
           onClose={async () => {
             setShowCelebration(false);
             setCompleted(true);
-            // Revalidate path to ensure category completion is updated
-            const { revalidatePath } = await import('next/cache');
-            revalidatePath('/learn/path');
             // Force reload of path page to update completion status
             router.push('/learn/path');
             setTimeout(() => router.refresh(), 100);

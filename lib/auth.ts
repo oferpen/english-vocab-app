@@ -3,7 +3,7 @@ import { prisma } from './prisma';
 import { getAuthSession } from './auth-helper';
 
 export async function getCurrentParentAccount() {
-  // Try to get from session (Google auth)
+  // 1. Try to get from session (Google auth)
   const session = await getAuthSession();
   if (session?.user?.email) {
     const account = await prisma.parentAccount.findUnique({
@@ -12,14 +12,24 @@ export async function getCurrentParentAccount() {
     if (account) return account;
   }
 
-  // If no Google session, return the first parent account
-  // This allows PIN-based login to work without Google session
-  // Note: This assumes single-family usage. For multi-family, consider adding session management for PIN auth
-  const firstParent = await prisma.parentAccount.findFirst({
-    orderBy: { createdAt: 'asc' },
-  });
+  // 2. Try to get from deviceId (Anonymous)
+  try {
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
+    const deviceId = cookieStore.get('deviceId')?.value;
+    if (deviceId) {
+      const account = await (prisma as any).parentAccount.findUnique({
+        where: { deviceId },
+      });
+      // Only allow device-based login for anonymous accounts
+      if (account && (account as any).isAnonymous) return account;
+    }
+  } catch (e) {
+    // If cookies() fails (e.g. in some environments), ignore and continue
+  }
 
-  return firstParent || null;
+  // 3. Fallback: Return null if no account found
+  return null;
 }
 
 export async function verifyPIN(pin: string): Promise<boolean> {

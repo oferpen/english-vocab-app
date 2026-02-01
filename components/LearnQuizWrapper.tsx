@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import QuizToday from './QuizToday';
 import LearnToday from './LearnToday';
 import LearnLetters from './LearnLetters';
+import QuizLetters from './QuizLetters';
 
 interface LearnQuizWrapperProps {
   childId: string;
@@ -60,13 +61,41 @@ export default function LearnQuizWrapper({
     });
   };
 
-  // Render based on mode - keep components mounted to preserve state
-  // Only show letters for level 1 if no category is provided
-  // If category is provided (e.g., Starter), show words even for level 1 users
+  // Render based on mode
+  // Level 1 logic: Show Letters Learn/Quiz if no category/todayPlan
   if (levelState.level === 1 && !category && !todayPlan) {
     return (
       <>
-        <LearnLetters childId={childId} letterId={letterId} />
+        <div className="mb-4 flex gap-2 bg-white rounded-xl p-2 shadow-md border border-gray-100">
+          <button
+            onClick={() => handleModeSwitch('learn')}
+            disabled={isSwitching || isPending || mode === 'learn'}
+            className={`flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-lg transition-all duration-200 ${mode === 'learn'
+              ? 'border-2 border-primary-500 text-primary-600 font-bold shadow-sm'
+              : 'hover:bg-blue-50 text-gray-600 hover:text-blue-600'
+              }`}
+          >
+            <span className="text-2xl mb-1">📖</span>
+            <span className="text-sm font-semibold">למידה</span>
+          </button>
+          <button
+            onClick={() => handleModeSwitch('quiz')}
+            disabled={isSwitching || isPending || mode === 'quiz'}
+            className={`flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-lg transition-all duration-200 ${mode === 'quiz'
+              ? 'border-2 border-primary-500 text-primary-600 font-bold shadow-sm'
+              : 'hover:bg-purple-50 text-gray-600 hover:text-purple-600'
+              }`}
+          >
+            <span className="text-2xl mb-1">✏️</span>
+            <span className="text-sm font-semibold">חידון</span>
+          </button>
+        </div>
+
+        {mode === 'quiz' ? (
+          <QuizLetters childId={childId} onModeSwitch={handleModeSwitch} />
+        ) : (
+          <LearnLetters childId={childId} letterId={letterId} />
+        )}
       </>
     );
   }
@@ -88,8 +117,8 @@ export default function LearnQuizWrapper({
           onClick={() => handleModeSwitch('learn')}
           disabled={isSwitching || isPending || mode === 'learn'}
           className={`flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-lg transition-all duration-200 ${mode === 'learn'
-              ? 'border-2 border-primary-500 text-primary-600 font-bold'
-              : 'hover:bg-blue-50 text-gray-600 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed'
+            ? 'border-2 border-primary-500 text-primary-600 font-bold'
+            : 'hover:bg-blue-50 text-gray-600 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed'
             }`}
         >
           <span className="text-2xl mb-1">📖</span>
@@ -99,8 +128,8 @@ export default function LearnQuizWrapper({
           onClick={() => handleModeSwitch('quiz')}
           disabled={isSwitching || isPending || mode === 'quiz'}
           className={`flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-lg transition-all duration-200 ${mode === 'quiz'
-              ? 'border-2 border-primary-500 text-primary-600 font-bold'
-              : 'hover:bg-purple-50 text-gray-600 hover:text-purple-600 disabled:opacity-50 disabled:cursor-not-allowed'
+            ? 'border-2 border-primary-500 text-primary-600 font-bold'
+            : 'hover:bg-purple-50 text-gray-600 hover:text-purple-600 disabled:opacity-50 disabled:cursor-not-allowed'
             }`}
         >
           <span className="text-2xl mb-1">✏️</span>

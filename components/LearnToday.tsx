@@ -131,37 +131,31 @@ export default function LearnToday({ childId, todayPlan, wordId, category, level
   }
 
   if (showCelebration && completed) {
+    // Assuming a 100% completion for the learning session if it reaches this point
+    const percentage = 100;
     return (
       <>
-        <Confetti trigger={showCelebration} />
+        <Confetti trigger={showCelebration && percentage >= 70} />
         <CelebrationScreen
           title="סיימת ללמוד!"
           message={`סיימת ללמוד ${words.length} מילים היום! קיבלת ${xpGained} נקודות נסיון!`}
-          emoji="🎉"
-          showConfetti={showCelebration}
-          actionLabel="המשך לחידון"
+          emoji={percentage >= 70 ? '🎉' : '💪'}
+          showConfetti={showCelebration && percentage >= 70}
+          actionLabel="חזור למפה"
           onAction={() => {
-            if (isNavigating) return;
-            setIsNavigating(true);
-            setShowCelebration(false);
-            setCompleted(true);
-            if (onModeSwitch) {
-              onModeSwitch('quiz');
-              setIsNavigating(false);
+            const categoryToUse = category || todayPlan?.id?.match(/category-(.+?)-level/)?.[1];
+            const levelToUse = level || todayPlan?.id?.match(/level-(\d+)/)?.[1];
+            if (categoryToUse) {
+              const quizUrl = `/learn?mode=quiz&category=${encodeURIComponent(categoryToUse)}${levelToUse ? `&level=${levelToUse}` : ''}`;
+              router.push(quizUrl);
             } else {
-              const categoryToUse = category || todayPlan?.id?.match(/category-(.+?)-level/)?.[1];
-              const levelToUse = level || todayPlan?.id?.match(/level-(\d+)/)?.[1];
-              if (categoryToUse) {
-                const quizUrl = `/learn?mode=quiz&category=${encodeURIComponent(categoryToUse)}${levelToUse ? `&level=${levelToUse}` : ''}`;
-                startTransition(() => { router.replace(quizUrl); });
-              } else {
-                startTransition(() => { router.replace('/learn?mode=quiz'); });
-              }
+              router.push('/learn?mode=quiz');
             }
+            setTimeout(() => router.refresh(), 100);
           }}
           onClose={() => {
-            setShowCelebration(false);
-            setCompleted(true);
+            router.push('/learn/path');
+            setTimeout(() => router.refresh(), 100);
           }}
         />
       </>

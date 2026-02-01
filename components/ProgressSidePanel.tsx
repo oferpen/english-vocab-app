@@ -14,8 +14,8 @@ interface ProgressSidePanelProps {
   streak?: number; // Optional - if provided, don't fetch it again
 }
 
-export default function ProgressSidePanel({ 
-  childId, 
+export default function ProgressSidePanel({
+  childId,
   levelState: propLevelState,
   progress: propProgress,
   streak: propStreak,
@@ -37,7 +37,7 @@ export default function ProgressSidePanel({
     if (propStreak !== undefined) {
       setStreak(propStreak);
     }
-    
+
     // Only fetch if data not provided as props
     if ((!propProgress || !propLevelState || propStreak === undefined) && !isLoadingRef.current) {
       loadProgress();
@@ -50,26 +50,26 @@ export default function ProgressSidePanel({
   const loadProgress = async () => {
     // Prevent multiple simultaneous calls
     if (isLoadingRef.current) return;
-    
+
     try {
       isLoadingRef.current = true;
       setLoading(true);
-      
+
       // Only fetch what's missing
       const promises: Promise<any>[] = [];
-      
+
       if (!propProgress) {
         promises.push(getAllProgress(childId).then(setProgress));
       }
-      
+
       if (propStreak === undefined) {
         promises.push(getStreak(childId).then(setStreak));
       }
-      
+
       if (!propLevelState) {
         promises.push(getLevelState(childId).then(setLevelState));
       }
-      
+
       await Promise.all(promises);
     } catch (error) {
       // Error loading progress
@@ -101,8 +101,8 @@ export default function ProgressSidePanel({
   // Daily plans removed - track words learned today by lastSeenAt date
   const todayTotal = 0;
   const todayLearned = progress.filter((p) => {
-    return p.lastSeenAt && 
-           new Date(p.lastSeenAt).toISOString().split('T')[0] === new Date().toISOString().split('T')[0];
+    return p.lastSeenAt &&
+      new Date(p.lastSeenAt).toISOString().split('T')[0] === new Date().toISOString().split('T')[0];
   }).length;
 
   const xpProgress = calculateXPProgress();
@@ -139,7 +139,7 @@ export default function ProgressSidePanel({
         <button
           onClick={async () => {
             const { signOut } = await import('next-auth/react');
-            await signOut({ callbackUrl: '/' });
+            await signOut({ callbackUrl: '/?loggedOut=true' });
           }}
           className="bg-red-600 text-white p-3 rounded-full shadow-lg hover:bg-red-700 transition-all"
           aria-label="התנתק"
@@ -152,9 +152,8 @@ export default function ProgressSidePanel({
 
       {/* Side Panel */}
       <div
-        className={`fixed right-0 top-0 h-full w-80 bg-white shadow-2xl z-50 transition-transform duration-300 ease-in-out overflow-y-auto ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
+        className={`fixed right-0 top-0 h-full w-80 bg-white shadow-2xl z-50 transition-transform duration-300 ease-in-out overflow-y-auto ${isOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
       >
         <div className="p-6">
           {/* App Name */}

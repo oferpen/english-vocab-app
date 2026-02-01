@@ -50,57 +50,117 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async redirect({ url, baseUrl }) {
-      // After successful login, redirect to home page
-      // The home page will check session and redirect to /learn/path if child exists
-      if (url.startsWith(baseUrl)) {
-        return `${baseUrl}/`;
-      }
+      // Allows relative URLs
+      if (url.startsWith('/')) return `${baseUrl}${url}`;
+      // Allows URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
     },
     async signIn({ user, account }) {
       try {
         if (account?.provider === 'google' && user.email) {
-          // Find or create parent account
-          let parentAccount = await prisma.parentAccount.findUnique({
+          const { cookies } = await import('next/headers');
+          const cookieStore = await cookies();
+          const deviceId = cookieStore.get('deviceId')?.value;
+
+          // 1. Find if a Google account already exists for this email
+          let parentAccount = await (prisma as any).parentAccount.findUnique({
             where: { email: user.email },
             include: { children: true },
           });
 
-          if (!parentAccount) {
-            // Create new parent account only (don't create child automatically)
-            await prisma.parentAccount.create({
-              data: {
-                email: user.email,
-                googleId: account.providerAccountId,
-                name: user.name || undefined,
-                image: user.image || undefined,
-                settingsJson: JSON.stringify({
-                  questionTypes: {
-                    enToHe: true,
-                    heToEn: true,
-                    audioToEn: true,
-                  },
-                }),
-              },
+          // 2. Find if the current device is associated with ANY account
+          let accountOnDevice = null;
+          if (deviceId) {
+            accountOnDevice = await (prisma as any).parentAccount.findUnique({
+              where: { deviceId },
+              include: { children: true },
             });
-          } else {
-            // Link Google account to existing parent account if needed
-            if (!parentAccount.googleId) {
-              await prisma.parentAccount.update({
-                where: { id: parentAccount.id },
+            if (accountOnDevice) {
+              console.log(`[NextAuth] Device ${deviceId} is associated with account ${accountOnDevice.id} (isAnonymous: ${accountOnDevice.isAnonymous})`);
+            }
+          }
+
+          if (!parentAccount) {
+            // CASE 1: Google account does NOT exist for this email -> Create or Upgrade
+            if (accountOnDevice && (accountOnDevice as any).isAnonymous) {
+              console.log(`[NextAuth] Upgrading anonymous account ${accountOnDevice.id} to Google account (${user.email})`);
+              await (prisma as any).parentAccount.update({
+                where: { id: accountOnDevice.id },
                 data: {
+                  email: user.email,
                   googleId: account.providerAccountId,
-                  name: user.name || parentAccount.name,
-                  image: user.image || parentAccount.image,
+                  name: user.name || undefined,
+                  image: user.image || undefined,
+                  isAnonymous: false,
+                },
+              });
+            } else {
+              console.log(`[NextAuth] Creating new Google account for ${user.email}`);
+              // If device is already claimed by a DIFFERENT Google account, don't associate it here
+              // to avoid P2002. The rotation logic in proxy/startAnonymousSession will handle it.
+              const deviceIdToSet = (accountOnDevice && !(accountOnDevice as any).isAnonymous) ? undefined : deviceId;
+
+              await (prisma as any).parentAccount.create({
+                data: {
+                  email: user.email,
+                  googleId: account.providerAccountId,
+                  name: user.name || undefined,
+                  image: user.image || undefined,
+                  deviceId: deviceIdToSet || undefined,
+                  isAnonymous: false,
+                  settingsJson: JSON.stringify({
+                    questionTypes: {
+                      enToHe: true,
+                      heToEn: true,
+                      audioToEn: true,
+                    },
+                  }),
                 },
               });
             }
-            // Don't auto-create children - let user create them manually
+          } else {
+            // CASE 2: Google account already exists -> Merge or Update
+            console.log(`[NextAuth] Found existing Google account ${parentAccount.id} for ${user.email}`);
+
+            if (accountOnDevice && (accountOnDevice as any).isAnonymous && accountOnDevice.id !== parentAccount.id) {
+              console.log(`[NextAuth] Merging anonymous children from ${accountOnDevice.id} into ${parentAccount.id}`);
+              // Move children
+              await prisma.childProfile.updateMany({
+                where: { parentAccountId: accountOnDevice.id },
+                data: { parentAccountId: parentAccount.id }
+              });
+
+              // Delete the now-empty anonymous account
+              await (prisma as any).parentAccount.delete({
+                where: { id: accountOnDevice.id }
+              });
+
+              // Safely associate deviceId if not already set
+              if (!parentAccount.deviceId && deviceId) {
+                await (prisma as any).parentAccount.update({
+                  where: { id: parentAccount.id },
+                  data: { deviceId }
+                });
+              }
+            }
+
+            // Link Google ID if missing
+            if (!parentAccount.googleId) {
+              await (prisma as any).parentAccount.update({
+                where: { id: parentAccount.id },
+                data: {
+                  googleId: account.providerAccountId,
+                  name: user.name || (parentAccount as any).name,
+                  image: user.image || (parentAccount as any).image,
+                },
+              });
+            }
           }
         }
         return true;
       } catch (error) {
-        // Still allow sign in even if database operation fails
+        console.error('Error in NextAuth signIn callback:', error);
         return true;
       }
     },
@@ -131,7 +191,7 @@ export const authOptions: NextAuthOptions = {
           (session.user as any).email = token.email;
         }
       }
-      
+
       return session;
     },
   },

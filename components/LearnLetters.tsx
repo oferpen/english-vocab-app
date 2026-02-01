@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import Confetti from './Confetti';
 import CelebrationScreen from './CelebrationScreen';
 import { playSuccessSound } from '@/lib/sounds';
+import { Volume2, X, Check, Sparkles } from 'lucide-react';
 
 interface LearnLettersProps {
   childId: string;
@@ -215,72 +216,93 @@ export default function LearnLetters({ childId, letterId }: LearnLettersProps) {
   return (
     <>
       <Confetti trigger={showConfetti} duration={1500} />
-      <div className="p-4 md:p-6 bg-gray-50 min-h-[calc(100vh-200px)] animate-fade-in">
-        {/* Progress Bar */}
-        <div className="mb-6 bg-white rounded-xl p-5 shadow-md border border-gray-100">
-          <div className="flex justify-between items-center mb-3">
-            <span className="text-base font-semibold text-gray-700">
-              {currentIndex + 1} מתוך {letters.length}
-            </span>
-            <span className="text-base font-bold text-primary-600">
-              {Math.round(progress)}%
-            </span>
+      <div className="max-w-md mx-auto px-4 py-8 animate-fade-in">
+        {/* Progress Bar (Pill) */}
+        <div className="mb-8 flex items-center justify-between bg-white px-4 py-2 rounded-full shadow-sm border border-neutral-100">
+          <div className="text-xs font-bold text-neutral-400">
+            {currentIndex + 1} מתוך {letters.length}
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+          <div className="flex-1 mx-4 bg-neutral-100 rounded-full h-2 overflow-hidden">
             <div
-              className="bg-gradient-to-r from-primary-500 to-primary-600 h-3 rounded-full transition-all duration-500 ease-out shadow-sm"
+              className="h-full bg-primary-500 rounded-full transition-all duration-500 ease-out"
               style={{ width: `${progress}%` }}
             />
           </div>
+          <div className="text-xs font-bold text-primary-600">
+            {Math.round(progress)}%
+          </div>
         </div>
 
-        {/* Letter Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-6 border border-gray-100 animate-slide-up">
-          <div className="text-center">
-            <h2 className="text-8xl md:text-9xl font-bold mb-8 text-primary-600 drop-shadow-lg">
+        {/* Flashcard (3D Effect) */}
+        <div className="relative perspective-1000 group mb-8">
+          <div className="bg-white rounded-[2rem] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-neutral-100 p-8 md:p-12 text-center transition-all duration-300 transform hover:scale-[1.02] hover:shadow-[0_20px_50px_-10px_rgba(0,0,0,0.15)]">
+            <h2 className="text-8xl md:text-9xl font-black text-neutral-800 mb-4 tracking-tight">
               {letter.letter}
             </h2>
-            <p className="text-3xl md:text-4xl mb-4 text-gray-800 font-semibold">
-              {letter.name}
-            </p>
-            {letter.hebrewName && (
-              <p className="text-2xl md:text-3xl mb-6 text-gray-600">
-                {letter.hebrewName}
+            <div className="space-y-1 mb-8">
+              <p className="text-3xl md:text-4xl font-black text-neutral-800 tracking-tight">
+                {letter.name}
               </p>
-            )}
+              {letter.hebrewName && (
+                <p className="text-2xl md:text-3xl font-medium text-neutral-400">
+                  {letter.hebrewName}
+                </p>
+              )}
+            </div>
+
             {letter.sound && (
-              <div className="mt-6 p-5 bg-gradient-to-br from-primary-50 via-purple-50 to-pink-50 rounded-xl border border-primary-100 shadow-sm">
-                <p className="text-xl md:text-2xl text-gray-700 font-medium">
-                  הגייה: {letter.sound}
+              <div className="bg-neutral-50 rounded-2xl p-4 border border-neutral-100 mb-8 inline-block">
+                <p className="text-lg md:text-xl font-medium text-neutral-500">
+                  הגייה: <span className="text-neutral-700">{letter.sound}</span>
                 </p>
               </div>
             )}
 
-            <button
-              onClick={() => speakLetter(letter.letter)}
-              className="mt-8 text-6xl md:text-7xl hover:scale-110 active:scale-95 transition-all duration-200 hover:drop-shadow-lg"
-              aria-label="השמע הגייה"
-            >
-              🔊
-            </button>
+            <div className="flex justify-center">
+              <button
+                onClick={() => speakLetter(letter.letter)}
+                className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary-50 text-primary-600 hover:bg-primary-100 hover:scale-110 active:scale-95 transition-all duration-200 shadow-sm"
+                aria-label="השמע הגייה"
+              >
+                <Volume2 className="w-10 h-10" />
+              </button>
+            </div>
           </div>
+          <div className="absolute top-4 inset-x-4 h-full bg-white rounded-[2rem] shadow-sm -z-10 bg-opacity-50 transform scale-95 translate-y-3"></div>
+          <div className="absolute top-8 inset-x-8 h-full bg-white rounded-[2rem] shadow-sm -z-20 bg-opacity-30 transform scale-90 translate-y-5"></div>
         </div>
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="mb-6">
+          <button
+            onClick={() => router.push('/learn?mode=quiz')}
+            className="w-full py-4 rounded-2xl bg-primary-50 text-primary-600 font-bold text-lg border-2 border-primary-100 hover:bg-primary-100 transition-all flex items-center justify-center gap-2"
+          >
+            <Sparkles className="w-5 h-5" />
+            <span>התחל חידון אותיות</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 mt-4">
           <button
             type="button"
             onClick={(e) => handleMarkLearned(false, e)}
-            className="bg-gray-200 hover:bg-gray-300 text-gray-700 py-5 md:py-6 rounded-xl text-lg md:text-xl font-bold shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95"
+            disabled={isPending}
+            className="h-16 rounded-2xl bg-white border-2 border-neutral-100 text-neutral-400 font-bold text-lg shadow-md hover:bg-neutral-50 hover:border-neutral-200 hover:text-neutral-600 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
           >
-            לא יודע ❌
+            <span>לא יודע</span>
+            <X className="w-5 h-5" />
           </button>
           <button
             type="button"
             onClick={(e) => handleMarkLearned(true, e)}
-            className="bg-gradient-to-r from-success-500 to-success-600 hover:from-success-600 hover:to-success-700 text-white py-5 md:py-6 rounded-xl text-lg md:text-xl font-bold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 active:scale-95"
+            disabled={isPending}
+            className="h-16 rounded-2xl bg-success-500 text-white font-black text-xl shadow-lg shadow-success-200 transition-all duration-200 hover:bg-success-600 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 tracking-tight"
           >
-            יודע! ✓
+            <span>יודע!</span>
+            <div className="bg-white/20 rounded-full w-8 h-8 flex items-center justify-center">
+              <Check className="w-5 h-5" />
+            </div>
           </button>
         </div>
       </div>

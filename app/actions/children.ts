@@ -13,22 +13,22 @@ export async function getActiveChild() {
     // This ensures that children must explicitly select themselves
     return null;
   }
-  
+
   const parentAccount = await getCurrentParentAccount();
-  
+
   if (parentAccount?.lastActiveChildId) {
     // If parent is logged in, return their active child
     return prisma.childProfile.findUnique({
       where: { id: parentAccount.lastActiveChildId },
     });
   }
-  
+
   return null;
 }
 
 export async function getAllChildren() {
   const parentAccount = await getCurrentParentAccount();
-  
+
   if (parentAccount) {
     // If parent is logged in, return only their children
     return prisma.childProfile.findMany({
@@ -36,13 +36,8 @@ export async function getAllChildren() {
       orderBy: { createdAt: 'desc' },
     });
   }
-  
-  // If no session, return all children in the system
-  // This allows child login screen to work without parent being logged in
-  // Note: This assumes single-family usage. For multi-family, consider adding child-level PINs
-  return prisma.childProfile.findMany({
-    orderBy: { createdAt: 'desc' },
-  });
+  // If no parent account found, return empty array for safety
+  return [];
 }
 
 export async function createChild(data: {
@@ -52,11 +47,11 @@ export async function createChild(data: {
   grade?: string;
 }) {
   const parentAccount = await getCurrentParentAccount();
-  
+
   if (!parentAccount) {
     // Try to get session to create parent account if needed
     const session = await getAuthSession();
-    
+
     if (session?.user?.email) {
       // Create parent account for this Google user
       const newParent = await prisma.parentAccount.create({
@@ -74,19 +69,19 @@ export async function createChild(data: {
           }),
         },
       });
-      
+
       const child = await prisma.childProfile.create({
         data: {
           ...data,
           parentAccountId: newParent.id,
         },
       });
-      
+
       await prisma.parentAccount.update({
         where: { id: newParent.id },
         data: { lastActiveChildId: child.id },
       });
-      
+
       await prisma.levelState.create({
         data: {
           childId: child.id,
@@ -94,12 +89,12 @@ export async function createChild(data: {
           xp: 0,
         },
       });
-      
+
       revalidatePath('/');
       revalidatePath('/parent');
       return child;
     }
-    
+
     throw new Error('Parent account not found and no Google session available');
   }
 
@@ -155,22 +150,22 @@ export async function deleteChild(id: string) {
 
 export async function setActiveChild(childId: string) {
   const parentAccount = await getCurrentParentAccount();
-  
+
   if (parentAccount) {
     // Verify that the child belongs to this parent account
     const child = await prisma.childProfile.findUnique({
       where: { id: childId },
       select: { parentAccountId: true },
     });
-    
+
     if (!child) {
       throw new Error('Child not found');
     }
-    
+
     if (child.parentAccountId !== parentAccount.id) {
       throw new Error('Child does not belong to this parent account');
     }
-    
+
     // If parent is logged in, update their active child
     await prisma.parentAccount.update({
       where: { id: parentAccount.id },
@@ -182,11 +177,11 @@ export async function setActiveChild(childId: string) {
       where: { id: childId },
       select: { parentAccountId: true },
     });
-    
+
     if (!child) {
       throw new Error('Child not found');
     }
-    
+
     await prisma.parentAccount.update({
       where: { id: child.parentAccountId },
       data: { lastActiveChildId: childId },

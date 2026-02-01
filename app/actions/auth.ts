@@ -35,3 +35,38 @@ export async function isGoogleAuthenticated(): Promise<boolean> {
   const session = await getAuthSession();
   return !!session?.user?.email;
 }
+
+export async function startAnonymousSession() {
+  const { cookies } = await import('next/headers');
+  const { redirect } = await import('next/navigation');
+  const cookieStore = await cookies();
+  let deviceId = cookieStore.get('deviceId')?.value;
+
+  // FALLBACK: If middleware hasn't set it yet, set it here
+  if (!deviceId) {
+    deviceId = crypto.randomUUID();
+    cookieStore.set('deviceId', deviceId, {
+      maxAge: 60 * 60 * 24 * 365,
+      path: '/',
+      httpOnly: true,
+      sameSite: 'lax',
+    });
+  }
+
+  const parentAccount = await prisma.parentAccount.findUnique({
+    where: { deviceId } as any,
+  });
+
+  // If it's a Google account, force a NEW deviceId for anonymous learning
+  if (parentAccount && !(parentAccount as any).isAnonymous) {
+    const newDeviceId = crypto.randomUUID();
+    cookieStore.set('deviceId', newDeviceId, {
+      maxAge: 60 * 60 * 24 * 365,
+      path: '/',
+      httpOnly: true,
+      sameSite: 'lax',
+    });
+  }
+
+  redirect('/');
+}

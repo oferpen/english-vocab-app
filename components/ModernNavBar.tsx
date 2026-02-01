@@ -6,8 +6,10 @@ import { signOut } from 'next-auth/react';
 import Image from 'next/image';
 import {
     Zap, Star, LogOut, Shield, Map, Trophy, Users, Book,
-    Settings, User as UserIcon
+    Settings, User as UserIcon, Plus, ChevronDown
 } from 'lucide-react';
+import { setActiveChild } from '@/app/actions/children';
+import { useRouter } from 'next/navigation';
 
 interface ModernNavBarProps {
     childName: string;
@@ -15,6 +17,7 @@ interface ModernNavBarProps {
     level: number;
     streak: number;
     xp: number;
+    allChildren?: any[];
     onOpenParentGate?: () => void;
 }
 
@@ -24,18 +27,34 @@ export default function ModernNavBar({
     level,
     streak,
     xp,
+    allChildren = [],
     onOpenParentGate
 }: ModernNavBarProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const router = useRouter();
 
     const handleParentClick = (e: React.MouseEvent) => {
         e.preventDefault();
         if (onOpenParentGate) {
             onOpenParentGate();
         } else {
-            // Fallback if no gate handler (though there should be)
             window.location.href = '/parent';
         }
+    };
+
+    const handleSwitchChild = async (id: string) => {
+        try {
+            await setActiveChild(id);
+            setIsMenuOpen(false);
+            router.refresh();
+        } catch (error) {
+            console.error('Error switching child:', error);
+        }
+    };
+
+    const handleSignOut = async () => {
+        console.log('[ModernNavBar] signOut clicked');
+        await signOut({ callbackUrl: '/?loggedOut=true' });
     };
 
     return (
@@ -77,36 +96,84 @@ export default function ModernNavBar({
                         אזור הורים
                     </Link>
 
-                    <div className="relative group">
+                    <div className="relative">
                         <button
-                            className="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full hover:bg-neutral-100 border border-transparent hover:border-neutral-200 transition-all"
+                            className="flex items-center gap-2 pl-3 pr-1 py-1 rounded-full bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 transition-all group active:scale-95"
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                         >
-                            <span className="font-black text-neutral-700">{childName}</span>
-                            <div className="w-9 h-9 bg-neutral-200 rounded-full flex items-center justify-center shadow-sm border border-white ring-2 ring-neutral-50 relative overflow-hidden">
+                            <span className="font-black text-neutral-700 text-sm">{childName}</span>
+                            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm ring-2 ring-white overflow-hidden relative border border-neutral-100">
                                 {avatar ? (
                                     (avatar.startsWith('/') || avatar.startsWith('http')) ? (
                                         <Image src={avatar} alt={childName} fill className="object-cover" />
                                     ) : (
-                                        <span className="text-xl">{avatar}</span>
+                                        <span className="text-lg">{avatar}</span>
                                     )
                                 ) : (
-                                    <UserIcon className="w-5 h-5 text-neutral-500" />
+                                    <UserIcon className="w-4 h-4 text-neutral-500" />
                                 )}
                             </div>
+                            <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform duration-300 ${isMenuOpen ? 'rotate-180' : ''}`} />
                         </button>
 
                         {/* Dropdown Menu */}
-                        <div className={`absolute left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden transition-all duration-200 origin-top-left ${isMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
-                            <div className="py-1">
-                                <button
-                                    onClick={() => signOut({ callbackUrl: '/' })}
-                                    className="w-full text-right px-4 py-3 text-sm font-bold text-danger-600 hover:bg-danger-50 flex items-center gap-2 transition-colors"
-                                >
-                                    <LogOut className="w-4 h-4" /> התנתק
-                                </button>
+                        {isMenuOpen && (
+                            <div className="absolute left-0 mt-3 w-64 bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-neutral-100 overflow-hidden z-50 animate-in fade-in zoom-in duration-200">
+                                <div className="p-2 border-b border-neutral-50 bg-neutral-50/50">
+                                    <span className="text-[10px] font-black text-neutral-400 uppercase tracking-widest px-3">החחלף פרופיל</span>
+                                </div>
+                                <div className="p-1.5 space-y-1">
+                                    {allChildren.map((child) => (
+                                        <button
+                                            key={child.id}
+                                            onClick={() => handleSwitchChild(child.id)}
+                                            className={`w-full flex items-center justify-between p-2.5 rounded-xl transition-all ${child.name === childName ? 'bg-indigo-50 border border-indigo-100' : 'hover:bg-neutral-50'}`}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm border border-neutral-100 overflow-hidden relative">
+                                                    {child.avatar ? (
+                                                        (child.avatar.startsWith('/') || child.avatar.startsWith('http')) ? (
+                                                            <Image src={child.avatar} alt={child.name} fill className="object-cover" />
+                                                        ) : (
+                                                            <span className="text-xl">{child.avatar}</span>
+                                                        )
+                                                    ) : (
+                                                        <UserIcon className="w-5 h-5 text-neutral-400" />
+                                                    )}
+                                                </div>
+                                                <div className="text-right">
+                                                    <div className={`font-black text-sm ${child.name === childName ? 'text-indigo-600' : 'text-neutral-700'}`}>{child.name}</div>
+                                                    <div className="text-[10px] text-neutral-400 font-bold">דרגה {child.level || 1}</div>
+                                                </div>
+                                            </div>
+                                            {child.name === childName && (
+                                                <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                                            )}
+                                        </button>
+                                    ))}
+
+                                    <Link
+                                        href="/parent"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-emerald-50 text-emerald-600 transition-all group"
+                                    >
+                                        <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm border border-emerald-100 group-hover:border-emerald-200">
+                                            <Plus className="w-5 h-5" />
+                                        </div>
+                                        <span className="font-black text-sm">פרופיל חדש</span>
+                                    </Link>
+                                </div>
+
+                                <div className="p-1.5 border-t border-neutral-100 bg-neutral-50/20">
+                                    <button
+                                        onClick={handleSignOut}
+                                        className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-red-50 text-red-500 transition-all font-bold text-sm"
+                                    >
+                                        <LogOut className="w-5 h-5" /> התנתק
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </nav>
@@ -128,8 +195,82 @@ export default function ModernNavBar({
                     </div>
                 </div>
 
-                <div className="w-8"></div> {/* Spacer to center stats roughly */}
+                {/* Mobile Profile Switcher Trigger */}
+                <button
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    className="w-9 h-9 bg-neutral-50 rounded-full flex items-center justify-center border border-neutral-200 active:scale-90 transition-transform overflow-hidden relative"
+                >
+                    {avatar ? (
+                        (avatar.startsWith('/') || avatar.startsWith('http')) ? (
+                            <Image src={avatar} alt={childName} fill className="object-cover" />
+                        ) : (
+                            <span className="text-xl">{avatar}</span>
+                        )
+                    ) : (
+                        <UserIcon className="w-5 h-5 text-neutral-500" />
+                    )}
+                </button>
             </nav>
+
+            {/* Mobile Profile Menu Overlay */}
+            {isMenuOpen && (
+                <div className="md:hidden fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-[3rem] p-6 shadow-2xl animate-in slide-in-from-bottom duration-500 max-h-[80vh] overflow-y-auto">
+                        <div className="w-12 h-1.5 bg-neutral-200 rounded-full mx-auto mb-8"></div>
+
+                        <h2 className="text-xl font-black text-neutral-800 text-center mb-8">מי לומד עכשיו?</h2>
+
+                        <div className="grid grid-cols-2 gap-4 mb-8">
+                            {allChildren.map((child) => (
+                                <button
+                                    key={child.id}
+                                    onClick={() => handleSwitchChild(child.id)}
+                                    className={`flex flex-col items-center gap-3 p-5 rounded-[2.5rem] transition-all active:scale-95 ${child.name === childName ? 'bg-indigo-50 border-2 border-indigo-200 shadow-lg shadow-indigo-100' : 'bg-neutral-50 border-2 border-transparent'}`}
+                                >
+                                    <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-md border border-neutral-100 overflow-hidden relative">
+                                        {child.avatar ? (
+                                            (child.avatar.startsWith('/') || child.avatar.startsWith('http')) ? (
+                                                <Image src={child.avatar} alt={child.name} fill className="object-cover" />
+                                            ) : (
+                                                <span className="text-4xl">{child.avatar}</span>
+                                            )
+                                        ) : (
+                                            <UserIcon className="w-10 h-10 text-neutral-400" />
+                                        )}
+                                    </div>
+                                    <span className={`font-black text-lg ${child.name === childName ? 'text-indigo-600' : 'text-neutral-700'}`}>{child.name}</span>
+                                </button>
+                            ))}
+
+                            <Link
+                                href="/parent"
+                                onClick={() => setIsMenuOpen(false)}
+                                className="flex flex-col items-center gap-3 p-5 rounded-[2.5rem] bg-emerald-50 border-2 border-emerald-100 transition-all active:scale-95"
+                            >
+                                <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-md border border-emerald-50">
+                                    <Plus className="w-10 h-10 text-emerald-500" />
+                                </div>
+                                <span className="font-black text-lg text-emerald-600">פרופיל חדש</span>
+                            </Link>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <button
+                                onClick={() => setIsMenuOpen(false)}
+                                className="py-4 px-6 bg-neutral-100 rounded-2xl font-black text-neutral-600 active:scale-95 transition-transform"
+                            >
+                                ביטול
+                            </button>
+                            <button
+                                onClick={handleSignOut}
+                                className="py-4 px-6 bg-red-50 text-red-600 rounded-2xl font-black active:scale-95 transition-transform"
+                            >
+                                התנתק
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Mobile Bottom Nav */}
             <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-neutral-100 z-50 h-16 flex md:hidden items-center justify-around pb-safe">
@@ -153,7 +294,7 @@ export default function ModernNavBar({
                 </Link>
 
                 <button
-                    onClick={() => signOut({ callbackUrl: '/' })}
+                    onClick={handleSignOut}
                     className="flex flex-col items-center justify-center w-full h-full text-neutral-400 hover:text-danger-500 transition-all active:scale-90"
                 >
                     <LogOut className="w-6 h-6 mb-0.5" />

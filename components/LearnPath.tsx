@@ -19,6 +19,8 @@ interface LearnPathProps {
   levelState?: any; // Optional - if provided, don't fetch it again
   progress?: any[]; // Optional - if provided, don't fetch it again
   allWords?: any[]; // Optional - if provided, don't fetch words again
+  letters?: any[]; // Optional - if provided, don't fetch letters again
+  letterProgress?: any[]; // Optional - if provided, don't fetch letter progress again
 }
 
 interface PathSection {
@@ -40,7 +42,14 @@ interface PathLesson {
   locked: boolean;
 }
 
-export default function LearnPath({ childId, levelState: propLevelState, progress: propProgress, allWords: propAllWords }: LearnPathProps) {
+export default function LearnPath({
+  childId,
+  levelState: propLevelState,
+  progress: propProgress,
+  allWords: propAllWords,
+  letters: propLetters,
+  letterProgress: propLetterProgress
+}: LearnPathProps) {
   const router = useRouter();
   const [sections, setSections] = useState<PathSection[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,8 +64,8 @@ export default function LearnPath({ childId, levelState: propLevelState, progres
   const getCategoryHebrewName = (category: string): string => {
     const categoryMap: Record<string, string> = {
       'Starter': 'מילים בסיסיות',
-      'Starter A': 'מילים בסיסיות א',
-      'Starter B': 'מילים בסיסיות ב',
+      'Starter A': 'מילים בסיסיות 1',
+      'Starter B': 'מילים בסיסיות 2',
       'Home': 'בית',
       'School': 'בית ספר',
       'Animals': 'חיות',
@@ -187,10 +196,15 @@ export default function LearnPath({ childId, levelState: propLevelState, progres
       const pathSections: PathSection[] = [];
 
       // Level 1: Letters & Starter Words
-      let letters: any[] = [];
-      let letterProgress: any[] = [];
-      try { letters = await getAllLetters(); } catch { }
-      try { letterProgress = await getAllLetterProgress(childId); } catch { }
+      let letters: any[] = propLetters || [];
+      let letterProgress: any[] = propLetterProgress || [];
+
+      if (!propLetters) {
+        try { letters = await getAllLetters(); } catch { }
+      }
+      if (!propLetterProgress) {
+        try { letterProgress = await getAllLetterProgress(childId); } catch { }
+      }
       const letterProgressMap = new Map(letterProgress.map((lp: any) => [lp.letterId, lp]));
 
       pathSections.push({
@@ -198,7 +212,7 @@ export default function LearnPath({ childId, levelState: propLevelState, progres
         title: 'אותיות A-Z',
         color: 'teal',
         unlocked: true,
-        completed: letters.length > 0 && letters.every((l: any) => letterProgressMap.get(l.id)?.mastered),
+        completed: letterProgress.filter((p: any) => p.mastered).length >= 20,
         level: 1,
         lessons: letters.map((letter: any, index: number) => ({
           id: `letter-${letter.id}`,
@@ -255,12 +269,15 @@ export default function LearnPath({ childId, levelState: propLevelState, progres
             locked: false
           }));
 
+          const masteredCount = lessons.filter(l => l.completed).length;
+          const isCategoryCompleted = lessons.length > 0 && (masteredCount / lessons.length) >= 0.6;
+
           pathSections.push({
             id: `words-${lvl}-${cat}`,
             title: getCategoryHebrewName(cat),
             color: cat.startsWith('Starter') ? 'blue' : colors[(idx + colorShift) % colors.length],
             unlocked: true,
-            completed: lessons.every(l => l.completed),
+            completed: isCategoryCompleted,
             level: lvl,
             lessons
           });
@@ -411,9 +428,9 @@ export default function LearnPath({ childId, levelState: propLevelState, progres
 
                       {/* Completion Reward Icon (Pinned to node) */}
                       {isCompleted && (
-                        <div className="absolute -top-1 -right-1 z-20">
-                          <div className="bg-amber-400 rounded-full p-2 shadow-lg border-4 border-white">
-                            <Crown className="w-5 h-5 text-white fill-white" />
+                        <div className="absolute -top-2 -right-2 z-20 animate-bounce-subtle">
+                          <div className="bg-gradient-to-br from-amber-300 via-amber-400 to-amber-600 rounded-full p-2 shadow-[0_4px_15px_rgba(251,191,36,0.4)] border-4 border-white">
+                            <Trophy className="w-6 h-6 text-white fill-white/20" />
                           </div>
                         </div>
                       )}

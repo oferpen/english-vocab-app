@@ -3,6 +3,8 @@ import { getLevelState } from '@/app/actions/levels';
 import { getAllProgress } from '@/app/actions/progress';
 import { getStreak } from '@/app/actions/streak';
 import { getAllWords } from '@/app/actions/words';
+import { getAllChildren } from '@/app/actions/children';
+import { getAllLetters, getAllLetterProgress } from '@/app/actions/letters';
 import LearnPath from '@/components/LearnPath';
 import GoogleSignIn from '@/components/auth/GoogleSignIn';
 import ModernNavBar from '@/components/ModernNavBar';
@@ -26,6 +28,7 @@ export default async function LearnPathPage() {
     let progress: any[] = [];
     let streak = 0;
     let allWords: any[] = [];
+    let allChildren: any[] = [];
 
     try {
       levelState = await getLevelState(child.id);
@@ -35,12 +38,29 @@ export default async function LearnPathPage() {
     }
 
     try {
-      // Fetch progress, streak, and all words in parallel
-      [progress, streak, allWords] = await Promise.all([
+      // Fetch progress, streak, all words, all children, letters and letter progress in parallel
+      const [
+        progressRes,
+        streakRes,
+        allWordsRes,
+        allChildrenRes,
+        lettersRes,
+        letterProgressRes
+      ] = await Promise.all([
         getAllProgress(child.id),
         getStreak(child.id),
-        getAllWords(), // Fetch all words without level filter
+        getAllWords(),
+        getAllChildren(),
+        getAllLetters(),
+        getAllLetterProgress(child.id),
       ]);
+
+      progress = progressRes;
+      streak = streakRes;
+      allWords = allWordsRes;
+      allChildren = allChildrenRes;
+      const letters = lettersRes;
+      const letterProgress = letterProgressRes;
 
       // Debug logging
       const starterWords = allWords.filter((w: any) => (w.category === 'Starter' || w.category?.startsWith('Starter')) && w.level === 1);
@@ -49,47 +69,39 @@ export default async function LearnPathPage() {
         streak,
         allWordsCount: allWords.length,
         starterWordsCount: starterWords.length,
-        sampleStarterWords: starterWords.slice(0, 3).map((w: any) => ({
-          word: w.englishWord,
-          category: w.category,
-          level: w.level
-        })),
-        allWordsSample: allWords.slice(0, 3).map((w: any) => ({
-          word: w.englishWord,
-          category: w.category,
-          level: w.level,
-          hasCategory: !!w.category
-        }))
       });
-    } catch (error: any) {
-      console.error('Error loading progress/streak/words:', error);
-      // Use defaults - empty arrays/0
-    }
 
-    return (
-      <div className="min-h-screen bg-neutral-50">
-        <ModernNavBar
-          childName={child.name}
-          avatar={child.avatar || ''}
-          level={levelState.level}
-          streak={streak}
-          xp={levelState.xp}
-        />
-        <div className="max-w-2xl mx-auto bg-white min-h-screen pt-16 pb-20 md:pb-8 shadow-sm">
-          <LearnPath childId={child.id} levelState={levelState} progress={progress} allWords={allWords} />
+      return (
+        <div className="min-h-screen bg-neutral-50">
+          <ModernNavBar
+            childName={child.name}
+            avatar={child.avatar || ''}
+            level={levelState.level}
+            streak={streak}
+            xp={levelState.xp}
+            allChildren={allChildren}
+          />
+          <div className="max-w-2xl mx-auto bg-white min-h-screen pt-16 pb-20 md:pb-8 shadow-sm">
+            <LearnPath
+              childId={child.id}
+              levelState={levelState}
+              progress={progress}
+              allWords={allWords}
+              letters={letters}
+              letterProgress={letterProgress}
+            />
+          </div>
         </div>
-      </div>
-    );
+      );
+    } catch (innerError) {
+      console.error('Error fetching data in LearnPathPage:', innerError);
+      throw innerError;
+    }
   } catch (error: any) {
-    // Log error and return a safe fallback UI
-    console.error('Error rendering LearnPathPage:', error);
-    return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-lg text-neutral-600">שגיאה בטעינת הדף</p>
-          <p className="text-sm text-neutral-500 mt-2">נסה לרענן את הדף</p>
-        </div>
-      </div>
-    );
+    if (error?.message?.includes('NEXT_REDIRECT')) {
+      throw error;
+    }
+    console.error('Error in LearnPathPage:', error);
+    return <GoogleSignIn />;
   }
 }

@@ -19,16 +19,31 @@ function loadWords(file: string) {
 }
 
 function createWordKey(word: { englishWord: string; category: string }): string {
-  return `${word.category}:${word.englishWord}`;
+  return `${(word.category || 'Uncategorized').toLowerCase()}:${word.englishWord.toLowerCase()}`;
 }
 
 const localWords = loadWords(localFile);
 const productionWords = loadWords(productionFile);
 
-console.log('🔍 Comparing word exports...\n');
+console.log('🔍 Comparing word exports (Case-Insensitive)...\n');
 console.log(`Local:      ${localWords.length} words`);
 console.log(`Production: ${productionWords.length} words`);
 console.log(`Difference: ${productionWords.length - localWords.length} words\n`);
+
+// Category Summary
+const localCats = [...new Set(localWords.map((w: any) => w.category || 'Uncategorized'))].sort();
+const prodCats = [...new Set(productionWords.map((w: any) => w.category || 'Uncategorized'))].sort();
+
+console.log('📁 Category Breakdown:');
+console.log('-'.repeat(40));
+const allCats = [...new Set([...localCats, ...prodCats])].sort();
+allCats.forEach(cat => {
+  const localCount = localWords.filter((w: any) => (w.category || 'Uncategorized') === cat).length;
+  const prodCount = productionWords.filter((w: any) => (w.category || 'Uncategorized') === cat).length;
+  const diff = prodCount - localCount;
+  console.log(`${cat.padEnd(20)} | Local: ${String(localCount).padStart(3)} | Prod: ${String(prodCount).padStart(3)} | Diff: ${diff > 0 ? '+' : ''}${diff}`);
+});
+console.log('\n');
 
 // Create maps
 const localMap = new Map(localWords.map((w: any) => [createWordKey(w), w]));

@@ -14,12 +14,15 @@ model ParentAccount {
   googleId          String?        @unique
   name              String?
   image             String?
+  isAnonymous       Boolean        @default(false)
+  deviceId          String?        @unique
   createdAt         DateTime       @default(now())
   lastActiveChildId String?
   settingsJson      String         @default("{}")
   children          ChildProfile[]
 
   @@map("parent_accounts")
+  @@index([deviceId])
 }
 
 model ChildProfile {

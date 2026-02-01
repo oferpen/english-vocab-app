@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import { getAllProgress } from '@/app/actions/progress';
 import { getStreak } from '@/app/actions/streak';

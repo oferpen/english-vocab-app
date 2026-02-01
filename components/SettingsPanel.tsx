@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import { getSettings, updateSettings } from '@/app/actions/settings';
 import { useRouter } from 'next/navigation';

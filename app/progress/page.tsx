@@ -1,4 +1,4 @@
-import { getCurrentChild } from '@/lib/auth-nextauth';
+import { getCurrentUser } from '@/lib/auth';
 import { getAllProgress } from '@/app/actions/progress';
 import { getStreak } from '@/app/actions/streak';
 import { getLevelState, getXPForNextLevel, getXPForLevel } from '@/app/actions/levels';
@@ -11,16 +11,16 @@ import PageHeader from '@/components/PageHeader';
 export const dynamic = 'force-dynamic';
 
 export default async function ProgressPage() {
-  const child = await getCurrentChild();
-  
-  if (!child) {
+  const user = await getCurrentUser();
+
+  if (!user) {
     return <GoogleSignIn />;
   }
 
-  const progress = await getAllProgress(child.id);
-  const streak = await getStreak(child.id);
-  const levelState = await getLevelState(child.id);
-  const missions = await getAllMissions(child.id);
+  const progress = await getAllProgress(user.id);
+  const streak = await getStreak(user.id);
+  const levelState = await getLevelState(user.id);
+  const missions = await getAllMissions(user.id);
 
   const masteredWords = progress.filter((p) => p.masteryScore >= 80).length;
   const totalLearned = progress.filter((p) => p.timesSeenInLearn > 0).length;
@@ -28,13 +28,13 @@ export default async function ProgressPage() {
 
   // Track words learned today by lastSeenAt date (daily plans removed)
   const todayLearned = progress.filter((p) => {
-    return p.lastSeenAt && 
-           new Date(p.lastSeenAt).toISOString().split('T')[0] === new Date().toISOString().split('T')[0];
+    return p.lastSeenAt &&
+      new Date(p.lastSeenAt).toISOString().split('T')[0] === new Date().toISOString().split('T')[0];
   }).length;
 
   const xpForNext = await getXPForNextLevel(levelState.level);
   const xpForCurrent = await getXPForLevel(levelState.level);
-  const xpProgress = levelState.level < 10 
+  const xpProgress = levelState.level < 10
     ? ((levelState.xp - xpForCurrent) / (xpForNext - xpForCurrent)) * 100
     : 100;
 
@@ -43,9 +43,9 @@ export default async function ProgressPage() {
       <BottomNav />
       <div className="pt-16 md:pt-20">
         <div className="max-w-2xl mx-auto bg-white min-h-screen">
-          <PageHeader title="התקדמות" childName={child.name} avatar={child.avatar} currentChildId={child.id} />
+          <PageHeader title="התקדמות" name={user.name || 'Student'} avatar={user.avatar || user.image} userId={user.id} />
           <ProgressDisplay
-            child={child}
+            child={user}
             progress={progress}
             streak={streak}
             levelState={levelState}

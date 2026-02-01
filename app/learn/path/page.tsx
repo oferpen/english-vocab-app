@@ -70,7 +70,7 @@ export default async function LearnPathPage() {
         <div className="min-h-screen bg-neutral-50">
           <ModernNavBar
             name={user.name || 'User'}
-            avatar={user.avatar || undefined}
+            avatar={user.avatar || user.image || '👶'}
             level={levelState.level}
             streak={streak}
             xp={levelState.xp}

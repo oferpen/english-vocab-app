@@ -8,7 +8,7 @@ This document provides essential context and instructions for AI agents working 
 - **React**: Version 19.2.4
 - **Database**: Prisma (PostgreSQL in production, SQLite locally)
 - **Auth**: NextAuth.js (Google Provider) + Anonymous Session Management
-- **Styling**: Tailwind CSS (Vibrant Kids-First Theme)
+- **Styling**: Tailwind CSS + "Extreme Aesthetic" (Neon Glassmorphism)
 - **State Management**: Zustand (for client-side UI state)
 
 ## 🔐 Authentication & Identity (Single User Model)
@@ -33,6 +33,8 @@ This app uses a simplified identity system:
 3.  **Strict Level Filtering**: When fetching words by category, ALWAYS include the `level` parameter to prevent cross-level word contamination.
 4.  **Simplified State**: No more switching between child profiles. The logged-in user *is* the learner.
 5.  **Revalidation**: Call `revalidatePath` from Server Actions ONLY. Never call it directly in client components.
+6.  **Hydration Safety**: Move all non-deterministic logic (e.g., `Math.random()`, window offsets) into `useEffect` hooks to prevent hydration mismatches.
+7.  **CSS Stability**: For complex shadows, multi-step gradients, or backdrop filters, use **pure CSS** in `globals.css` instead of Tailwind `@apply` to ensure PostCSS/Turbopack compatibility.
 
 ## 🛠️ Common Commands
 - `npm run build`: Full production build (Prisma generate + DB push + Next build).
@@ -44,7 +46,8 @@ This app uses a simplified identity system:
 - **Safe Global Imports**: Import `randomUUID` from `'crypto'`.
 - **Redirects**: Rethrow `NEXT_REDIRECT` errors in client components.
 - **No Legacy Models**: Do NOT use `ParentAccount` or `ChildProfile`. Use `User` everywhere.
-- **Styling Stability**: Avoid `styled-jsx` in client components due to Turbopack incompatibilities. Use standard `<style dangerouslySetInnerHTML={{ __html: ... }} />` for dynamic CSS.
+- **Styling Stability**: Avoid complex arbitrary Tailwind values in `globals.css` (e.g., `shadow-[rgba(...)]`). Standardize with pure CSS to prevent build failures.
+- **Contrast Awareness**: When using `.glass-premium` or `.glass-card`, prioritize `text-neutral-800` for readability. Avoid light text on light glass.
 
 ---
 *Created to ensure seamless collaboration between agents. Last updated: February 2026*

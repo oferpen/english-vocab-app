@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { signOut } from 'next-auth/react';
 import Image from 'next/image';
 import {
-    Zap, Star, LogOut, Book, User as UserIcon, ChevronDown
+    Zap, Star, LogOut, Book, User as UserIcon, ChevronDown, Sparkles
 } from 'lucide-react';
 
 interface ModernNavBarProps {
@@ -26,35 +26,34 @@ export default function ModernNavBar({
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const handleSignOut = async () => {
-        console.log('[ModernNavBar] signOut clicked');
         await signOut({ callbackUrl: '/?loggedOut=true' });
     };
 
     return (
         <>
             {/* Desktop Sticky Top Bar */}
-            <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-gray-200 z-50 h-16 hidden md:flex items-center justify-between px-4 lg:px-8 shadow-sm transition-all duration-300">
+            <nav className="fixed top-0 left-0 right-0 glass-premium !overflow-visible z-[100] h-20 hidden md:flex items-center justify-between px-8 lg:px-12 transition-all duration-500 shadow-2xl shadow-primary-500/10">
 
                 {/* Left: Logo/Brand */}
-                <Link href="/learn/path" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                    <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center shadow-sm border border-primary-200">
-                        <span className="text-2xl">🦉</span>
+                <Link href="/learn/path" className="flex items-center gap-4 hover:scale-105 transition-all duration-500 group">
+                    <div className="w-12 h-12 bg-gradient-to-br from-primary-400 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/30 group-hover:rotate-6 transition-transform">
+                        <Book className="w-7 h-7 text-white" />
                     </div>
-                    <span className="font-black text-2xl text-neutral-800 tracking-tight">English<span className="text-primary-500">Path</span></span>
+                    <span className="text-3xl font-black tracking-tighter text-white drop-shadow-lg">EnglishPath</span>
                 </Link>
 
                 {/* Center: Stats (Desktop) */}
                 <div className="flex items-center gap-6">
                     {/* Level/XP */}
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-accent-50 rounded-full border border-accent-200 hover:bg-accent-100 transition-colors cursor-help" title={`רמה ${level} - ${xp} נקודות`}>
-                        <Star className="w-5 h-5 text-accent-500 fill-accent-500" />
-                        <span className="font-black text-accent-700">{xp}</span>
+                    <div className="flex items-center gap-3 px-5 py-2.5 glass-card rounded-2xl border-white/40 hover:scale-105 transition-all duration-300 group cursor-help glow-accent" title={`רמה ${level} - ${xp} נקודות`}>
+                        <Star className="w-6 h-6 text-accent-400 fill-accent-400 group-hover:rotate-12 transition-transform" />
+                        <span className="font-black text-neutral-800 text-lg drop-shadow-sm">{xp}</span>
                     </div>
 
                     {/* Streak */}
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-accent-100/50 rounded-full border border-accent-200 hover:bg-accent-100 transition-colors cursor-help" title={`${streak} ימים ברציפות!`}>
-                        <Zap className="w-5 h-5 text-accent-600 fill-accent-600" />
-                        <span className="font-black text-accent-600">{streak}</span>
+                    <div className="flex items-center gap-3 px-5 py-2.5 glass-card rounded-2xl border-white/40 hover:scale-105 transition-all duration-300 group cursor-help glow-primary" title={`${streak} ימים ברציפות!`}>
+                        <Zap className="w-6 h-6 text-primary-400 fill-primary-400 group-hover:animate-pulse" />
+                        <span className="font-black text-neutral-800 text-lg drop-shadow-sm">{streak}</span>
                     </div>
                 </div>
 
@@ -69,7 +68,7 @@ export default function ModernNavBar({
                             <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm ring-2 ring-white overflow-hidden relative border border-neutral-100">
                                 {avatar ? (
                                     (avatar.startsWith('/') || avatar.startsWith('http')) ? (
-                                        <Image src={avatar} alt={name} fill className="object-cover" />
+                                        <Image src={avatar} alt={name} fill sizes="32px" className="object-cover" />
                                     ) : (
                                         <span className="text-lg">{avatar}</span>
                                     )
@@ -98,19 +97,19 @@ export default function ModernNavBar({
             </nav>
 
             {/* Mobile Top Bar (Stats & Logo) */}
-            <nav className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md border-b border-neutral-100 z-50 h-14 flex md:hidden items-center justify-between px-4 shadow-sm">
-                <div className="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center">
-                    <Book className="w-5 h-5 text-primary-600" />
+            <nav className="fixed top-0 left-0 right-0 glass-premium !overflow-visible z-[100] h-16 flex md:hidden items-center justify-between px-4 transition-all duration-500 shadow-2xl">
+                <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
+                    <Book className="w-6 h-6 text-white" />
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1.5 bg-accent-50 px-2.5 py-1 rounded-full border border-accent-200 shadow-sm">
-                        <Star className="w-4 h-4 text-accent-500 fill-accent-500" />
-                        <span className="font-black text-sm text-accent-700">{xp}</span>
+                    <div className="flex items-center gap-2 px-3 py-1.5 glass-card rounded-xl glow-primary">
+                        <Sparkles className="w-4 h-4 text-primary-400" />
+                        <span className="font-black text-neutral-800 text-sm">{level}</span>
                     </div>
-                    <div className="flex items-center gap-1.5 bg-accent-100/50 px-2.5 py-1 rounded-full border border-accent-200 shadow-sm">
-                        <Zap className="w-4 h-4 text-accent-600 fill-accent-600" />
-                        <span className="font-black text-sm text-accent-600">{streak}</span>
+                    <div className="flex items-center gap-2 px-3 py-1.5 glass-card rounded-xl glow-accent">
+                        <Star className="w-4 h-4 text-accent-400 fill-accent-400" />
+                        <span className="font-black text-neutral-800 text-sm">{xp}</span>
                     </div>
                 </div>
 
@@ -121,7 +120,7 @@ export default function ModernNavBar({
                 >
                     {avatar ? (
                         (avatar.startsWith('/') || avatar.startsWith('http')) ? (
-                            <Image src={avatar} alt={name} fill className="object-cover" />
+                            <Image src={avatar} alt={name} fill sizes="36px" className="object-cover" />
                         ) : (
                             <span className="text-xl">{avatar}</span>
                         )
@@ -158,7 +157,7 @@ export default function ModernNavBar({
             )}
 
             {/* Mobile Bottom Nav */}
-            <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-neutral-100 z-50 h-16 flex md:hidden items-center justify-around pb-safe">
+            <nav className="fixed bottom-0 left-0 right-0 glass-premium z-50 h-16 flex md:hidden items-center justify-around pb-safe">
                 <Link href="/learn/path" className="flex flex-col items-center justify-center w-full h-full text-primary-600 transition-all active:scale-90">
                     <Book className="w-6 h-6 mb-0.5" />
                     <span className="text-[10px] font-black tracking-tight">הרפתקה</span>

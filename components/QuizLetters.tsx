@@ -3,19 +3,18 @@
 import { useState, useEffect, useTransition, useRef } from 'react';
 import { getAllLetters, markLetterSeen } from '@/app/actions/letters';
 import { addXP } from '@/app/actions/levels';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Confetti from './Confetti';
 import CelebrationScreen from './CelebrationScreen';
 import { playSuccessSound, playFailureSound } from '@/lib/sounds';
-import { Volume2, SkipBack, CheckCircle2, XCircle, X, Check } from 'lucide-react';
+import { Volume2, CheckCircle2, XCircle } from 'lucide-react';
 
 interface QuizLettersProps {
     userId: string;
     onModeSwitch?: (mode: 'learn' | 'quiz') => void;
 }
 
-export default function QuizLetters({ userId, onModeSwitch }: QuizLettersProps) {
-    const searchParams = useSearchParams();
+export default function QuizLetters({ userId }: QuizLettersProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [questions, setQuestions] = useState<any[]>([]);
     const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -23,59 +22,36 @@ export default function QuizLetters({ userId, onModeSwitch }: QuizLettersProps) 
     const [showResult, setShowResult] = useState(false);
     const [isCorrect, setIsCorrect] = useState(false);
     const [retryUsed, setRetryUsed] = useState(false);
-    const [completed, setCompleted] = useState(false);
     const [score, setScore] = useState({ correct: 0, total: 0 });
     const [showConfetti, setShowConfetti] = useState(false);
     const [showCelebration, setShowCelebration] = useState(false);
     const [xpGained, setXpGained] = useState(0);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
-    const isGeneratingRef = useRef(false);
-    const continueButtonRef = useRef<HTMLButtonElement>(null);
+    const [tilt, setTilt] = useState({ x: 0, y: 0 });
     const router = useRouter();
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        setTilt({ x: x * 8, y: y * -8 });
+    };
+
+    const handleMouseLeave = () => {
+        setTilt({ x: 0, y: 0 });
+    };
 
     useEffect(() => {
         generateQuestions();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    useEffect(() => {
-        setSelectedAnswer(null);
-        setSelectedAnswerQuestionId(null);
-        setShowResult(false);
-        setIsCorrect(false);
-        setRetryUsed(false);
-    }, [currentIndex]);
-
-    useEffect(() => {
-        if (showResult && selectedAnswerQuestionId && continueButtonRef.current) {
-            setTimeout(() => {
-                continueButtonRef.current?.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'nearest',
-                });
-            }, 300);
-        }
-    }, [showResult, selectedAnswerQuestionId]);
+    }, [userId]);
 
     const generateQuestions = async () => {
-        if (isGeneratingRef.current) return;
-
         try {
-            isGeneratingRef.current = true;
             setLoading(true);
-            setError(null);
-
             const allLetters = await getAllLetters();
-            if (allLetters.length === 0) {
-                setError('אין אותיות זמינות לחידון.');
-                setLoading(false);
-                isGeneratingRef.current = false;
-                return;
-            }
+            if (allLetters.length === 0) return;
 
-            // Select 10 random letters for the quiz
             const shuffled = [...allLetters].sort(() => Math.random() - 0.5);
             const quizLetters = shuffled.slice(0, 10);
 
@@ -88,7 +64,6 @@ export default function QuizLetters({ userId, onModeSwitch }: QuizLettersProps) 
                 else if (type === 'LETTER_TO_HEBREW') correctAnswer = letter.hebrewName || '';
                 else correctAnswer = letter.letter || '';
 
-                // Generate wrong answers
                 const wrongAnswerPool = allLetters.filter(l => l.id !== letter.id);
                 const shuffledWrong = [...wrongAnswerPool].sort(() => Math.random() - 0.5);
 
@@ -116,26 +91,21 @@ export default function QuizLetters({ userId, onModeSwitch }: QuizLettersProps) 
             });
 
             setQuestions(questionList);
-            setLoading(false);
-            isGeneratingRef.current = false;
         } catch (err) {
-            console.error('Error generating questions:', err);
-            setError('שגיאה בטעינת החידון.');
+            console.error(err);
+        } finally {
             setLoading(false);
-            isGeneratingRef.current = false;
         }
     };
 
     const handleAnswerSelect = (answer: string) => {
-        const currentQuestionId = questions[currentIndex]?.letter.id;
-        if (showResult && selectedAnswerQuestionId === currentQuestionId) return;
+        if (showResult) return;
         setSelectedAnswer(answer);
-        setSelectedAnswerQuestionId(currentQuestionId);
+        setSelectedAnswerQuestionId(questions[currentIndex]?.letter.id);
     };
 
     const handleCheck = async () => {
         if (!selectedAnswer || showResult) return;
-
         const question = questions[currentIndex];
         const correct = selectedAnswer === question.correctAnswer;
         setIsCorrect(correct);
@@ -145,15 +115,10 @@ export default function QuizLetters({ userId, onModeSwitch }: QuizLettersProps) 
             playSuccessSound();
             setShowConfetti(true);
             setTimeout(() => setShowConfetti(false), 1000);
-            setScore(prev => ({ ...prev, correct: prev.correct + 1, total: prev.total + 1 }));
+            setScore(prev => ({ ...prev, correct: prev.correct + 1 }));
         } else {
             playFailureSound();
-            if (retryUsed) {
-                setScore(prev => ({ ...prev, total: prev.total + 1 }));
-            }
         }
-
-        if (!correct && !retryUsed) return;
 
         startTransition(async () => {
             await markLetterSeen(userId, question.letter.id, correct);
@@ -163,6 +128,10 @@ export default function QuizLetters({ userId, onModeSwitch }: QuizLettersProps) 
     const handleNext = async () => {
         if (currentIndex < questions.length - 1) {
             setCurrentIndex(prev => prev + 1);
+            setShowResult(false);
+            setSelectedAnswer(null);
+            setSelectedAnswerQuestionId(null);
+            setRetryUsed(false);
         } else {
             const xp = score.correct * 5;
             setXpGained(xp);
@@ -178,17 +147,6 @@ export default function QuizLetters({ userId, onModeSwitch }: QuizLettersProps) 
         setSelectedAnswerQuestionId(null);
     };
 
-    const handleSkip = () => {
-        if (showResult) return;
-        playFailureSound();
-        setScore(prev => ({ ...prev, total: prev.total + 1 }));
-        if (currentIndex < questions.length - 1) {
-            setCurrentIndex(prev => prev + 1);
-        } else {
-            setShowCelebration(true);
-        }
-    };
-
     const speakLetter = (text: string) => {
         if ('speechSynthesis' in window) {
             const utterance = new SpeechSynthesisUtterance(text);
@@ -200,23 +158,9 @@ export default function QuizLetters({ userId, onModeSwitch }: QuizLettersProps) 
 
     if (loading) {
         return (
-            <div className="p-8 text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-                <p className="text-xl text-neutral-600 font-bold">טוען חידון אותיות...</p>
-            </div>
-        );
-    }
-
-    if (error || questions.length === 0) {
-        return (
-            <div className="p-8 text-center">
-                <p className="text-xl text-red-600 mb-6 font-bold">{error || 'לא נמצאו אותיות לחידון'}</p>
-                <button
-                    onClick={() => router.push('/learn/path')}
-                    className="bg-primary-500 text-white px-8 py-4 rounded-2xl font-black shadow-lg shadow-primary-200"
-                >
-                    חזור למפה
-                </button>
+            <div className="p-10 text-center glass-premium rounded-3xl max-w-2xl mx-auto mt-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary-500 mx-auto"></div>
+                <p className="text-xl text-white font-black mt-4">מכין את החידון...</p>
             </div>
         );
     }
@@ -227,19 +171,13 @@ export default function QuizLetters({ userId, onModeSwitch }: QuizLettersProps) 
             <>
                 <Confetti trigger={showCelebration && percentage >= 70} />
                 <CelebrationScreen
-                    title="סיימת את חידון האותיות!"
+                    title="חידון אותיות הושלם!"
                     message={`${score.correct} מתוך ${questions.length} נכונים! קיבלת ${xpGained} נקודות נסיון!`}
                     emoji={percentage >= 70 ? '🎉' : '💪'}
                     showConfetti={showCelebration && percentage >= 70}
                     actionLabel="חזור למפה"
-                    onAction={() => {
-                        router.push('/learn/path');
-                        setTimeout(() => router.refresh(), 100);
-                    }}
-                    onClose={() => {
-                        router.push('/learn/path');
-                        setTimeout(() => router.refresh(), 100);
-                    }}
+                    onAction={() => router.push('/learn/path')}
+                    onClose={() => router.push('/learn/path')}
                 />
             </>
         );
@@ -250,128 +188,106 @@ export default function QuizLetters({ userId, onModeSwitch }: QuizLettersProps) 
     const isCurrentQuestionResult = showResult && selectedAnswerQuestionId === question.letter.id;
 
     return (
-        <>
-            <Confetti trigger={showConfetti} duration={1000} />
-            <div className="p-4 md:p-6 bg-neutral-50 animate-fade-in flex flex-col max-w-2xl mx-auto min-h-0">
-                {/* Progress Pill */}
-                <div className="mb-4 w-full flex items-center justify-between bg-white px-5 py-3 rounded-full shadow-sm border border-neutral-100">
-                    <div className="text-sm font-bold text-neutral-400">אות {currentIndex + 1} / {questions.length}</div>
-                    <div className="flex-1 mx-5 bg-neutral-100 rounded-full h-2.5 overflow-hidden">
-                        <div
-                            className="h-full bg-primary-500 rounded-full transition-all duration-700 ease-out"
-                            style={{ width: `${progress}%` }}
-                        />
-                    </div>
-                    <div className="text-sm font-bold text-primary-600">{Math.round(progress)}%</div>
-                </div>
+        <div className="p-4 md:p-8 animate-fade-in flex flex-col max-w-4xl mx-auto min-h-0 relative">
+            <div className="absolute top-40 -right-20 w-80 h-80 bg-accent-500/20 rounded-full blur-[100px] animate-blob mix-blend-screen" />
+            <div className="absolute bottom-40 -left-20 w-[30rem] h-[30rem] bg-primary-500/20 rounded-full blur-[120px] animate-blob delay-2000 mix-blend-screen" />
 
-                {/* Question Card */}
-                <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10 mb-4 border border-neutral-100 animate-slide-up flex-shrink-0 flex flex-col justify-between relative overflow-hidden">
-                    {!isCurrentQuestionResult && (
-                        <div className="absolute top-4 right-4">
-                            <button onClick={handleSkip} className="text-neutral-300 hover:text-primary-500 p-2"><SkipBack className="w-5 h-5" /></button>
-                        </div>
-                    )}
+            {/* Progress Header */}
+            <div className="glass-premium w-full rounded-full h-6 overflow-hidden shadow-2xl p-1.5 border-white/30 mb-8">
+                <div
+                    className="bg-gradient-to-r from-primary-400 via-purple-400 to-pink-500 h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(236,72,153,0.6)] animate-pulse"
+                    style={{ width: `${progress}%` }}
+                />
+            </div>
 
-                    <div className="flex-1">
-                        <div className="text-center mb-6">
-                            {question.type === 'LETTER_TO_NAME' && (
-                                <>
-                                    <h2 className="text-5xl md:text-7xl font-black mb-2 text-primary-600 tracking-tight leading-tight">{question.letter.letter}</h2>
-                                    <p className="text-xl md:text-2xl text-neutral-800 font-bold tracking-tight">איך מבטאים?</p>
-                                </>
-                            )}
-                            {question.type === 'LETTER_TO_HEBREW' && (
-                                <>
-                                    <h2 className="text-5xl md:text-7xl font-black mb-2 text-primary-600 tracking-tight leading-tight">{question.letter.letter}</h2>
-                                    <p className="text-xl md:text-2xl text-neutral-800 font-bold tracking-tight">איך היא נשמעת?</p>
-                                </>
-                            )}
-                            {question.type === 'AUDIO_TO_LETTER' && (
-                                <>
-                                    <div className="flex justify-center mb-6">
-                                        <button
-                                            onClick={() => speakLetter(question.letter.letter)}
-                                            className="w-20 h-20 rounded-2xl bg-primary-100 text-primary-600 flex items-center justify-center shadow-[0_6px_0_0_#e0e7ff] hover:translate-y-0.5 transition-all duration-200 active:translate-y-1 active:shadow-none"
-                                        >
-                                            <Volume2 className="w-10 h-10" />
-                                        </button>
-                                    </div>
-                                    <p className="text-xl md:text-2xl text-neutral-800 font-bold tracking-tight">איזו אות שמעת?</p>
-                                </>
-                            )}
-                        </div>
+            {/* Question Card (3D Tilt) */}
+            <div
+                className="relative perspective-2000 group mb-10"
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                style={{
+                    transform: `rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
+                    transition: 'transform 0.1s ease-out'
+                }}
+            >
+                <div className="glass-premium rounded-[3.5rem] p-12 md:p-20 border-white/30 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] flex-shrink-0 flex flex-col justify-between relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-primary-400 via-purple-500 to-pink-500 opacity-70" />
+                    <div className="text-center">
+                        {question.type === 'LETTER_TO_NAME' && (
+                            <h2 className="text-[10rem] font-black mb-4 text-white drop-shadow-[0_15px_30px_rgba(0,0,0,0.4)] text-shimmer leading-none">{question.letter.letter}</h2>
+                        )}
+                        {question.type === 'LETTER_TO_HEBREW' && (
+                            <h2 className="text-[10rem] font-black mb-4 text-white drop-shadow-[0_15px_30px_rgba(0,0,0,0.4)] text-shimmer leading-none">{question.letter.letter}</h2>
+                        )}
+                        {question.type === 'AUDIO_TO_LETTER' && (
+                            <div className="flex justify-center mb-10">
+                                <button
+                                    onClick={() => speakLetter(question.letter.letter)}
+                                    className="w-32 h-32 rounded-[3rem] bg-gradient-to-br from-primary-400 to-purple-600 text-white flex items-center justify-center shadow-2xl glow-primary hover:scale-110 active:scale-95 transition-all group"
+                                >
+                                    <Volume2 className="w-16 h-16 group-hover:animate-pulse" />
+                                </button>
+                            </div>
+                        )}
+                        <p className="text-3xl text-neutral-800 font-black mb-10 tracking-tight">
+                            {question.type === 'AUDIO_TO_LETTER' ? 'איזו אות שמעת?' : 'איך מבטאים?'}
+                        </p>
 
-                        <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-6">
                             {question.answers.map((answer: string, idx: number) => {
-                                let buttonClass = 'w-full py-4 rounded-xl text-lg md:text-2xl font-black border-2 transition-all duration-200 shadow-[0_1px_0_0_rgba(0,0,0,0.05)] active:translate-y-0.5 active:shadow-none ';
-
-                                if (isCurrentQuestionResult) {
-                                    if (answer === question.correctAnswer) buttonClass += 'bg-success-500 text-white border-success-600 shadow-[0_4px_0_0_#059669] scale-[1.01]';
-                                    else if (answer === selectedAnswer) buttonClass += 'bg-danger-500 text-white border-danger-600 shadow-[0_4px_0_0_#e11d48]';
-                                    else buttonClass += 'bg-white text-neutral-300 border-neutral-100 opacity-40 shadow-none';
+                                let buttonClass = 'py-6 rounded-3xl text-4xl font-black transition-all duration-300 border-2 ';
+                                if (showResult && selectedAnswerQuestionId === question.letter.id) {
+                                    if (answer === question.correctAnswer) buttonClass += 'bg-success-500 text-white border-white/40 shadow-success-200 scale-105 glow-primary ';
+                                    else if (answer === selectedAnswer) buttonClass += 'bg-danger-500 text-white border-white/40 opacity-80 ';
+                                    else buttonClass += 'bg-white/5 text-white/20 border-transparent ';
                                 } else {
-                                    const isSelected = selectedAnswer === answer && selectedAnswerQuestionId === question.letter.id;
-                                    buttonClass += isSelected ? 'bg-primary-100 text-primary-600 border-primary-500 shadow-[0_4px_0_0_#c7d2fe]' : 'bg-white text-neutral-600 border-neutral-100 hover:border-primary-200 hover:bg-neutral-50';
+                                    const isSelected = selectedAnswer === answer;
+                                    buttonClass += isSelected ? 'bg-primary-500 text-white border-white/40 glow-primary scale-105 ' : 'glass-card text-neutral-800 border-white/10 hover:border-white/40 ';
                                 }
-
                                 return (
-                                    <button
-                                        key={`ans-${idx}`}
-                                        onClick={() => handleAnswerSelect(answer)}
-                                        className={buttonClass}
-                                        disabled={isCurrentQuestionResult}
-                                    >
-                                        {answer}
-                                    </button>
+                                    <button key={idx} onClick={() => handleAnswerSelect(answer)} className={buttonClass}>{answer}</button>
                                 );
                             })}
                         </div>
+
+                        {isCurrentQuestionResult && (
+                            <div className="mt-10 animate-slide-up">
+                                {isCorrect ? (
+                                    <div className="p-5 glass-card border-success-500/50 rounded-2xl flex items-center justify-center gap-4 glow-primary">
+                                        <CheckCircle2 className="w-8 h-8 text-success-400" />
+                                        <p className="text-success-400 text-3xl font-black text-shimmer">מושלם! ✨</p>
+                                    </div>
+                                ) : (
+                                    <div className="p-5 glass-card border-danger-500/50 rounded-2xl flex items-center justify-center gap-4">
+                                        <XCircle className="w-8 h-8 text-danger-400" />
+                                        <p className="text-white text-2xl font-black">התשובה הנכונה: <span className="text-shimmer">{question.correctAnswer}</span></p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
-
-                    {isCurrentQuestionResult && (
-                        <div className="mt-1 animate-slide-up">
-                            {isCorrect ? (
-                                <div className="p-1.5 bg-success-50 border border-success-200 rounded-lg flex items-center justify-center gap-2">
-                                    <div className="bg-success-500 w-4 h-4 rounded-full flex items-center justify-center text-white shadow-sm"><CheckCircle2 className="w-3 h-3" /></div>
-                                    <p className="text-success-700 text-sm font-black tracking-tight">נכון! 🎉</p>
-                                </div>
-                            ) : !retryUsed ? (
-                                <div className="p-1.5 bg-accent-50 border border-accent-200 rounded-lg text-center space-y-0.5">
-                                    <p className="text-accent-800 text-sm font-black tracking-tight">לא נורא, נסה שוב</p>
-                                    <button onClick={handleRetry} className="w-full bg-accent-500 text-white py-1 rounded-md text-xs font-black shadow-[0_1px_0_0_#d97706] active:translate-y-0.5 active:shadow-none">נסה שוב</button>
-                                </div>
-                            ) : (
-                                <div className="p-1.5 bg-danger-50 border border-danger-200 rounded-lg text-center flex items-center justify-center gap-2">
-                                    <div className="bg-danger-500 w-4 h-4 rounded-full flex items-center justify-center text-white shadow-sm"><XCircle className="w-3 h-3" /></div>
-                                    <p className="text-danger-800 text-sm font-black tracking-tight">התשובה: {question.correctAnswer}</p>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                {/* Action Button */}
-                <div className="w-full mt-1 pb-4">
-                    {!isCurrentQuestionResult ? (
-                        <button
-                            onClick={handleCheck}
-                            disabled={!selectedAnswer}
-                            className={`w-full py-4 rounded-2xl text-2xl font-black transition-all duration-200 ${selectedAnswer ? 'bg-primary-500 text-white shadow-[0_6px_0_0_#4f46e5] hover:translate-y-0.5 hover:shadow-[0_3px_0_0_#4f46e5]' : 'bg-neutral-200 text-neutral-400 cursor-not-allowed shadow-none'} active:translate-y-1 active:shadow-none`}
-                        >
-                            בדיקה
-                        </button>
-                    ) : (
-                        <button
-                            ref={continueButtonRef}
-                            onClick={handleNext}
-                            className={`w-full py-4 rounded-2xl text-2xl font-black transition-all duration-200 ${isCorrect ? 'bg-success-500 text-white shadow-[0_6px_0_0_#059669]' : 'bg-primary-500 text-white shadow-[0_6px_0_0_#4f46e5]'} hover:translate-y-0.5 hover:shadow-[0_3px_0_0_#4f46e5] active:translate-y-1 active:shadow-none`}
-                        >
-                            {currentIndex < questions.length - 1 ? 'המשך' : 'סיים חידון ✓'}
-                        </button>
-                    )}
                 </div>
             </div>
-        </>
+
+            {/* Action Button */}
+            <div className="w-full mt-4 pb-12">
+                {!isCurrentQuestionResult ? (
+                    <button
+                        onClick={handleCheck}
+                        disabled={!selectedAnswer}
+                        className={`w-full py-6 rounded-[2rem] text-3xl font-black transition-all duration-500 ${selectedAnswer ? 'bg-gradient-to-r from-primary-500 via-purple-500 to-pink-500 text-white shadow-[0_20px_50px_-10px_rgba(236,72,153,0.5)] hover:scale-[1.02] glow-primary' : 'bg-white/20 text-neutral-800/40 cursor-not-allowed'} active:scale-95`}
+                    >
+                        בדיקה! ✨
+                    </button>
+                ) : (
+                    <button
+                        onClick={handleNext}
+                        className={`w-full py-6 rounded-[2rem] text-3xl font-black transition-all duration-500 bg-gradient-to-r ${isCorrect ? 'from-success-400 to-emerald-600' : 'from-primary-500 to-primary-700'} text-white shadow-2xl hover:scale-[1.02] active:scale-95`}
+                    >
+                        {currentIndex < questions.length - 1 ? 'המילה הבאה ✨' : 'סיים בהצטיינות! 🏆'}
+                    </button>
+                )}
+            </div>
+        </div>
     );
 }

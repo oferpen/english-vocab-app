@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Providers from '@/components/Providers';
+import AnimatedBackground from '@/components/AnimatedBackground';
 
 export const metadata: Metadata = {
   title: 'EnglishPath - הרפתקת האנגלית שלכם!',
@@ -19,7 +20,10 @@ export default function RootLayout({
   return (
     <html lang="he" dir="rtl">
       <body style={{ margin: 0, padding: 0 }}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <AnimatedBackground />
+          {children}
+        </Providers>
       </body>
     </html>
   );

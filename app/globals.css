@@ -16,17 +16,33 @@
   margin: 0;
 }
 
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
 html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
   direction: rtl;
+  /* Ensure consistent rendering across browsers */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background-color: rgb(var(--background-start-rgb));
+  background-color: rgb(15, 23, 42);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* Normalize rendering across browsers */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Ensure consistent backdrop filter support */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 a {
@@ -57,4 +73,54 @@ a {
   .card-kids {
     @apply bg-white rounded-3xl shadow-xl shadow-primary-500/5 border-2 border-primary-100 hover:border-primary-300 transition-colors;
   }
+
+  /* Glassmorphism Effects */
+  .glass-premium {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    /* Ensure consistent rendering */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px) saturate(150%);
+    -webkit-backdrop-filter: blur(10px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.2);
+    /* Ensure consistent rendering */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
+  }
+
+  /* Glow Effects */
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.4), 0 0 40px rgba(14, 165, 233, 0.2);
+  }
+
+  .glow-accent {
+    box-shadow: 0 0 20px rgba(234, 179, 8, 0.4), 0 0 40px rgba(234, 179, 8, 0.2);
+  }
+
+  /* Text Effects */
+  .text-shimmer {
+    background: linear-gradient(90deg, #ffffff 0%, #e0f2fe 50%, #ffffff 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 2.5s linear infinite;
+  }
+
+  /* Perspective for 3D effects */
+  .perspective-2000 {
+    perspective: 2000px;
+  }
+
 }

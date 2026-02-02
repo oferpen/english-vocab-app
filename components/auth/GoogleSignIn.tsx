@@ -10,7 +10,7 @@ export default function GoogleSignIn() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('[GoogleSignIn] Component mounted');
+    // Component mounted
   }, []);
 
   const handleGoogleSignIn = async () => {

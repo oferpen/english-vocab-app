@@ -57,17 +57,8 @@ export default async function LearnPathPage() {
       const letters = lettersRes;
       const letterProgress = letterProgressRes;
 
-      // Debug logging
-      const starterWords = allWords.filter((w: any) => (w.category === 'Starter' || w.category?.startsWith('Starter')) && w.level === 1);
-      console.log('[LearnPathPage] Fetched data:', {
-        progressCount: progress.length,
-        streak,
-        allWordsCount: allWords.length,
-        starterWordsCount: starterWords.length,
-      });
-
       return (
-        <div className="min-h-screen bg-neutral-50">
+        <div className="min-h-screen">
           <ModernNavBar
             name={user.name || 'User'}
             avatar={user.avatar || user.image || '👶'}
@@ -75,7 +66,7 @@ export default async function LearnPathPage() {
             streak={streak}
             xp={levelState.xp}
           />
-          <div className="max-w-2xl mx-auto bg-white min-h-screen pt-16 pb-20 md:pb-8 shadow-sm">
+          <div className="max-w-2xl mx-auto min-h-screen pt-16 pb-20 md:pb-8">
             <LearnPath
               userId={user.id}
               levelState={levelState}

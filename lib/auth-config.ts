@@ -82,7 +82,6 @@ export const authOptions: NextAuthOptions = {
           if (!existingUser) {
             // CASE 1: Google account does NOT exist -> Create or Upgrade
             if (anonymousUser) {
-              console.log(`[NextAuth] Upgrading anonymous user ${anonymousUser.id} to Google account (${user.email})`);
               await prisma.user.update({
                 where: { id: anonymousUser.id },
                 data: {
@@ -94,7 +93,6 @@ export const authOptions: NextAuthOptions = {
                 },
               });
             } else {
-              console.log(`[NextAuth] Creating new Google user for ${user.email}`);
               // If device is already claimed by a DIFFERENT Google account, ignore deviceId to avoid unique constraint
               // (Though logic above ensures anonymousUser is null if it's not anonymous)
               // But what if deviceId maps to an existing Google User that ISN'T this one? 
@@ -128,7 +126,6 @@ export const authOptions: NextAuthOptions = {
             }
           } else {
             // CASE 2: Google account already exists -> Update info & Link Device
-            console.log(`[NextAuth] Found existing Google user ${existingUser.id} for ${user.email}`);
 
             // Link Google ID if missing (legacy or manual creation?)
             let updateData: any = {};

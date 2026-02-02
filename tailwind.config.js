@@ -77,6 +77,10 @@ module.exports = {
         'slide-down': 'slideDown 0.3s ease-out',
         'bounce-slow-icon': 'bounceSlowIcon 3s ease-in-out infinite',
         'blob': 'blob 7s infinite',
+        'spin-very-slow': 'spin 20s linear infinite',
+        'shimmer': 'shimmer 2.5s linear infinite',
+        'star-float': 'starFloat 6s ease-in-out infinite',
+        'text-gradient': 'textGradient 3s linear infinite',
       },
       keyframes: {
         fadeIn: {
@@ -100,6 +104,28 @@ module.exports = {
           '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
           '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
           '100%': { transform: 'translate(0px, 0px) scale(1)' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-20px)' },
+        },
+        pulseGentle: {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.8', transform: 'scale(1.02)' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        starFloat: {
+          '0%, 100%': { transform: 'translate(0, 0) scale(1)', opacity: '0.9' },
+          '25%': { transform: 'translate(10px, -15px) scale(1.2)', opacity: '1' },
+          '50%': { transform: 'translate(20px, -35px) scale(1.4)', opacity: '1' },
+          '75%': { transform: 'translate(10px, -20px) scale(1.1)', opacity: '1' },
+        },
+        textGradient: {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
         },
       },
     },

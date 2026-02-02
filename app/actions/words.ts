@@ -80,10 +80,14 @@ export async function deleteWord(id: string) {
 }
 
 export const getWordsByCategory = cache(async (category: string, level?: number) => {
-  const where: any = {
-    category,
-    active: true,
-  };
+  // Combine Starter A and Starter B when requesting "Starter" or "מילים בסיסיות"
+  let where: any = { active: true };
+  
+  if (category === 'Starter' || category === 'מילים בסיסיות') {
+    where.category = { in: ['Starter A', 'Starter B', 'Starter'] };
+  } else {
+    where.category = category;
+  }
 
   if (level) {
     where.level = level;

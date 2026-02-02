@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useTransition, useRef } from 'react';
 import { markLetterSeen, getAllLetters, getUnmasteredLetters } from '@/app/actions/letters';
 import { addXP } from '@/app/actions/levels';
 import { useRouter } from 'next/navigation';
@@ -22,123 +22,80 @@ export default function LearnLetters({ userId, letterId }: LearnLettersProps) {
   const [showCelebration, setShowCelebration] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const router = useRouter();
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setTilt({ x: x * 10, y: y * -10 });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 });
+  };
 
   useEffect(() => {
     loadLetters();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, letterId]);
 
   const loadLetters = async () => {
     try {
       setLoading(true);
-
-      // Add timeout to prevent hanging
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Request timeout')), 10000)
-      );
-
-      // If a specific letterId is provided, load that letter
       if (letterId) {
-        const allLetters = await Promise.race([
-          getAllLetters(),
-          timeoutPromise
-        ]) as any[];
+        const allLetters = await getAllLetters();
         const letterIndex = allLetters.findIndex((l: any) => l.id === letterId);
         if (letterIndex >= 0) {
           setLetters(allLetters);
           setCurrentIndex(letterIndex);
         } else {
-          // Letter not found, fall back to unmastered
-          const unmastered = await Promise.race([
-            getUnmasteredLetters(userId),
-            timeoutPromise
-          ]) as any[];
+          const unmastered = await getUnmasteredLetters(userId);
           setLetters(unmastered);
         }
       } else {
-        const unmastered = await Promise.race([
-          getUnmasteredLetters(userId),
-          timeoutPromise
-        ]) as any[];
-
+        const unmastered = await getUnmasteredLetters(userId);
         if (unmastered.length === 0) {
-          // All letters mastered, check if can advance to level 2
-          const { checkLevel1Complete } = await import('@/app/actions/letters');
-          const level1Complete = await Promise.race([
-            checkLevel1Complete(userId),
-            timeoutPromise
-          ]) as boolean;
-
-          if (level1Complete) {
-            setCompleted(true);
-          } else {
-            // Show all letters for review
-            const allLetters = await Promise.race([
-              getAllLetters(),
-              timeoutPromise
-            ]) as any[];
-            setLetters(allLetters);
-          }
+          setCompleted(true);
         } else {
           setLetters(unmastered);
         }
       }
     } catch (error: any) {
-      // If it's a database error or timeout, show a helpful message
-      if (error?.message?.includes('does not exist') || error?.code === 'P2021' || error?.message === 'Request timeout') {
-        setLetters([]);
-        setLoading(false);
-      } else {
-        // Show error message to user
-        setLetters([]);
-        setLoading(false);
-      }
+      setLetters([]);
     } finally {
       setLoading(false);
     }
   };
 
   const handleMarkLearned = async (correct: boolean, e?: React.MouseEvent) => {
-    // Prevent any default behavior that might cause page refresh
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
-
     const letter = letters[currentIndex];
     const currentIdx = currentIndex;
 
-    // Update UI optimistically first (before server call) - move to next letter immediately
     if (currentIdx < letters.length - 1) {
       setCurrentIndex(currentIdx + 1);
     }
 
-    // Use startTransition to mark server action as non-urgent, preventing blocking updates
     startTransition(async () => {
       await markLetterSeen(userId, letter.id, correct);
-
-      // Play success sound if correct
       if (correct) {
         playSuccessSound();
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 1500);
       }
-
-      // Handle completion logic (only if we were at the last letter)
       if (currentIdx >= letters.length - 1) {
-        // Check if level 1 is complete
         const { checkLevel1Complete } = await import('@/app/actions/letters');
         const level1Complete = await checkLevel1Complete(userId);
-
         if (level1Complete) {
-          // Unlock level 2
           const { checkAndUnlockLevel2 } = await import('@/app/actions/levels');
           await checkAndUnlockLevel2(userId);
-          await addXP(userId, 50); // Award XP for completing level 1
+          await addXP(userId, 50);
           setShowCelebration(true);
         } else {
-          // Reload letters to get next batch
           await loadLetters();
           setCurrentIndex(0);
         }
@@ -157,12 +114,9 @@ export default function LearnLetters({ userId, letterId }: LearnLettersProps) {
 
   if (loading) {
     return (
-      <div className="p-4 text-center">
-        <div className="animate-pulse">
-          <div className="h-32 bg-gray-200 rounded-lg mb-4"></div>
-          <div className="h-12 bg-gray-200 rounded-lg"></div>
-        </div>
-        <p className="text-xl text-gray-600 mt-4">טוען אותיות...</p>
+      <div className="p-8 text-center glass-premium rounded-3xl max-w-2xl mx-auto mt-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary-500 mx-auto"></div>
+        <p className="text-xl text-white font-black mt-4">טוען אותיות...</p>
       </div>
     );
   }
@@ -177,35 +131,18 @@ export default function LearnLetters({ userId, letterId }: LearnLettersProps) {
           emoji="🎉"
           showConfetti={showCelebration}
           actionLabel="המשך למילים"
-          onAction={() => {
-            setShowCelebration(false);
-            setCompleted(true);
-            router.push('/learn/path');
-          }}
-          onClose={() => {
-            setShowCelebration(false);
-            setCompleted(true);
-            router.push('/learn/path');
-          }}
+          onAction={() => router.push('/learn/path')}
+          onClose={() => router.push('/learn/path')}
         />
       </>
     );
   }
 
-  if (letters.length === 0 && !loading) {
+  if (letters.length === 0) {
     return (
-      <div className="p-4 text-center">
-        <p className="text-xl text-gray-600 mb-4">אין אותיות ללמידה</p>
-        <p className="text-sm text-gray-500 mb-4">ייתכן שהטבלה עדיין לא נוצרה. נסה לרענן את הדף.</p>
-        <button
-          onClick={() => {
-            setLoading(true);
-            loadLetters();
-          }}
-          className="bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600"
-        >
-          נסה שוב
-        </button>
+      <div className="p-10 text-center glass-premium rounded-3xl max-w-2xl mx-auto mt-20">
+        <p className="text-2xl text-white font-black mb-6">סיימת את כל האותיות להיום!</p>
+        <button onClick={() => router.push('/learn/path')} className="bg-primary-500 text-white px-10 py-4 rounded-2xl font-black shadow-lg glow-primary">חזור למפה</button>
       </div>
     );
   }
@@ -216,93 +153,74 @@ export default function LearnLetters({ userId, letterId }: LearnLettersProps) {
   return (
     <>
       <Confetti trigger={showConfetti} duration={1500} />
-      <div className="max-w-xl mx-auto px-4 py-6 animate-fade-in text-center">
-        {/* Progress Bar (Pill) */}
-        <div className="mb-6 flex items-center justify-between bg-white px-5 py-3 rounded-full shadow-sm border border-neutral-100">
-          <div className="text-sm font-bold text-neutral-400">
-            {currentIndex + 1} מתוך {letters.length}
+      <div className="max-w-3xl mx-auto px-4 py-8 animate-fade-in text-center relative">
+        <div className="absolute top-20 -left-20 w-64 h-64 bg-primary-600/30 rounded-full blur-[100px] animate-blob mix-blend-screen" />
+        <div className="absolute bottom-20 -right-20 w-80 h-80 bg-purple-600/30 rounded-full blur-[120px] animate-blob delay-2000 mix-blend-screen" />
+
+        {/* Progress Header */}
+        <div className="mb-10 flex items-center justify-between glass-premium px-8 py-4 rounded-[2rem] shadow-2xl glow-primary border-white/30">
+          <div className="text-lg font-black text-white/70 tracking-widest uppercase">
+            {currentIndex + 1} / {letters.length}
           </div>
-          <div className="flex-1 mx-5 bg-neutral-100 rounded-full h-2.5 overflow-hidden">
+          <div className="flex-1 mx-8 bg-white/10 rounded-full h-4 overflow-hidden border border-white/20">
             <div
-              className="h-full bg-primary-500 rounded-full transition-all duration-500 ease-out"
+              className="h-full bg-gradient-to-r from-primary-400 via-purple-400 to-pink-500 rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(236,72,153,0.6)] animate-pulse"
               style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="text-sm font-bold text-primary-600">
-            {Math.round(progress)}%
-          </div>
+          <div className="text-2xl font-black text-white">{Math.round(progress)}%</div>
         </div>
 
-        {/* Flashcard (3D Effect) */}
-        <div className="relative perspective-1000 group mb-8">
-          <div className="bg-white rounded-3xl shadow-xl border border-neutral-100 p-10 md:p-14 text-center transition-all duration-300 transform hover:scale-[1.01]">
-            <h2 className="text-8xl md:text-9xl font-black text-neutral-800 mb-4 tracking-tight">
+        {/* Flashcard (3D Tilt Effect) */}
+        <div
+          className="relative perspective-2000 group mb-12"
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          style={{
+            transform: `rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
+            transition: 'transform 0.1s ease-out'
+          }}
+        >
+          <div className="glass-premium rounded-[4rem] p-16 md:p-24 text-center border-white/30 shadow-[0_60px_120px_-30px_rgba(0,0,0,0.6)] overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
+            <h2 className="text-[12rem] md:text-[15rem] font-black text-white mb-8 tracking-tighter drop-shadow-[0_15px_30px_rgba(0,0,0,0.4)] text-shimmer">
               {letter.letter}
             </h2>
-            <div className="space-y-1 mb-6">
-              <p className="text-4xl md:text-5xl font-black text-neutral-800 tracking-tight">
+            <div className="space-y-4 mb-12">
+              <p className="text-6xl md:text-8xl font-black text-primary-200 tracking-tight drop-shadow-xl">
                 {letter.name}
               </p>
               {letter.hebrewName && (
-                <p className="text-2xl md:text-3xl font-medium text-neutral-400">
-                  {letter.hebrewName}
-                </p>
+                <p className="text-4xl md:text-5xl font-bold text-white/50">{letter.hebrewName}</p>
               )}
             </div>
-
-            {letter.sound && (
-              <div className="bg-neutral-50 rounded-2xl p-3 px-6 border border-neutral-100 mb-8 inline-block">
-                <p className="text-xl md:text-2xl font-bold text-neutral-500">
-                  הגייה: <span className="text-neutral-700">{letter.sound}</span>
-                </p>
-              </div>
-            )}
 
             <div className="flex justify-center">
               <button
                 onClick={() => speakLetter(letter.letter)}
-                className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary-50 text-primary-600 hover:bg-primary-100 hover:scale-110 active:scale-95 transition-all duration-200 shadow-sm"
-                aria-label="השמע הגייה"
+                className="w-28 h-28 rounded-[2.5rem] bg-gradient-to-br from-primary-400 to-purple-600 text-white flex items-center justify-center shadow-[0_20px_50px_-10px_rgba(14,165,233,0.5)] hover:scale-110 hover:rotate-6 active:scale-95 transition-all group"
               >
-                <Volume2 className="w-10 h-10" />
+                <Volume2 className="w-14 h-14 group-hover:animate-pulse" />
               </button>
             </div>
           </div>
-          <div className="absolute top-4 inset-x-4 h-full bg-white rounded-[2rem] shadow-sm -z-10 bg-opacity-50 transform scale-95 translate-y-3"></div>
-          <div className="absolute top-8 inset-x-8 h-full bg-white rounded-[2rem] shadow-sm -z-20 bg-opacity-30 transform scale-90 translate-y-5"></div>
         </div>
 
         {/* Action Buttons */}
-        <div className="mb-6">
+        <div className="grid grid-cols-2 gap-8 pt-4 pb-16">
           <button
-            onClick={() => router.push('/learn?mode=quiz')}
-            className="w-full py-4 rounded-2xl bg-primary-50 text-primary-600 font-black text-lg border-2 border-primary-100 hover:bg-primary-100 transition-all flex items-center justify-center gap-3"
-          >
-            <Sparkles className="w-6 h-6" />
-            <span>התחל חידון אותיות</span>
-          </button>
-        </div>
-
-        <div className="grid grid-cols-2 gap-6 mt-6">
-          <button
-            type="button"
             onClick={(e) => handleMarkLearned(false, e)}
             disabled={isPending}
-            className="h-20 rounded-2xl bg-white border-2 border-neutral-100 text-neutral-400 font-bold text-xl shadow-md hover:bg-neutral-50 hover:border-neutral-200 hover:text-neutral-600 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3"
+            className="h-24 rounded-[2rem] glass-premium text-white/50 border-white/10 font-black text-2xl shadow-2xl hover:bg-white/10 hover:text-white transition-all transform hover:scale-[1.02] active:scale-[0.98]"
           >
-            <span>לא יודע</span>
-            <X className="w-6 h-6" />
+            <span>לא בטוח</span>
           </button>
           <button
-            type="button"
             onClick={(e) => handleMarkLearned(true, e)}
             disabled={isPending}
-            className="h-20 rounded-2xl bg-success-500 text-white font-black text-2xl shadow-lg shadow-success-200 transition-all duration-200 hover:bg-success-600 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3 tracking-tight"
+            className="h-24 rounded-[2rem] bg-gradient-to-r from-success-400 to-emerald-600 text-white font-black text-3xl shadow-[0_20px_50px_-10px_rgba(16,185,129,0.5)] transition-all hover:scale-[1.02] active:scale-[0.98] glow-primary border border-white/20"
           >
-            <span>יודע!</span>
-            <div className="bg-white/20 rounded-full w-10 h-10 flex items-center justify-center">
-              <Check className="w-6 h-6" />
-            </div>
+            יודע! ✨
           </button>
         </div>
       </div>

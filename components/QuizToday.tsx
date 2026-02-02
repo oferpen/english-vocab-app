@@ -11,7 +11,7 @@ import Link from 'next/link';
 import Confetti from './Confetti';
 import CelebrationScreen from './CelebrationScreen';
 import { playSuccessSound, playFailureSound } from '@/lib/sounds';
-import { Volume2, SkipBack, CheckCircle2, XCircle, ChevronLeft, Sparkles } from 'lucide-react';
+import { Volume2, SkipBack, CheckCircle2, XCircle } from 'lucide-react';
 
 interface QuizTodayProps {
   userId: string;
@@ -45,6 +45,18 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
   const [planId, setPlanId] = useState<string | null>(null); // Track plan ID to detect changes
   const [isSwitching, setIsSwitching] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setTilt({ x: x * 8, y: y * -8 });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 });
+  };
   const isGeneratingRef = useRef(false); // Track if we're currently generating questions
   const continueButtonRef = useRef<HTMLButtonElement>(null); // Ref for continue button to scroll into view
   const [nextCategory, setNextCategory] = useState<string | null>(null);
@@ -579,182 +591,158 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
   return (
     <>
       <Confetti trigger={showConfetti} duration={1000} />
-      <div className="p-4 md:p-6 bg-neutral-50 animate-fade-in flex flex-col max-w-2xl mx-auto min-h-0">
-        {/* Progress Bar Header */}
-        {!completed && !showCelebration && (
-          <div className="mb-4 w-full">
-            <div className="flex justify-between items-center mb-3">
-              <button
-                onClick={handleRestartQuiz}
-                className="text-sm font-bold text-neutral-400 hover:text-primary-600 transition-colors uppercase tracking-wide"
-                type="button"
-              >
-                התחל מחדש
-              </button>
-              <span className="text-sm font-black text-neutral-500">
-                {currentIndex + 1} מתוך {questions.length}
-              </span>
-            </div>
-            <div className="w-full bg-neutral-200 rounded-full h-3 overflow-hidden shadow-inner p-0.5">
-              <div
-                className="bg-primary-500 h-full rounded-full transition-all duration-700 ease-out shadow-sm"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          </div>
-        )}
+      <div className="p-4 md:p-8 animate-fade-in flex flex-col max-w-4xl mx-auto min-h-0 relative">
+        {/* Pulsing Neon Blobs */}
+        <div className="absolute top-40 -right-20 w-80 h-80 bg-accent-500/20 rounded-full blur-[100px] animate-blob mix-blend-screen" />
+        <div className="absolute bottom-40 -left-20 w-[30rem] h-[30rem] bg-primary-500/20 rounded-full blur-[120px] animate-blob delay-2000 mix-blend-screen" />
 
-        {/* Question Card */}
-        <div className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-4 border border-neutral-100 animate-slide-up flex-shrink-0 flex flex-col justify-between relative overflow-hidden">
-          {!isCurrentQuestionResult && (
-            <div className="absolute top-6 right-6">
-              <button
-                onClick={handleSkip}
-                className="text-neutral-300 hover:text-primary-500 transition-colors p-2"
-                title="דלג"
-              >
-                <SkipBack className="w-6 h-6" />
-              </button>
-            </div>
-          )}
-
-          <div className="flex-1">
-            <div className="text-center mb-6">
-              {question.questionType === 'EN_TO_HE' && (
-                <>
-                  <h2 className="text-4xl md:text-5xl font-black mb-2 text-primary-600 tracking-tight leading-tight">{question.word.englishWord}</h2>
-                  <p className="text-lg md:text-xl text-neutral-800 font-bold tracking-tight">מה התרגום?</p>
-                </>
-              )}
-              {question.questionType === 'HE_TO_EN' && (
-                <>
-                  <h2 className="text-4xl md:text-5xl font-black mb-2 text-primary-600 tracking-tight leading-tight">{question.word.hebrewTranslation}</h2>
-                  <p className="text-lg md:text-xl text-neutral-800 font-bold tracking-tight">מה המילה?</p>
-                </>
-              )}
-              {question.questionType === 'AUDIO_TO_EN' && (
-                <>
-                  <div className="flex justify-center mb-6">
-                    <button
-                      onClick={() => speakWord(question.word.englishWord)}
-                      className="w-24 h-24 rounded-[2rem] bg-primary-100 text-primary-600 flex items-center justify-center shadow-[0_10px_0_0_#e0e7ff] hover:translate-y-1 hover:shadow-[0_5px_0_0_#e0e7ff] transition-all duration-200 active:translate-y-2 active:shadow-none"
-                    >
-                      <Volume2 className="w-12 h-12" />
-                    </button>
-                  </div>
-                  <p className="text-xl md:text-2xl text-neutral-800 font-bold tracking-tight">מה המילה ששמעת?</p>
-                </>
-              )}
-            </div>
-
-            <div className="space-y-3">
-              {question.answers.map((answer: string, idx: number) => {
-                let buttonClass = 'w-full py-4 rounded-xl text-lg md:text-xl font-bold border-2 transition-all duration-200 shadow-[0_1px_0_0_rgba(0,0,0,0.05)] active:translate-y-0.5 active:shadow-none ';
-
-                if (isCurrentQuestionResult) {
-                  if (isCorrect) {
-                    if (answer === question.correctAnswer) {
-                      buttonClass += 'bg-success-500 text-white border-success-600 shadow-[0_4px_0_0_#059669] scale-[1.02]';
-                    } else {
-                      buttonClass += 'bg-white text-neutral-300 border-neutral-100 opacity-40 shadow-none';
-                    }
-                  } else {
-                    if (answer === selectedAnswer) {
-                      buttonClass += 'bg-danger-500 text-white border-danger-600 shadow-[0_4px_0_0_#e11d48]';
-                    } else if (answer === question.correctAnswer && retryUsed) {
-                      buttonClass += 'bg-success-500 text-white border-success-600 shadow-[0_4px_0_0_#059669]';
-                    } else {
-                      buttonClass += 'bg-white text-neutral-300 border-neutral-100 opacity-40 shadow-none';
-                    }
-                  }
-                } else {
-                  const isSelected = selectedAnswer === answer &&
-                    selectedAnswerQuestionId === question.word.id;
-                  buttonClass += isSelected
-                    ? 'bg-primary-100 text-primary-600 border-primary-500 shadow-[0_4px_0_0_#c7d2fe]'
-                    : 'bg-white text-neutral-600 border-neutral-100 hover:border-primary-200 hover:bg-neutral-50';
-                }
-
-                return (
-                  <button
-                    key={`q${currentIndex}-w${question.word.id}-a${idx}`}
-                    onClick={() => handleAnswerSelect(answer)}
-                    className={buttonClass}
-                    disabled={isCurrentQuestionResult}
-                  >
-                    {answer}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Feedback Section inside Card */}
-          {isCurrentQuestionResult && (
-            <div className="mt-2 animate-slide-up">
-              {isCorrect ? (
-                <div className="p-2 bg-success-50 border border-success-200 rounded-lg flex items-center justify-center gap-2">
-                  <div className="bg-success-500 w-5 h-5 rounded-full flex items-center justify-center text-white shadow-sm">
-                    <CheckCircle2 className="w-3 h-3" />
-                  </div>
-                  <p className="text-success-700 text-base font-black tracking-tight">נכון! 🎉</p>
-                </div>
-              ) : !retryUsed ? (
-                <div className="p-2 bg-accent-50 border border-accent-200 rounded-lg text-center space-y-1">
-                  <p className="text-accent-800 text-sm font-black tracking-tight flex items-center justify-center gap-2">
-                    לא נורא, נסה שוב
-                  </p>
-                  <button
-                    onClick={handleRetry}
-                    className="w-full bg-accent-500 hover:bg-accent-600 text-white py-1.5 rounded-md font-black transition-all shadow-[0_2px_0_0_#d97706] active:translate-y-0.5 active:shadow-none"
-                  >
-                    נסה שוב
-                  </button>
-                </div>
-              ) : (
-                <div className="p-2 bg-danger-50 border border-danger-200 rounded-lg text-center flex items-center justify-center gap-2">
-                  <div className="bg-danger-500 w-5 h-5 rounded-full flex items-center justify-center text-white shadow-sm">
-                    <XCircle className="w-3 h-3" />
-                  </div>
-                  <p className="text-danger-800 text-sm font-black tracking-tight">
-                    התשובה: {question.correctAnswer}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
+        {/* Progress Header */}
+        <div className="glass-premium w-full rounded-full h-6 overflow-hidden shadow-2xl p-1.5 border-white/30 mb-8">
+          <div
+            className="bg-gradient-to-r from-primary-400 via-purple-400 to-pink-500 h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(236,72,153,0.6)] animate-pulse"
+            style={{ width: `${progress}%` }}
+          />
         </div>
 
-        {/* Global Action Button Anchor */}
-        <div className="w-full mt-2 pb-4 flex-shrink-0">
+        {/* Question Card (3D Tilt) */}
+        <div
+          className="relative perspective-2000 group mb-10"
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          style={{
+            transform: `rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
+            transition: 'transform 0.1s ease-out'
+          }}
+        >
+          <div className="glass-premium rounded-[3rem] p-10 md:p-16 border-white/30 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] flex-shrink-0 flex flex-col justify-between relative overflow-hidden transition-all duration-500">
+            <div className="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-primary-400 via-purple-500 to-pink-500 opacity-70" />
+            {!isCurrentQuestionResult && (
+              <div className="absolute top-6 right-6">
+                <button
+                  onClick={handleSkip}
+                  className="text-neutral-300 hover:text-primary-500 transition-colors p-2"
+                  title="דלג"
+                >
+                  <SkipBack className="w-6 h-6" />
+                </button>
+              </div>
+            )}
+
+            <div className="flex-1">
+              <div className="text-center mb-6">
+                {question.questionType === 'EN_TO_HE' && (
+                  <>
+                    <h2 className="text-4xl md:text-5xl font-black mb-2 text-primary-600 tracking-tight leading-tight">{question.word.englishWord}</h2>
+                    <p className="text-lg md:text-xl text-white/80 font-bold tracking-tight">מה התרגום?</p>
+                  </>
+                )}
+                {question.questionType === 'HE_TO_EN' && (
+                  <>
+                    <h2 className="text-4xl md:text-5xl font-black mb-2 text-primary-600 tracking-tight leading-tight">{question.word.hebrewTranslation}</h2>
+                    <p className="text-lg md:text-xl text-white/80 font-bold tracking-tight">מה המילה?</p>
+                  </>
+                )}
+                {question.questionType === 'AUDIO_TO_EN' && (
+                  <>
+                    <div className="flex justify-center">
+                      <button
+                        onClick={() => speakWord(question.word.englishWord)}
+                        className="w-28 h-28 rounded-[2.5rem] bg-gradient-to-br from-primary-400 to-purple-600 text-white flex items-center justify-center shadow-2xl shadow-primary-500/40 hover:scale-110 active:scale-95 transition-all group"
+                      >
+                        <Volume2 className="w-14 h-14 group-hover:animate-pulse" />
+                      </button>
+                    </div>
+                    <p className="text-xl md:text-2xl text-white/80 font-bold tracking-tight">מה המילה ששמעת?</p>
+                  </>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {question.answers.map((answer: string, idx: number) => {
+                  let buttonClass = 'w-full py-5 rounded-2xl text-xl md:text-2xl font-black border-2 transition-all duration-300 shadow-sm active:scale-95 ';
+
+                  if (isCurrentQuestionResult) {
+                    if (isCorrect) {
+                      if (answer === question.correctAnswer) {
+                        buttonClass += 'bg-success-500 text-white border-success-600 shadow-[0_4px_0_0_#059669] scale-[1.02] relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/50 before:to-transparent';
+                      } else {
+                        buttonClass += 'bg-white text-neutral-300 border-neutral-100 opacity-40 shadow-none';
+                      }
+                    } else {
+                      if (answer === selectedAnswer) {
+                        buttonClass += 'bg-danger-500 text-white border-danger-600 shadow-[0_4px_0_0_#e11d48]';
+                      } else if (answer === question.correctAnswer && retryUsed) {
+                        buttonClass += 'bg-success-500 text-white border-success-600 shadow-[0_4px_0_0_#059669] relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/50 before:to-transparent';
+                      } else {
+                        buttonClass += 'bg-white text-neutral-300 border-neutral-100 opacity-40 shadow-none';
+                      }
+                    }
+                  } else {
+                    const isSelected = selectedAnswer === answer &&
+                      selectedAnswerQuestionId === question.word.id;
+                    buttonClass += isSelected
+                      ? 'bg-primary-100 text-primary-600 border-primary-500 shadow-[0_4px_0_0_#c7d2fe]'
+                      : 'bg-white text-neutral-800 border-neutral-100 hover:border-primary-200 hover:bg-neutral-50';
+                  }
+
+                  return (
+                    <button
+                      key={`q${currentIndex}-w${question.word.id}-a${idx}`}
+                      onClick={() => handleAnswerSelect(answer)}
+                      className={buttonClass}
+                      disabled={isCurrentQuestionResult}
+                    >
+                      {answer}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Feedback Section inside Card */}
+            {isCurrentQuestionResult && (
+              <div className="mt-6 animate-slide-up">
+                {isCorrect ? (
+                  <div className="p-4 glass-card border-success-500/50 rounded-2xl flex items-center justify-center gap-4 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
+                    <div className="bg-success-500 w-10 h-10 rounded-full flex items-center justify-center text-white shadow-lg"><CheckCircle2 className="w-6 h-6" /></div>
+                    <p className="text-success-400 text-2xl font-black tracking-tight text-shimmer">נכון מאוד! ✨🏆</p>
+                  </div>
+                ) : !retryUsed ? (
+                  <div className="p-6 glass-card border-accent-500/50 rounded-2xl text-center space-y-4 shadow-[0_0_30px_rgba(234,179,8,0.2)]">
+                    <p className="text-accent-400 text-xl font-black">כמעט! נסה שוב רגע...</p>
+                    <button onClick={handleRetry} className="w-full bg-gradient-to-r from-accent-400 to-accent-600 text-white py-3 rounded-xl text-lg font-black shadow-lg hover:scale-105 active:scale-95 transition-all">נסה שוב</button>
+                  </div>
+                ) : (
+                  <div className="p-4 glass-card border-danger-500/50 rounded-2xl text-center flex items-center justify-center gap-4 shadow-[0_0_30px_rgba(244,63,94,0.2)]">
+                    <div className="bg-danger-500 w-10 h-10 rounded-full flex items-center justify-center text-white shadow-lg"><XCircle className="w-6 h-6" /></div>
+                    <p className="text-white text-xl font-black tracking-tight">התשובה הנכונה היא: <span className="text-shimmer">{question.correctAnswer}</span></p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <div className="w-full mt-4 pb-12">
           {!isCurrentQuestionResult ? (
             <button
               onClick={handleCheck}
               disabled={!selectedAnswer}
-              className={`
-                w-full py-4 rounded-2xl text-xl font-black transition-all duration-200 tracking-tight
-                ${selectedAnswer
-                  ? 'bg-primary-500 text-white shadow-[0_6px_0_0_#4f46e5] hover:translate-y-0.5 hover:shadow-[0_3px_0_0_#4f46e5] active:translate-y-1 active:shadow-none'
-                  : 'bg-neutral-200 text-neutral-400 cursor-not-allowed shadow-none'
-                }
-              `}
+              className={`w-full py-6 rounded-[2rem] text-3xl font-black transition-all duration-300 ${selectedAnswer ? 'bg-gradient-to-r from-primary-500 via-purple-500 to-pink-500 text-white shadow-[0_20px_50px_-10px_rgba(236,72,153,0.5)] hover:scale-[1.02]' : 'bg-white/20 text-neutral-800/40 cursor-not-allowed'} active:scale-95`}
             >
-              בדיקה
+              בדיקה! ✨
             </button>
           ) : (
             <button
               ref={continueButtonRef}
               onClick={handleNext}
-              className={`
-                w-full py-4 rounded-2xl text-xl font-black transition-all duration-200 tracking-tight
-                ${isCorrect
-                  ? 'bg-success-500 text-white shadow-[0_6px_0_0_#059669] hover:translate-y-0.5 hover:shadow-[0_3px_0_0_#059669]'
-                  : 'bg-primary-500 text-white shadow-[0_6px_0_0_#4f46e5] hover:translate-y-0.5 hover:shadow-[0_3px_0_0_#4f46e5]'
-                }
-                active:translate-y-1 active:shadow-none
-              `}
+              className={`w-full py-6 rounded-[2rem] text-3xl font-black transition-all duration-300 ${isCorrect
+                ? 'bg-gradient-to-r from-success-400 to-emerald-600 text-white shadow-[0_20px_50px_-10px_rgba(16,185,129,0.5)]'
+                : 'bg-gradient-to-r from-primary-500 to-primary-700 text-white shadow-[0_20px_50px_-10px_rgba(14,165,233,0.5)]'
+                } hover:scale-[1.02] active:scale-95`}
             >
-              {currentIndex < questions.length - 1 ? 'המשך' : 'סיים חידון ✓'}
+              {currentIndex < questions.length - 1 ? 'המילה הבאה ✨' : 'סיים בהצטיינות! 🏆'}
             </button>
           )}
         </div>

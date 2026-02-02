@@ -5,26 +5,30 @@ export function playSuccessSound() {
   
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const now = audioContext.currentTime;
+    
+    // Simple, subtle success sound - single soft chime
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
     
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
     
-    // Success sound: ascending notes (like Duolingo)
-    oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
-    oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
-    oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
-    
+    // Higher, softer frequency
+    oscillator.frequency.value = 800;
     oscillator.type = 'sine';
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
     
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.3);
-    } catch (error) {
-      // Error playing success sound
-    }
+    // Very short, quiet sound
+    gainNode.gain.setValueAtTime(0, now);
+    gainNode.gain.linearRampToValueAtTime(0.08, now + 0.01);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+    
+    oscillator.start(now);
+    oscillator.stop(now + 0.15);
+    
+  } catch (error) {
+    // Error playing success sound
+  }
 }
 
 export function playFailureSound() {

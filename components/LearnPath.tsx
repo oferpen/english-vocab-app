@@ -64,8 +64,8 @@ export default function LearnPath({
   const getCategoryHebrewName = (category: string): string => {
     const categoryMap: Record<string, string> = {
       'Starter': 'מילים בסיסיות',
-      'Starter A': 'מילים בסיסיות 1',
-      'Starter B': 'מילים בסיסיות 2',
+      'Starter A': 'מילים בסיסיות',
+      'Starter B': 'מילים בסיסיות',
       'Home': 'בית',
       'School': 'בית ספר',
       'Animals': 'חיות',
@@ -99,8 +99,8 @@ export default function LearnPath({
     } else if (section.title) {
       const reverseMap: Record<string, string> = {
         'מילים בסיסיות': 'Starter',
-        'מילים בסיסיות 1': 'Starter A',
-        'מילים בסיסיות 2': 'Starter B',
+        'מילים בסיסיות 1': 'Starter',
+        'מילים בסיסיות 2': 'Starter',
         'חיות': 'Animals',
         'אוכל': 'Food',
         'בגדים': 'Clothes',
@@ -264,7 +264,11 @@ export default function LearnPath({
         const wordsByCategory = new Map<string, any[]>();
 
         lvlWords.forEach((w: any) => {
-          const cat = w.category || 'אחר';
+          let cat = w.category || 'אחר';
+          // Combine Starter A and Starter B into "Starter"
+          if (cat === 'Starter A' || cat === 'Starter B') {
+            cat = 'Starter';
+          }
           if (!wordsByCategory.has(cat)) wordsByCategory.set(cat, []);
           wordsByCategory.get(cat)!.push(w);
         });
@@ -272,7 +276,6 @@ export default function LearnPath({
         const categories = [...wordsByCategory.keys()].sort((a, b) => {
           if (a.startsWith('Starter') && !b.startsWith('Starter')) return -1;
           if (!a.startsWith('Starter') && b.startsWith('Starter')) return 1;
-          if (a.startsWith('Starter') && b.startsWith('Starter')) return a.localeCompare(b);
           return a.localeCompare(b);
         });
 

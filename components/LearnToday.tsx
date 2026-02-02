@@ -4,11 +4,10 @@ import { useState, useEffect, useTransition, useRef } from 'react';
 import { markWordSeen } from '@/app/actions/progress';
 import { completeLearningSession } from '@/app/actions/learning';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import Confetti from './Confetti';
 import CelebrationScreen from './CelebrationScreen';
 import { playSuccessSound } from '@/lib/sounds';
-import { Volume2, ChevronRight, ChevronLeft, Sparkles } from 'lucide-react';
+import { Volume2, ChevronRight, ChevronLeft } from 'lucide-react';
 
 interface LearnTodayProps {
   userId: string;
@@ -17,7 +16,7 @@ interface LearnTodayProps {
   category?: string;
   level?: number;
   onModeSwitch?: (mode: 'learn' | 'quiz') => void;
-  currentMode?: 'learn' | 'quiz'; // Pass mode as prop for reliable detection
+  currentMode?: 'learn' | 'quiz';
 }
 
 export default function LearnToday({ userId, todayPlan, wordId, category, level, onModeSwitch, currentMode: propMode }: LearnTodayProps) {
@@ -30,43 +29,46 @@ export default function LearnToday({ userId, todayPlan, wordId, category, level,
   const [showConfetti, setShowConfetti] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [xpGained, setXpGained] = useState(0);
-  const [isNavigating, setIsNavigating] = useState(false); // Prevent multiple navigations
-  const [isProcessing, setIsProcessing] = useState(false); // Prevent multiple processing
-  const isProcessingRef = useRef(false); // Use ref for immediate synchronous check
+  const [isProcessing, setIsProcessing] = useState(false);
+  const isProcessingRef = useRef(false);
   const [isPending, startTransition] = useTransition();
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const router = useRouter();
   const prevModeRef = useRef<string>(currentMode);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setTilt({ x: x * 10, y: y * -10 });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 });
+  };
 
   const words = todayPlan?.words?.map((w: any) => w.word) || [];
 
   useEffect(() => {
-    // If a specific wordId is provided, find its index
     if (wordId && words.length > 0) {
       const wordIndex = words.findIndex((w: any) => w.id === wordId);
       if (wordIndex >= 0) {
         setCurrentIndex(wordIndex);
       }
     }
-
     if (words.length === 0) {
       setCompleted(true);
     }
   }, [wordId, words.length]);
 
-  // Reset completion state when switching back to learn mode from quiz
   useEffect(() => {
     const wasInQuiz = prevModeRef.current === 'quiz';
     const isNowInLearn = currentMode === 'learn';
-
-    // When switching back to learn mode from quiz, reset completion state
     if (wasInQuiz && isNowInLearn) {
       setCompleted(false);
       setShowCelebration(false);
       setShowConfetti(false);
-      setIsNavigating(false);
     }
-
-    // Update previous mode
     prevModeRef.current = currentMode;
   }, [currentMode]);
 
@@ -78,9 +80,7 @@ export default function LearnToday({ userId, todayPlan, wordId, category, level,
 
   const handleNext = async () => {
     if (isProcessingRef.current) return;
-
     const word = words[currentIndex];
-
     if (currentIndex < words.length - 1) {
       isProcessingRef.current = true;
       setIsProcessing(true);
@@ -100,12 +100,7 @@ export default function LearnToday({ userId, todayPlan, wordId, category, level,
       setShowCelebration(true);
       setCompleted(true);
       completeLearningSession(userId, word.id, words.length, xp)
-        .then(() => {
-          isProcessingRef.current = false;
-          setIsProcessing(false);
-        })
-        .catch((error) => {
-          console.error('Error completing learning session:', error);
+        .finally(() => {
           isProcessingRef.current = false;
           setIsProcessing(false);
         });
@@ -123,15 +118,14 @@ export default function LearnToday({ userId, todayPlan, wordId, category, level,
 
   if (words.length === 0) {
     return (
-      <div className="p-4 text-center">
-        <p className="text-xl text-neutral-600 mb-4">אין מילים ללמידה היום</p>
-        <p className="text-neutral-500">בקש מהורה להגדיר תוכנית יומית</p>
+      <div className="p-4 text-center glass-premium rounded-3xl p-10">
+        <p className="text-2xl text-white font-black mb-4">אין מילים ללמידה היום</p>
+        <p className="text-white/60">בקש מהורה להגדיר תוכנית יומית</p>
       </div>
     );
   }
 
   if (showCelebration && completed) {
-    // Assuming a 100% completion for the learning session if it reaches this point
     const percentage = 100;
     return (
       <>
@@ -141,7 +135,7 @@ export default function LearnToday({ userId, todayPlan, wordId, category, level,
           message={`סיימת ללמוד ${words.length} מילים היום! קיבלת ${xpGained} נקודות נסיון!`}
           emoji={percentage >= 70 ? '🎉' : '💪'}
           showConfetti={showCelebration && percentage >= 70}
-          actionLabel="חזור למפה"
+          actionLabel="עבור לחידון"
           onAction={() => {
             const categoryToUse = category || todayPlan?.id?.match(/category-(.+?)-level/)?.[1];
             const levelToUse = level || todayPlan?.id?.match(/level-(\d+)/)?.[1];
@@ -166,78 +160,82 @@ export default function LearnToday({ userId, todayPlan, wordId, category, level,
   const progress = ((currentIndex + 1) / words.length) * 100;
 
   return (
-    <>
-      <div className="max-w-lg mx-auto px-4 py-4 animate-fade-in text-center min-h-0">
-        {/* Progress Bar (Pill) */}
-        <div className="mb-1 flex items-center justify-between bg-white px-3 py-1 rounded-full shadow-sm border border-neutral-100">
-          <div className="text-[10px] font-bold text-neutral-400">מילה {currentIndex + 1} / {words.length}</div>
-          <div className="flex-1 mx-3 bg-neutral-100 rounded-full h-1 overflow-hidden">
-            <div
-              className="h-full bg-primary-500 rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${progress}%` }}
-            ></div>
-          </div>
-          <div className="text-[10px] font-bold text-primary-600">{Math.round(progress)}%</div>
-        </div>
+    <div className="p-4 md:p-8 animate-fade-in flex flex-col max-w-4xl mx-auto min-h-0 relative">
+      {/* Saturated Neon Accents */}
+      <div className="absolute top-20 -left-20 w-64 h-64 bg-primary-600/30 rounded-full blur-[100px] animate-blob mix-blend-screen" />
+      <div className="absolute bottom-20 -right-20 w-80 h-80 bg-purple-600/30 rounded-full blur-[120px] animate-blob delay-2000 mix-blend-screen" />
 
-        {/* Flashcard (3D Effect) */}
-        <div className="relative perspective-1000 group mb-6">
-          <div className="bg-white rounded-3xl shadow-md border border-neutral-100 p-8 md:p-10 text-center transition-all duration-300 transform hover:scale-[1.01]">
-            <h2 className="text-4xl md:text-6xl font-black text-neutral-800 mb-2 tracking-tight">
+      {/* Word Counter */}
+      <div className="mb-6 text-center">
+        <span className="text-xl font-bold text-white/80">
+          מילה {currentIndex + 1} מתוך {words.length}
+        </span>
+      </div>
+
+      {/* Flashcard (3D Tilt Effect) */}
+      <div
+        className="relative perspective-2000 group mb-10"
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        style={{
+          transform: `rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
+          transition: 'transform 0.1s ease-out'
+        }}
+      >
+        <div className="glass-premium rounded-[3rem] p-12 md:p-20 text-center border-white/30 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
+          <div className="relative">
+            <h2 className="text-7xl md:text-9xl font-black mb-4 text-white drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)] tracking-tighter text-shimmer">
               {word.englishWord}
             </h2>
-            <p className="text-2xl md:text-3xl font-medium text-neutral-400 mb-4" dir="rtl">
+            <p className="text-3xl md:text-5xl font-bold text-primary-200 mb-8 drop-shadow-sm" dir="rtl">
               {word.hebrewTranslation}
             </p>
-            <button
-              onClick={() => speakWord(word.englishWord)}
-              className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary-50 text-primary-600 hover:bg-primary-100 hover:scale-110 transition-all duration-200 shadow-sm"
-            >
-              <Volume2 className="w-7 h-7" />
-            </button>
+            <div className="flex justify-center mb-8">
+              <button
+                onClick={() => speakWord(word.englishWord)}
+                className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary-400 to-purple-600 text-white flex items-center justify-center shadow-2xl shadow-primary-500/40 hover:scale-110 active:scale-95 transition-all group"
+              >
+                <Volume2 className="w-12 h-12 group-hover:animate-pulse" />
+              </button>
+            </div>
             {word.exampleEn && (
-              <div className="mt-10 pt-10 border-t border-neutral-100 text-left">
-                <div className="bg-neutral-50 rounded-2xl p-6">
-                  <p className="text-xl md:text-2xl font-medium text-neutral-700 mb-2 leading-snug tracking-tight">{word.exampleEn}</p>
-                  <p className="text-lg md:text-xl text-neutral-400 font-bold" dir="rtl">{word.exampleHe}</p>
-                </div>
+              <div className="glass-card rounded-[2rem] p-8 border-white/20 bg-white/5 glow-primary animate-slide-up">
+                <p className="text-2xl md:text-3xl font-bold text-white mb-4 leading-relaxed tracking-wide italic">
+                  "{word.exampleEn}"
+                </p>
+                <p className="text-xl text-primary-200 font-black" dir="rtl">
+                  {word.exampleHe}
+                </p>
               </div>
             )}
           </div>
-          <div className="absolute top-4 inset-x-4 h-full bg-white rounded-[2rem] shadow-sm -z-10 bg-opacity-50 transform scale-95 translate-y-3"></div>
-          <div className="absolute top-8 inset-x-8 h-full bg-white rounded-[2rem] shadow-sm -z-20 bg-opacity-30 transform scale-90 translate-y-5"></div>
-        </div>
-
-        {/* Controls */}
-        <div className="flex gap-6 items-center justify-between mt-6 pb-6">
-          {/* Prev points Right in RTL */}
-          <button
-            onClick={handlePrevious}
-            disabled={currentIndex === 0 || isProcessing}
-            className={`
-                h-14 w-14 rounded-2xl flex items-center justify-center transition-all duration-200 shadow-md
-                ${currentIndex === 0
-                ? 'bg-neutral-100 text-neutral-300 cursor-not-allowed'
-                : 'bg-white text-neutral-600 hover:bg-neutral-50 hover:scale-105 active:scale-95'
-              }
-             `}
-          >
-            <ChevronRight className="w-6 h-6" />
-          </button>
-
-          {/* Next points Left in RTL */}
-          <button
-            onClick={handleNext}
-            disabled={isProcessing}
-            className="flex-1 h-16 rounded-2xl bg-primary-500 text-white font-black text-xl shadow-lg transition-all duration-200 hover:bg-primary-600 active:scale-[0.98] flex items-center justify-center gap-3 tracking-tight"
-          >
-            <span>המשך</span>
-            <div className="bg-white/20 rounded-full w-7 h-7 flex items-center justify-center">
-              <ChevronLeft className="w-5 h-5" />
-            </div>
-          </button>
         </div>
       </div>
-    </>
+
+      {/* Controls */}
+      <div className="flex gap-6 items-center justify-between mt-6 pb-12">
+        <button
+          onClick={handlePrevious}
+          disabled={currentIndex === 0 || isProcessing}
+          className={`h-16 w-16 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-xl border border-white/20
+                        ${currentIndex === 0
+              ? 'bg-white/5 text-white/20 cursor-not-allowed'
+              : 'glass-card text-white hover:scale-110 active:scale-95 glow-primary'
+            }`}
+        >
+          <ChevronRight className="w-8 h-8" />
+        </button>
+
+        <button
+          onClick={handleNext}
+          disabled={isProcessing}
+          className="flex-1 h-20 rounded-[2rem] text-3xl font-black text-white bg-gradient-to-r from-primary-500 via-purple-500 to-pink-500 shadow-[0_15px_40px_-10px_rgba(236,72,153,0.5)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-4 glow-primary"
+        >
+          <span>{currentIndex < words.length - 1 ? 'המילה הבאה' : 'סיים יחידה!'}</span>
+          <ChevronLeft className={`w-8 h-8 ${currentIndex < words.length - 1 ? 'animate-bounce-x' : ''}`} />
+        </button>
+      </div>
+    </div>
   );
 }

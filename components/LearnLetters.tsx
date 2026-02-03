@@ -153,27 +153,21 @@ export default function LearnLetters({ userId, letterId }: LearnLettersProps) {
   return (
     <>
       <Confetti trigger={showConfetti} duration={1500} />
-      <div className="max-w-3xl mx-auto px-4 py-8 animate-fade-in text-center relative">
+      <div className="px-2 pt-4 pb-16 sm:p-4 md:p-8 animate-fade-in flex flex-col w-full max-w-sm sm:max-w-2xl md:max-w-4xl mx-auto relative overflow-hidden justify-start sm:justify-center">
+        {/* Saturated Neon Accents */}
         <div className="absolute top-20 -left-20 w-64 h-64 bg-primary-600/30 rounded-full blur-[100px] animate-blob mix-blend-screen" />
         <div className="absolute bottom-20 -right-20 w-80 h-80 bg-purple-600/30 rounded-full blur-[120px] animate-blob delay-2000 mix-blend-screen" />
 
-        {/* Progress Header */}
-        <div className="mb-10 flex items-center justify-between glass-premium px-8 py-4 rounded-[2rem] shadow-2xl glow-primary border-white/30">
-          <div className="text-lg font-black text-white/70 tracking-widest uppercase">
-            {currentIndex + 1} / {letters.length}
-          </div>
-          <div className="flex-1 mx-8 bg-white/10 rounded-full h-4 overflow-hidden border border-white/20">
-            <div
-              className="h-full bg-gradient-to-r from-primary-400 via-purple-400 to-pink-500 rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(236,72,153,0.6)] animate-pulse"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <div className="text-2xl font-black text-white">{Math.round(progress)}%</div>
+        {/* Letter Counter */}
+        <div className="mb-2 sm:mb-1.5 md:mb-2 lg:mb-3 text-center">
+          <span className="text-[10px] sm:text-xs md:text-sm lg:text-base font-bold text-white/80">
+            אות {currentIndex + 1} מתוך {letters.length}
+          </span>
         </div>
 
         {/* Flashcard (3D Tilt Effect) */}
         <div
-          className="relative perspective-2000 group mb-12"
+          className="relative perspective-2000 group mb-8 sm:mb-3 md:mb-4 lg:mb-6"
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           style={{
@@ -181,47 +175,43 @@ export default function LearnLetters({ userId, letterId }: LearnLettersProps) {
             transition: 'transform 0.1s ease-out'
           }}
         >
-          <div className="glass-premium rounded-[4rem] p-16 md:p-24 text-center border-white/30 shadow-[0_60px_120px_-30px_rgba(0,0,0,0.6)] overflow-hidden">
+          <div className="glass-premium rounded-lg sm:rounded-xl md:rounded-[2rem] lg:rounded-[3rem] p-20 sm:p-3 md:p-4 lg:p-6 xl:p-10 text-center border-white/30 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] overflow-visible">
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
-            <h2 className="text-[12rem] md:text-[15rem] font-black text-white mb-8 tracking-tighter drop-shadow-[0_15px_30px_rgba(0,0,0,0.4)] text-shimmer">
-              {letter.letter}
-            </h2>
-            <div className="space-y-4 mb-12">
-              <p className="text-6xl md:text-8xl font-black text-primary-200 tracking-tight drop-shadow-xl">
+            <div className="relative">
+              <h2 className="text-6xl sm:text-2xl md:text-4xl lg:text-6xl xl:text-8xl font-black mb-2 sm:mb-1 md:mb-1.5 lg:mb-2 xl:mb-3 text-white drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)] tracking-tighter text-shimmer">
+                {letter.letter}
+              </h2>
+              <p className="text-lg sm:text-sm md:text-base lg:text-xl xl:text-3xl font-bold text-primary-200 mb-3 sm:mb-1.5 md:mb-2 lg:mb-3 xl:mb-4 drop-shadow-sm" dir="ltr">
                 {letter.name}
               </p>
               {letter.hebrewName && (
-                <p className="text-4xl md:text-5xl font-bold text-white/50">{letter.hebrewName}</p>
+                <p className="text-lg sm:text-sm md:text-base lg:text-xl xl:text-3xl font-bold text-white/50 mb-3 sm:mb-1.5 md:mb-2 lg:mb-3 xl:mb-4 drop-shadow-sm" dir="rtl">
+                  {letter.hebrewName}
+                </p>
               )}
-            </div>
-
-            <div className="flex justify-center">
-              <button
-                onClick={() => speakLetter(letter.letter)}
-                className="w-28 h-28 rounded-[2.5rem] bg-gradient-to-br from-primary-400 to-purple-600 text-white flex items-center justify-center shadow-[0_20px_50px_-10px_rgba(14,165,233,0.5)] hover:scale-110 hover:rotate-6 active:scale-95 transition-all group"
-              >
-                <Volume2 className="w-14 h-14 group-hover:animate-pulse" />
-              </button>
+              <div className="flex justify-center mb-1 sm:mb-1.5 md:mb-2 lg:mb-3 xl:mb-4">
+                <button
+                  onClick={() => speakLetter(letter.letter)}
+                  className="w-16 h-16 sm:w-10 sm:h-10 md:w-14 md:h-14 lg:w-18 lg:h-18 xl:w-20 xl:h-20 rounded-xl sm:rounded-lg md:rounded-xl lg:rounded-2xl xl:rounded-3xl bg-gradient-to-br from-primary-400 to-purple-600 text-white flex items-center justify-center shadow-2xl shadow-primary-500/40 hover:scale-110 active:scale-95 transition-all group"
+                >
+                  <Volume2 className="w-8 h-8 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 xl:w-9 xl:h-9 group-hover:animate-pulse" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-8 pt-4 pb-16">
-          <button
-            onClick={(e) => handleMarkLearned(false, e)}
-            disabled={isPending}
-            className="h-24 rounded-[2rem] glass-premium text-white/50 border-white/10 font-black text-2xl shadow-2xl hover:bg-white/10 hover:text-white transition-all transform hover:scale-[1.02] active:scale-[0.98]"
-          >
-            <span>לא בטוח</span>
-          </button>
+        {/* Action Button */}
+        <div className="flex gap-1.5 sm:gap-2 md:gap-3 lg:gap-6 items-center justify-between mt-12 sm:mt-2 md:mt-3 lg:mt-4 relative z-10">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14"></div>
           <button
             onClick={(e) => handleMarkLearned(true, e)}
             disabled={isPending}
-            className="h-24 rounded-[2rem] bg-gradient-to-r from-success-400 to-emerald-600 text-white font-black text-3xl shadow-[0_20px_50px_-10px_rgba(16,185,129,0.5)] transition-all hover:scale-[1.02] active:scale-[0.98] glow-primary border border-white/20"
+            className="flex-1 h-9 sm:h-10 md:h-12 lg:h-14 xl:h-16 rounded-md sm:rounded-lg md:rounded-xl lg:rounded-[2rem] text-xs sm:text-sm md:text-base lg:text-xl xl:text-2xl font-black text-white bg-gradient-to-r from-primary-500 via-purple-500 to-pink-500 shadow-[0_15px_40px_-10px_rgba(236,72,153,0.5)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-0.5 sm:gap-1 md:gap-1.5 lg:gap-2 xl:gap-4 glow-primary"
           >
-            יודע! ✨
+            המשך ✨
           </button>
+          <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14"></div>
         </div>
       </div>
     </>

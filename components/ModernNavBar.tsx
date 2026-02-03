@@ -47,13 +47,13 @@ export default function ModernNavBar({
                     {/* Level/XP */}
                     <div className="flex items-center gap-3 px-5 py-2.5 glass-card rounded-2xl border-white/40 hover:scale-105 transition-all duration-300 group cursor-help glow-accent" title={`רמה ${level} - ${xp} נקודות`}>
                         <Star className="w-6 h-6 text-accent-400 fill-accent-400 group-hover:rotate-12 transition-transform" />
-                        <span className="font-black text-neutral-800 text-lg drop-shadow-sm">{xp}</span>
+                        <span className="font-black text-white text-lg drop-shadow-sm">{xp}</span>
                     </div>
 
                     {/* Streak */}
                     <div className="flex items-center gap-3 px-5 py-2.5 glass-card rounded-2xl border-white/40 hover:scale-105 transition-all duration-300 group cursor-help glow-primary" title={`${streak} ימים ברציפות!`}>
                         <Zap className="w-6 h-6 text-primary-400 fill-primary-400 group-hover:animate-pulse" />
-                        <span className="font-black text-neutral-800 text-lg drop-shadow-sm">{streak}</span>
+                        <span className="font-black text-white text-lg drop-shadow-sm">{streak}</span>
                     </div>
                 </div>
 
@@ -97,19 +97,19 @@ export default function ModernNavBar({
             </nav>
 
             {/* Mobile Top Bar (Stats & Logo) */}
-            <nav className="fixed top-0 left-0 right-0 glass-premium !overflow-visible z-[100] h-16 flex md:hidden items-center justify-between px-4 transition-all duration-500 shadow-2xl">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
+            <nav className="fixed top-0 left-0 right-0 !overflow-visible z-[100] flex md:hidden items-center justify-between px-4 transition-all duration-500 shadow-2xl safe-top mobile-header" style={{ height: 'auto', minHeight: 'calc(4rem + env(safe-area-inset-top))' }}>
+                <Link href="/learn/path" className="w-10 h-10 bg-gradient-to-br from-primary-400 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20 hover:scale-105 active:scale-95 transition-transform">
                     <Book className="w-6 h-6 text-white" />
-                </div>
+                </Link>
 
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2 px-3 py-1.5 glass-card rounded-xl glow-primary">
                         <Sparkles className="w-4 h-4 text-primary-400" />
-                        <span className="font-black text-neutral-800 text-sm">{level}</span>
+                        <span className="font-black text-white text-sm">{level}</span>
                     </div>
                     <div className="flex items-center gap-2 px-3 py-1.5 glass-card rounded-xl glow-accent">
                         <Star className="w-4 h-4 text-accent-400 fill-accent-400" />
-                        <span className="font-black text-neutral-800 text-sm">{xp}</span>
+                        <span className="font-black text-white text-sm">{xp}</span>
                     </div>
                 </div>
 
@@ -156,21 +156,6 @@ export default function ModernNavBar({
                 </div>
             )}
 
-            {/* Mobile Bottom Nav */}
-            <nav className="fixed bottom-0 left-0 right-0 glass-premium z-50 h-16 flex md:hidden items-center justify-around pb-safe">
-                <Link href="/learn/path" className="flex flex-col items-center justify-center w-full h-full text-primary-600 transition-all active:scale-90">
-                    <Book className="w-6 h-6 mb-0.5" />
-                    <span className="text-[10px] font-black tracking-tight">הרפתקה</span>
-                </Link>
-
-                <button
-                    onClick={handleSignOut}
-                    className="flex flex-col items-center justify-center w-full h-full text-neutral-400 hover:text-danger-500 transition-all active:scale-90"
-                >
-                    <LogOut className="w-6 h-6 mb-0.5" />
-                    <span className="text-[10px] font-bold tracking-tight">התנתק</span>
-                </button>
-            </nav>
         </>
     );
 }

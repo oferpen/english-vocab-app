@@ -79,7 +79,7 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
       return (
         <div className="min-h-screen bg-transparent">
           {navBar}
-          <div className="max-w-3xl mx-auto glass-premium min-h-[80vh] mt-24 mb-10 text-center px-8 py-16 rounded-[3rem]">
+          <div className="max-w-3xl mx-auto glass-premium min-h-[80vh] mt-24 mb-20 sm:mb-24 md:mb-10 text-center px-8 py-16 rounded-[3rem] safe-content-mobile">
             <div className="text-8xl mb-6">📭</div>
             <h2 className="text-3xl font-black mb-4 text-neutral-800 tracking-tight">אין מילים בקטגוריה</h2>
             <p className="text-xl text-neutral-600 mb-8">לא נמצאו מילים זמינות ברמה זו.</p>
@@ -106,9 +106,9 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
     // ...
 
     return (
-      <div className="min-h-screen bg-transparent">
+      <div className="min-h-screen bg-transparent overflow-hidden">
         {navBar}
-        <div className="max-w-5xl mx-auto glass-premium min-h-[85vh] mt-28 mb-16 rounded-[4rem] p-8 md:p-16 shadow-[0_60px_120px_-20px_rgba(0,0,0,0.6)] border-white/20 transition-all duration-1000">
+        <div className="w-full max-w-sm sm:max-w-2xl md:max-w-4xl lg:max-w-5xl mx-auto glass-premium mt-20 sm:mt-12 md:mt-16 lg:mt-20 mb-20 sm:mb-24 md:mb-8 lg:mb-12 rounded-xl sm:rounded-[2rem] md:rounded-[3rem] lg:rounded-[4rem] p-2 sm:p-3 md:p-4 lg:p-6 xl:p-12 shadow-[0_60px_120px_-20px_rgba(0,0,0,0.6)] border-white/20 transition-all duration-1000 overflow-hidden safe-content-mobile">
           <LearnQuizWrapper
             userId={user.id}
             todayPlan={todayPlan}
@@ -129,7 +129,7 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
     return (
       <div className="min-h-screen bg-transparent">
         {navBar}
-        <div className="max-w-3xl mx-auto glass-premium min-h-[80vh] mt-24 mb-10 rounded-[3rem] p-6 md:p-10">
+        <div className="max-w-3xl mx-auto glass-premium min-h-[80vh] mt-20 sm:mt-20 md:mt-24 mb-20 sm:mb-24 md:mb-10 rounded-[2rem] sm:rounded-[2.5rem] md:rounded-[3rem] p-4 sm:p-6 md:p-10 safe-content-mobile">
           <LearnQuizWrapper
             userId={user.id}
             todayPlan={null}

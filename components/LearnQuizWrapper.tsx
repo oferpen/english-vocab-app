@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useTransition } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { Book, Pencil } from 'lucide-react';
 import QuizToday from './QuizToday';
 import LearnToday from './LearnToday';
 import LearnLetters from './LearnLetters';
@@ -62,28 +63,28 @@ export default function LearnQuizWrapper({
   if (level === 1 && !category && !todayPlan) {
     return (
       <>
-        <div className="mb-10 flex gap-4 glass-premium rounded-[2.5rem] p-4 shadow-2xl border-white/30 glow-primary">
+        <div className="mb-2 sm:mb-3 md:mb-4 lg:mb-6 mt-4 sm:mt-0 flex gap-1.5 sm:gap-2 md:gap-3 glass-card rounded-lg sm:rounded-xl md:rounded-2xl p-1 sm:p-1.5 md:p-2 border-white/20">
           <button
             onClick={() => handleModeSwitch('learn')}
             disabled={isSwitching || isPending || mode === 'learn'}
-            className={`flex-1 flex items-center justify-center py-5 px-8 rounded-3xl transition-all duration-500 ${mode === 'learn'
-              ? 'bg-gradient-to-br from-primary-400 via-primary-500 to-purple-600 text-white font-black shadow-[0_15px_30px_-5px_rgba(14,165,233,0.5)] scale-[1.05] glow-primary'
-              : 'hover:bg-white/20 text-neutral-800 font-bold'
+            className={`flex-1 flex items-center justify-center py-1.5 sm:py-2 md:py-2.5 lg:py-3 px-2 sm:px-3 md:px-4 lg:px-6 rounded-md sm:rounded-lg md:rounded-xl transition-all duration-200 ${mode === 'learn'
+              ? 'border-2 border-primary-400 text-white font-black shadow-sm bg-primary-500/30 backdrop-blur-sm'
+              : 'text-neutral-400 hover:text-white hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed'
               }`}
           >
-            <span className="text-4xl mr-3 filter drop-shadow-lg group-hover:animate-bounce">📖</span>
-            <span className={`text-2xl font-black ${mode === 'learn' ? 'text-shimmer drop-shadow-md' : ''}`}>למידה</span>
+            <Book className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 mr-1 sm:mr-1.5 md:mr-2 lg:mr-3" />
+            <span className="text-xs sm:text-sm md:text-base lg:text-lg font-bold">למידה</span>
           </button>
           <button
             onClick={() => handleModeSwitch('quiz')}
             disabled={isSwitching || isPending || mode === 'quiz'}
-            className={`flex-1 flex items-center justify-center py-5 px-8 rounded-3xl transition-all duration-500 ${mode === 'quiz'
-              ? 'bg-gradient-to-br from-purple-500 via-pink-500 to-rose-500 text-white font-black shadow-[0_15px_30px_-5px_rgba(236,72,153,0.5)] scale-[1.05] glow-accent'
-              : 'hover:bg-white/20 text-neutral-800 font-bold'
+            className={`flex-1 flex items-center justify-center py-1.5 sm:py-2 md:py-2.5 lg:py-3 px-2 sm:px-3 md:px-4 lg:px-6 rounded-md sm:rounded-lg md:rounded-xl transition-all duration-200 ${mode === 'quiz'
+              ? 'border-2 border-primary-400 text-white font-black shadow-sm bg-primary-500/30 backdrop-blur-sm'
+              : 'text-neutral-400 hover:text-white hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed'
               }`}
           >
-            <span className="text-4xl mr-3 filter drop-shadow-lg group-hover:animate-bounce">⚡</span>
-            <span className={`text-2xl font-black ${mode === 'quiz' ? 'text-shimmer drop-shadow-md' : ''}`}>חידון</span>
+            <Pencil className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 mr-1 sm:mr-1.5 md:mr-2 lg:mr-3" />
+            <span className="text-xs sm:text-sm md:text-base lg:text-lg font-bold">חידון</span>
           </button>
         </div>
 
@@ -108,28 +109,28 @@ export default function LearnQuizWrapper({
   return (
     <>
       {/* Navigation Tabs - Always visible to prevent flickering */}
-      <div className="mb-6 flex gap-3 glass-card rounded-2xl p-2.5 border-white/20">
+      <div className="mb-2 sm:mb-3 md:mb-4 lg:mb-6 flex gap-1.5 sm:gap-2 md:gap-3 glass-card rounded-lg sm:rounded-xl md:rounded-2xl p-1 sm:p-1.5 md:p-2 border-white/20">
         <button
           onClick={() => handleModeSwitch('learn')}
           disabled={isSwitching || isPending || mode === 'learn'}
-          className={`flex-1 flex items-center justify-center py-4 px-6 rounded-xl transition-all duration-200 ${mode === 'learn'
+          className={`flex-1 flex items-center justify-center py-1.5 sm:py-2 md:py-2.5 lg:py-3 px-2 sm:px-3 md:px-4 lg:px-6 rounded-md sm:rounded-lg md:rounded-xl transition-all duration-200 ${mode === 'learn'
             ? 'border-2 border-primary-400 text-white font-black shadow-sm bg-primary-500/30 backdrop-blur-sm'
             : 'text-neutral-400 hover:text-white hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed'
             }`}
         >
-          <span className="text-3xl mr-3">📖</span>
-          <span className="text-lg font-bold">למידה</span>
+          <Book className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 mr-1 sm:mr-1.5 md:mr-2 lg:mr-3" />
+          <span className="text-xs sm:text-sm md:text-base lg:text-lg font-bold">למידה</span>
         </button>
         <button
           onClick={() => handleModeSwitch('quiz')}
           disabled={isSwitching || isPending || mode === 'quiz'}
-          className={`flex-1 flex items-center justify-center py-4 px-6 rounded-xl transition-all duration-200 ${mode === 'quiz'
+          className={`flex-1 flex items-center justify-center py-1.5 sm:py-2 md:py-2.5 lg:py-3 px-2 sm:px-3 md:px-4 lg:px-6 rounded-md sm:rounded-lg md:rounded-xl transition-all duration-200 ${mode === 'quiz'
             ? 'border-2 border-primary-400 text-white font-black shadow-sm bg-primary-500/30 backdrop-blur-sm'
             : 'text-neutral-400 hover:text-white hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed'
             }`}
         >
-          <span className="text-3xl mr-3">✏️</span>
-          <span className="text-lg font-bold">חידון</span>
+          <Pencil className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 mr-1 sm:mr-1.5 md:mr-2 lg:mr-3" />
+          <span className="text-xs sm:text-sm md:text-base lg:text-lg font-bold">חידון</span>
         </button>
       </div>
 

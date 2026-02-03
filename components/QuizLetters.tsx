@@ -113,8 +113,6 @@ export default function QuizLetters({ userId }: QuizLettersProps) {
 
         if (correct) {
             playSuccessSound();
-            setShowConfetti(true);
-            setTimeout(() => setShowConfetti(false), 1000);
             setScore(prev => ({ ...prev, correct: prev.correct + 1 }));
         } else {
             playFailureSound();
@@ -192,13 +190,6 @@ export default function QuizLetters({ userId }: QuizLettersProps) {
             <div className="absolute top-40 -right-20 w-80 h-80 bg-accent-500/20 rounded-full blur-[100px] animate-blob mix-blend-screen" />
             <div className="absolute bottom-40 -left-20 w-[30rem] h-[30rem] bg-primary-500/20 rounded-full blur-[120px] animate-blob delay-2000 mix-blend-screen" />
 
-            {/* Progress Header */}
-            <div className="glass-premium w-full rounded-full h-6 overflow-hidden shadow-2xl p-1.5 border-white/30 mb-8">
-                <div
-                    className="bg-gradient-to-r from-primary-400 via-purple-400 to-pink-500 h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(236,72,153,0.6)] animate-pulse"
-                    style={{ width: `${progress}%` }}
-                />
-            </div>
 
             {/* Question Card (3D Tilt) */}
             <div
@@ -210,17 +201,17 @@ export default function QuizLetters({ userId }: QuizLettersProps) {
                     transition: 'transform 0.1s ease-out'
                 }}
             >
-                <div className="glass-premium rounded-[3.5rem] p-12 md:p-20 border-white/30 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] flex-shrink-0 flex flex-col justify-between relative overflow-hidden">
+                <div className="glass-premium rounded-lg sm:rounded-xl md:rounded-[2rem] lg:rounded-[3rem] p-6 sm:p-4 md:p-6 lg:p-10 xl:p-16 border-white/30 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] flex-shrink-0 flex flex-col justify-between relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-primary-400 via-purple-500 to-pink-500 opacity-70" />
                     <div className="text-center">
                         {question.type === 'LETTER_TO_NAME' && (
-                            <h2 className="text-[10rem] font-black mb-4 text-white drop-shadow-[0_15px_30px_rgba(0,0,0,0.4)] text-shimmer leading-none">{question.letter.letter}</h2>
+                            <h2 className="text-[10rem] font-black mb-2 sm:mb-3 md:mb-4 text-white drop-shadow-[0_15px_30px_rgba(0,0,0,0.4)] text-shimmer leading-none">{question.letter.letter}</h2>
                         )}
                         {question.type === 'LETTER_TO_HEBREW' && (
-                            <h2 className="text-[10rem] font-black mb-4 text-white drop-shadow-[0_15px_30px_rgba(0,0,0,0.4)] text-shimmer leading-none">{question.letter.letter}</h2>
+                            <h2 className="text-[10rem] font-black mb-2 sm:mb-3 md:mb-4 text-white drop-shadow-[0_15px_30px_rgba(0,0,0,0.4)] text-shimmer leading-none">{question.letter.letter}</h2>
                         )}
                         {question.type === 'AUDIO_TO_LETTER' && (
-                            <div className="flex justify-center mb-10">
+                            <div className="flex justify-center mb-6 sm:mb-8 md:mb-10">
                                 <button
                                     onClick={() => speakLetter(question.letter.letter)}
                                     className="w-32 h-32 rounded-[3rem] bg-gradient-to-br from-primary-400 to-purple-600 text-white flex items-center justify-center shadow-2xl glow-primary hover:scale-110 active:scale-95 transition-all group"
@@ -229,11 +220,11 @@ export default function QuizLetters({ userId }: QuizLettersProps) {
                                 </button>
                             </div>
                         )}
-                        <p className="text-3xl text-neutral-800 font-black mb-10 tracking-tight">
+                        <p className="text-3xl text-white font-black mb-6 sm:mb-8 md:mb-10 tracking-tight drop-shadow-lg">
                             {question.type === 'AUDIO_TO_LETTER' ? 'איזו אות שמעת?' : 'איך מבטאים?'}
                         </p>
 
-                        <div className="grid grid-cols-2 gap-6">
+                        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6">
                             {question.answers.map((answer: string, idx: number) => {
                                 let buttonClass = 'py-6 rounded-3xl text-4xl font-black transition-all duration-300 border-2 ';
                                 if (showResult && selectedAnswerQuestionId === question.letter.id) {
@@ -242,7 +233,7 @@ export default function QuizLetters({ userId }: QuizLettersProps) {
                                     else buttonClass += 'bg-white/5 text-white/20 border-transparent ';
                                 } else {
                                     const isSelected = selectedAnswer === answer;
-                                    buttonClass += isSelected ? 'bg-primary-500 text-white border-white/40 glow-primary scale-105 ' : 'glass-card text-neutral-800 border-white/10 hover:border-white/40 ';
+                                    buttonClass += isSelected ? 'bg-primary-500 text-white border-white/40 glow-primary scale-105 ' : 'glass-card text-white border-white/10 hover:border-white/40 ';
                                 }
                                 return (
                                     <button key={idx} onClick={() => handleAnswerSelect(answer)} className={buttonClass}>{answer}</button>
@@ -275,7 +266,7 @@ export default function QuizLetters({ userId }: QuizLettersProps) {
                     <button
                         onClick={handleCheck}
                         disabled={!selectedAnswer}
-                        className={`w-full py-6 rounded-[2rem] text-3xl font-black transition-all duration-500 ${selectedAnswer ? 'bg-gradient-to-r from-primary-500 via-purple-500 to-pink-500 text-white shadow-[0_20px_50px_-10px_rgba(236,72,153,0.5)] hover:scale-[1.02] glow-primary' : 'bg-white/20 text-neutral-800/40 cursor-not-allowed'} active:scale-95`}
+                        className={`w-full py-6 rounded-[2rem] text-3xl font-black transition-all duration-500 ${selectedAnswer ? 'bg-gradient-to-r from-primary-500 via-purple-500 to-pink-500 text-white shadow-[0_20px_50px_-10px_rgba(236,72,153,0.5)] hover:scale-[1.02] glow-primary' : 'bg-white/20 text-white/40 cursor-not-allowed'} active:scale-95`}
                     >
                         בדיקה! ✨
                     </button>

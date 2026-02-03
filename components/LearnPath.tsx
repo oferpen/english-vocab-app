@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAllWords } from '@/app/actions/words';
 import { getAllLetters, getAllLetterProgress } from '@/app/actions/letters';
@@ -9,7 +9,8 @@ import {
   Target, Home, School, Dog, Palette, Apple, User, Users,
   Shirt, Trees, Car, Trophy, CloudSun, Smile, Binary,
   Footprints, Package, Type, Rocket, Bike, Languages, Crown,
-  Star, Lock, Clock, CheckCircle2
+  Star, Lock, Clock, CheckCircle2, Sparkles, Heart, Gamepad2,
+  Baby, IceCream, ShirtIcon, Flower2, Plane, Balloon
 } from 'lucide-react';
 import { getAllProgress } from '@/app/actions/progress';
 
@@ -89,8 +90,8 @@ export default function LearnPath({
   };
 
   const getCategoryIcon = (section: PathSection) => {
-    if (!section || !section.id) return <span className="text-4xl">🎯</span>;
-    if (section.id === 'letters-all') return <span className="text-4xl">🔤</span>;
+    if (!section || !section.id) return <span className="text-6xl">🎯</span>;
+    if (section.id === 'letters-all') return <span className="text-6xl">🔤</span>;
 
     let category = '';
     const match = section.id.match(/words-\d+-(.+)/);
@@ -112,7 +113,7 @@ export default function LearnPath({
     }
 
     const iconMap: Record<string, string> = {
-      'Starter': '/images/icons/alphabet.png',
+      // Don't include 'Starter' here - use emoji instead to differentiate from letters
       'Numbers': '/images/icons/numbers.png',
       'Food': '/images/icons/food.png',
       'Animals': '/images/icons/animals.png',
@@ -120,13 +121,34 @@ export default function LearnPath({
       'Alphabet': '/images/icons/alphabet.png',
     };
 
-    const emojiMap: Record<string, string> = {
-      'Starter': '🎯', 'Home': '🏠', 'School': '🏫', 'Animals': '🐶',
-      'Colors': '🎨', 'Food': '🍎', 'Body': '👦', 'Family': '👪',
-      'Clothes': '👕', 'Clothing': '👕', 'Nature': '🌳', 'Transportation': '🚗',
-      'Sports': '🏆', 'Weather': '🌤️', 'Feelings': '😊', 'Numbers': '🔢',
-      'Actions': '👣', 'Time': '⏰', 'אחר': '📦'
+    // Child-friendly emoji icons - colorful and playful
+    // Note: Starter uses 🌟 (star) to differentiate from letters (🔤)
+    const emojiIconMap: Record<string, string> = {
+      'Starter': '🌟',
+      'Home': '🏠',
+      'School': '🏫',
+      'Animals': '🐶',
+      'Colors': '🌈',
+      'Food': '🍎',
+      'Body': '👶',
+      'Family': '👨‍👩‍👧‍👦',
+      'Clothes': '👕',
+      'Clothing': '👕',
+      'Nature': '🌳',
+      'Transportation': '🚗',
+      'Sports': '⚽',
+      'Weather': '☀️',
+      'Feelings': '😊',
+      'Numbers': '🔢',
+      'Actions': '🏃',
+      'Time': '⏰',
+      'אחר': '📦',
     };
+
+    // For Starter category, always use emoji to differentiate from letters
+    if (category === 'Starter') {
+      return <span className="text-6xl drop-shadow-lg">{emojiIconMap['Starter']}</span>;
+    }
 
     const iconPath = iconMap[category] || Object.entries(iconMap).find(([k]) => category.includes(k) || k.includes(category))?.[1];
 
@@ -136,15 +158,16 @@ export default function LearnPath({
           <img
             src={iconPath}
             alt={category}
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain drop-shadow-lg"
           />
         </div>
       );
     }
 
-    const key = Object.keys(emojiMap).find(k => category.includes(k) || k.includes(category));
-    const emoji = emojiMap[category] || (key ? emojiMap[key] : '🎯');
-    return <span className="text-5xl drop-shadow-sm">{emoji}</span>;
+    // Use emoji icons for child-friendly appearance
+    const key = Object.keys(emojiIconMap).find(k => category.includes(k) || k.includes(category));
+    const emoji = emojiIconMap[category] || (key ? emojiIconMap[key] : '🎯');
+    return <span className="text-6xl drop-shadow-lg">{emoji}</span>;
   };
 
 
@@ -380,30 +403,27 @@ export default function LearnPath({
   });
 
   return (
-    <div className="min-h-screen bg-transparent pb-32">
-      <div className="relative max-w-lg mx-auto px-4 py-8">
+    <div className="min-h-screen bg-transparent pb-0 md:pb-8">
+      <div className="relative max-w-lg mx-auto px-4 pt-4 pb-8 md:pt-8">
 
-        {/* Central Path Line (Dashed) */}
-        <div className="absolute left-1/2 top-4 bottom-32 w-1 border-r-4 border-dashed border-neutral-100 transform -translate-x-1/2 z-0 hidden md:block opacity-40"></div>
-        <div className="absolute left-1/2 top-4 bottom-32 w-1.5 bg-neutral-100 transform -translate-x-1/2 z-0 md:hidden opacity-30"></div>
 
         {Array.from(sectionsByLevel.entries()).map(([level, levelSections], levelIndex) => (
           <div key={`level-${level}`} className="relative mb-16 z-10">
 
             {/* Level Island Header */}
-            <div className="sticky top-20 z-20 mb-16 flex justify-center">
+            <div className="mb-16 flex justify-center">
               <div className={`
-                    ${getLevelColor(level)} 
-                    px-8 py-3 rounded-[2rem] shadow-xl border-4 backdrop-blur-md bg-white/95
+                    glass-card text-white border-white/30
+                    px-8 py-3 rounded-[2rem] shadow-xl border-2
                     transform hover:scale-110 transition-all duration-300
                     flex items-center gap-4 btn-bubbly
                  `}>
-                <div className="w-14 h-14 rounded-2xl bg-white shadow-inner flex items-center justify-center text-3xl">
+                <div className="w-14 h-14 rounded-2xl glass-card border-white/20 shadow-lg flex items-center justify-center text-3xl">
                   {level === 1 ? '🌱' : level === 2 ? '🚀' : '👑'}
                 </div>
                 <div className="text-right">
-                  <span className="block text-xs uppercase tracking-widest font-black opacity-40 leading-none mb-1">רמה {level}</span>
-                  <h1 className="text-2xl font-black leading-tight text-neutral-800">{getLevelTitle(level).split(':')[1] || getLevelTitle(level)}</h1>
+                  <span className="block text-xs uppercase tracking-widest font-black opacity-60 leading-none mb-1">רמה {level}</span>
+                  <h1 className="text-2xl font-black leading-tight text-white drop-shadow-lg">{getLevelTitle(level).split(':')[1] || getLevelTitle(level)}</h1>
                 </div>
               </div>
             </div>
@@ -431,7 +451,7 @@ export default function LearnPath({
                           mb-4 px-6 py-2 rounded-2xl text-lg font-black shadow-lg transition-all duration-300 flex items-center gap-2
                           ${isCompleted
                           ? 'bg-success-500 text-white border-4 border-white shadow-success-200'
-                          : 'bg-white text-neutral-800 border-4 border-primary-50 shadow-xl transform group-hover:-translate-y-2'
+                          : 'glass-card text-white border-white/30 shadow-xl transform group-hover:-translate-y-2'
                         }
                       `}>
                         {isCompleted && <CheckCircle2 className="w-5 h-5 stroke-[4]" />}
@@ -442,11 +462,11 @@ export default function LearnPath({
                       <button
                         onClick={(e) => handleJumpHere(section, e)}
                         className={`
-                          w-28 h-28 rounded-3xl flex flex-col items-center justify-center shadow-[0_8px_0_0_rgba(0,0,0,0.1)] border-b-8 relative bg-white
-                          transition-all duration-200 active:translate-y-2 active:shadow-none active:border-b-0
+                          w-28 h-28 rounded-3xl flex flex-col items-center justify-center glass-card relative
+                          transition-all duration-200 active:scale-95 hover:scale-105
                           ${isCompleted
-                            ? 'border-success-100 shadow-success-600/10'
-                            : `${getColorClasses(section.color).split(' ')[0]} border-black/5 ring-4 ring-white shadow-xl`
+                            ? 'ring-2 ring-success-400 shadow-success-600/20'
+                            : 'ring-2 ring-white/30 shadow-xl'
                           }
                         `}
                       >

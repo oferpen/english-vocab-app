@@ -300,20 +300,17 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
     }
   };
 
-  const handleAnswerSelect = (answer: string) => {
+  const handleAnswerSelect = async (answer: string) => {
     // Only allow selection if there's no result for the current question
     const currentQuestionId = questions[currentIndex]?.word.id;
     if (showResult && selectedAnswerQuestionId === currentQuestionId) return;
 
     setSelectedAnswer(answer);
     setSelectedAnswerQuestionId(currentQuestionId);
-  };
 
-  const handleCheck = async () => {
-    if (!selectedAnswer || showResult) return;
-
+    // Immediately check the answer
     const question = questions[currentIndex];
-    const correct = selectedAnswer === question.correctAnswer;
+    const correct = answer === question.correctAnswer;
     setIsCorrect(correct);
     setShowResult(true);
 
@@ -331,7 +328,7 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
     }
 
     if (!correct && !retryUsed) {
-      // Allow retry
+      // Allow retry - don't record attempt yet
       return;
     }
 
@@ -433,8 +430,8 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
   if (words.length === 0) {
     return (
       <div className="p-4 text-center">
-        <p className="text-xl text-gray-600 mb-4">אין מילים לחידון היום</p>
-        <p className="text-gray-500">בקש מהורה להגדיר תוכנית יומית</p>
+        <p className="text-xl text-white mb-4 font-black">אין מילים לחידון היום</p>
+        <p className="text-white/70">בקש מהורה להגדיר תוכנית יומית</p>
       </div>
     );
   }
@@ -443,7 +440,7 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
     return (
       <div className="p-4 text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-        <p className="text-xl text-gray-600">טוען חידון...</p>
+        <p className="text-xl text-white font-black">טוען חידון...</p>
       </div>
     );
   }
@@ -468,8 +465,8 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
   if (questions.length === 0) {
     return (
       <div className="p-4 text-center">
-        <p className="text-xl text-gray-600 mb-4">אין מילים זמינות לחידון</p>
-        <p className="text-gray-500 mb-4">נסה ללמוד עוד מילים תחילה</p>
+        <p className="text-xl text-white mb-4 font-black">אין מילים זמינות לחידון</p>
+        <p className="text-white/70 mb-4">נסה ללמוד עוד מילים תחילה</p>
         <button
           onClick={() => router.push('/learn/path')}
           className="bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600"
@@ -510,14 +507,22 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
 
   if (completed || showCelebration) {
     const percentage = Math.round((score.correct / score.total) * 100);
-    const emoji = percentage >= 80 ? '🎉' : percentage >= 60 ? '👍' : '💪';
+    // More appropriate emojis based on performance - don't show flexing bicep for low scores
+    const emoji = percentage >= 80 ? '🎉' : percentage >= 60 ? '👍' : percentage >= 50 ? '💪' : percentage >= 30 ? '📚' : '🌱';
+    
+    // Different messages for low scores
+    const isLowScore = percentage < 50;
+    const title = isLowScore ? 'לא נורא, נסה שוב!' : 'סיימת את החידון!';
+    const message = isLowScore 
+      ? `קיבלת ${score.correct} מתוך ${score.total} נכונים. אל תתייאש - המשך לתרגל ותשתפר! 💪`
+      : `${score.correct} מתוך ${score.total} נכונים (${percentage}%)! קיבלת ${xpGained} נקודות נסיון!`;
 
     return (
       <>
         <Confetti trigger={showCelebration && percentage >= 80} />
         <CelebrationScreen
-          title="סיימת את החידון!"
-          message={`${score.correct} מתוך ${score.total} נכונים (${percentage}%)! קיבלת ${xpGained} נקודות נסיון!`}
+          title={title}
+          message={message}
           emoji={emoji}
           showConfetti={showCelebration && percentage >= 80}
           actionLabel="חזור לנתיב הלמידה"
@@ -555,7 +560,7 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
   if (!question) {
     return (
       <div className="p-4 text-center">
-        <p className="text-xl text-gray-600">טוען שאלה...</p>
+        <p className="text-xl text-white font-black">טוען שאלה...</p>
       </div>
     );
   }
@@ -591,13 +596,13 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
   return (
     <>
       <Confetti trigger={showConfetti} duration={1000} />
-      <div className="p-4 md:p-8 animate-fade-in flex flex-col max-w-4xl mx-auto min-h-0 relative">
+      <div className="px-2 py-0.5 sm:p-4 md:p-8 animate-fade-in flex flex-col w-full max-w-sm sm:max-w-2xl md:max-w-4xl mx-auto min-h-0 relative overflow-hidden">
         {/* Pulsing Neon Blobs */}
         <div className="absolute top-40 -right-20 w-80 h-80 bg-accent-500/20 rounded-full blur-[100px] animate-blob mix-blend-screen" />
         <div className="absolute bottom-40 -left-20 w-[30rem] h-[30rem] bg-primary-500/20 rounded-full blur-[120px] animate-blob delay-2000 mix-blend-screen" />
 
         {/* Progress Header */}
-        <div className="glass-premium w-full rounded-full h-6 overflow-hidden shadow-2xl p-1.5 border-white/30 mb-8">
+        <div className="glass-premium w-full rounded-full h-3 sm:h-4 md:h-6 overflow-hidden shadow-2xl p-0.5 sm:p-1 md:p-1.5 border-white/30 mb-2 sm:mb-3 md:mb-4 lg:mb-8">
           <div
             className="bg-gradient-to-r from-primary-400 via-purple-400 to-pink-500 h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(236,72,153,0.6)] animate-pulse"
             style={{ width: `${progress}%` }}
@@ -606,7 +611,7 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
 
         {/* Question Card (3D Tilt) */}
         <div
-          className="relative perspective-2000 group mb-10"
+          className="relative perspective-2000 group mb-2 sm:mb-3 md:mb-4 lg:mb-6 xl:mb-10 z-10"
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           style={{
@@ -614,52 +619,53 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
             transition: 'transform 0.1s ease-out'
           }}
         >
-          <div className="glass-premium rounded-[3rem] p-10 md:p-16 border-white/30 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] flex-shrink-0 flex flex-col justify-between relative overflow-hidden transition-all duration-500">
-            <div className="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-primary-400 via-purple-500 to-pink-500 opacity-70" />
+          <div className="glass-premium rounded-lg sm:rounded-xl md:rounded-[2rem] lg:rounded-[3rem] p-6 sm:p-4 md:p-6 lg:p-10 xl:p-16 border-white/30 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] flex-shrink-0 flex flex-col justify-between relative overflow-visible transition-all duration-500 z-10">
             {!isCurrentQuestionResult && (
-              <div className="absolute top-6 right-6">
+              <div className="absolute top-3 right-3 sm:top-6 sm:right-6">
                 <button
                   onClick={handleSkip}
-                  className="text-neutral-300 hover:text-primary-500 transition-colors p-2"
+                  className="text-neutral-300 hover:text-primary-500 transition-colors p-1.5 sm:p-2"
                   title="דלג"
                 >
-                  <SkipBack className="w-6 h-6" />
+                  <SkipBack className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
               </div>
             )}
 
             <div className="flex-1">
-              <div className="text-center mb-6">
+              <div className="text-center mb-2 sm:mb-3 md:mb-4 lg:mb-6">
                 {question.questionType === 'EN_TO_HE' && (
                   <>
-                    <h2 className="text-4xl md:text-5xl font-black mb-2 text-primary-600 tracking-tight leading-tight">{question.word.englishWord}</h2>
-                    <p className="text-lg md:text-xl text-white/80 font-bold tracking-tight">מה התרגום?</p>
+                    <h2 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-black mb-1 sm:mb-2 text-white tracking-tight leading-tight">{question.word.englishWord}</h2>
+                    <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/80 font-bold tracking-tight">מה התרגום?</p>
                   </>
                 )}
                 {question.questionType === 'HE_TO_EN' && (
                   <>
-                    <h2 className="text-4xl md:text-5xl font-black mb-2 text-primary-600 tracking-tight leading-tight">{question.word.hebrewTranslation}</h2>
-                    <p className="text-lg md:text-xl text-white/80 font-bold tracking-tight">מה המילה?</p>
+                    <h2 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-black mb-1 sm:mb-2 text-white tracking-tight leading-tight">{question.word.hebrewTranslation}</h2>
+                    <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/80 font-bold tracking-tight">מה המילה?</p>
                   </>
                 )}
                 {question.questionType === 'AUDIO_TO_EN' && (
                   <>
-                    <div className="flex justify-center">
+                    <div className="flex justify-center mb-1 sm:mb-1.5 md:mb-2">
                       <button
                         onClick={() => speakWord(question.word.englishWord)}
-                        className="w-28 h-28 rounded-[2.5rem] bg-gradient-to-br from-primary-400 to-purple-600 text-white flex items-center justify-center shadow-2xl shadow-primary-500/40 hover:scale-110 active:scale-95 transition-all group"
+                        className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-md sm:rounded-lg md:rounded-xl lg:rounded-2xl bg-gradient-to-br from-primary-400 to-purple-600 text-white flex items-center justify-center shadow-lg shadow-primary-500/40 hover:scale-110 active:scale-95 transition-all group"
                       >
-                        <Volume2 className="w-14 h-14 group-hover:animate-pulse" />
+                        <Volume2 className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 group-hover:animate-pulse" />
                       </button>
                     </div>
-                    <p className="text-xl md:text-2xl text-white/80 font-bold tracking-tight">מה המילה ששמעת?</p>
+                    <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/80 font-bold tracking-tight">מה המילה ששמעת?</p>
                   </>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-2 md:gap-3 lg:gap-4">
                 {question.answers.map((answer: string, idx: number) => {
-                  let buttonClass = 'w-full py-5 rounded-2xl text-xl md:text-2xl font-black border-2 transition-all duration-300 shadow-sm active:scale-95 ';
+                  const currentQuestionId = question.word.id;
+                  const hasSelectedAnswer = selectedAnswer !== null && selectedAnswerQuestionId === currentQuestionId;
+                  let buttonClass = 'w-full py-5 sm:py-2.5 md:py-3 lg:py-4 xl:py-5 rounded-md sm:rounded-lg md:rounded-xl lg:rounded-2xl text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-black border-2 transition-all duration-300 shadow-sm active:scale-95 ';
 
                   if (isCurrentQuestionResult) {
                     if (isCorrect) {
@@ -678,8 +684,7 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
                       }
                     }
                   } else {
-                    const isSelected = selectedAnswer === answer &&
-                      selectedAnswerQuestionId === question.word.id;
+                    const isSelected = selectedAnswer === answer && selectedAnswerQuestionId === currentQuestionId;
                     buttonClass += isSelected
                       ? 'bg-primary-100 text-primary-600 border-primary-500 shadow-[0_4px_0_0_#c7d2fe]'
                       : 'bg-white text-neutral-800 border-neutral-100 hover:border-primary-200 hover:bg-neutral-50';
@@ -690,7 +695,7 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
                       key={`q${currentIndex}-w${question.word.id}-a${idx}`}
                       onClick={() => handleAnswerSelect(answer)}
                       className={buttonClass}
-                      disabled={isCurrentQuestionResult}
+                      disabled={isCurrentQuestionResult || hasSelectedAnswer}
                     >
                       {answer}
                     </button>
@@ -699,23 +704,22 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
               </div>
             </div>
 
-            {/* Feedback Section inside Card */}
+            {/* Feedback Section inside Card - Compact on mobile */}
             {isCurrentQuestionResult && (
-              <div className="mt-6 animate-slide-up">
+              <div className="mt-1.5 sm:mt-2 md:mt-3 lg:mt-4 xl:mt-6 animate-slide-up">
                 {isCorrect ? (
-                  <div className="p-4 glass-card border-success-500/50 rounded-2xl flex items-center justify-center gap-4 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
-                    <div className="bg-success-500 w-10 h-10 rounded-full flex items-center justify-center text-white shadow-lg"><CheckCircle2 className="w-6 h-6" /></div>
-                    <p className="text-success-400 text-2xl font-black tracking-tight text-shimmer">נכון מאוד! ✨🏆</p>
+                  <div className="p-1.5 sm:p-2 md:p-3 lg:p-4 glass-card border-success-500/50 rounded-lg sm:rounded-xl md:rounded-2xl flex items-center justify-center gap-1 sm:gap-2 md:gap-4 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
+                    <div className="bg-success-500 w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-white shadow-lg"><CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" /></div>
+                    <p className="text-success-400 text-xs sm:text-sm md:text-base lg:text-xl xl:text-2xl font-black tracking-tight text-shimmer">נכון מאוד! ✨🏆</p>
                   </div>
                 ) : !retryUsed ? (
-                  <div className="p-6 glass-card border-accent-500/50 rounded-2xl text-center space-y-4 shadow-[0_0_30px_rgba(234,179,8,0.2)]">
-                    <p className="text-accent-400 text-xl font-black">כמעט! נסה שוב רגע...</p>
-                    <button onClick={handleRetry} className="w-full bg-gradient-to-r from-accent-400 to-accent-600 text-white py-3 rounded-xl text-lg font-black shadow-lg hover:scale-105 active:scale-95 transition-all">נסה שוב</button>
+                  <div className="p-2 sm:p-2.5 md:p-3 lg:p-4 xl:p-6 glass-card border-accent-500/50 rounded-lg sm:rounded-xl md:rounded-2xl text-center shadow-[0_0_30px_rgba(234,179,8,0.2)]">
+                    <button onClick={handleRetry} className="w-full bg-gradient-to-r from-accent-400 to-accent-600 text-white py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-md sm:rounded-lg md:rounded-xl text-xs sm:text-sm md:text-base lg:text-lg font-black shadow-lg hover:scale-105 active:scale-95 transition-all">נסה שוב</button>
                   </div>
                 ) : (
-                  <div className="p-4 glass-card border-danger-500/50 rounded-2xl text-center flex items-center justify-center gap-4 shadow-[0_0_30px_rgba(244,63,94,0.2)]">
-                    <div className="bg-danger-500 w-10 h-10 rounded-full flex items-center justify-center text-white shadow-lg"><XCircle className="w-6 h-6" /></div>
-                    <p className="text-white text-xl font-black tracking-tight">התשובה הנכונה היא: <span className="text-shimmer">{question.correctAnswer}</span></p>
+                  <div className="p-1.5 sm:p-2 md:p-3 lg:p-4 glass-card border-danger-500/50 rounded-lg sm:rounded-xl md:rounded-2xl text-center flex items-center justify-center gap-1 sm:gap-1.5 md:gap-2 lg:gap-4 shadow-[0_0_30px_rgba(244,63,94,0.2)]">
+                    <div className="bg-danger-500 w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-white shadow-lg"><XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" /></div>
+                    <p className="text-white text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-black tracking-tight">התשובה הנכונה היא: <span className="text-shimmer">{question.correctAnswer}</span></p>
                   </div>
                 )}
               </div>
@@ -724,28 +728,21 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
         </div>
 
         {/* Action Button */}
-        <div className="w-full mt-4 pb-12">
-          {!isCurrentQuestionResult ? (
-            <button
-              onClick={handleCheck}
-              disabled={!selectedAnswer}
-              className={`w-full py-6 rounded-[2rem] text-3xl font-black transition-all duration-300 ${selectedAnswer ? 'bg-gradient-to-r from-primary-500 via-purple-500 to-pink-500 text-white shadow-[0_20px_50px_-10px_rgba(236,72,153,0.5)] hover:scale-[1.02]' : 'bg-white/20 text-neutral-800/40 cursor-not-allowed'} active:scale-95`}
-            >
-              בדיקה! ✨
-            </button>
-          ) : (
+        {isCurrentQuestionResult && (
+          <div className="w-full mt-1.5 sm:mt-2 md:mt-3 lg:mt-4 pb-4 sm:pb-6 md:pb-8 lg:pb-12 relative z-10">
             <button
               ref={continueButtonRef}
               onClick={handleNext}
-              className={`w-full py-6 rounded-[2rem] text-3xl font-black transition-all duration-300 ${isCorrect
+              className={`w-full py-2.5 sm:py-3 md:py-4 lg:py-5 xl:py-6 rounded-lg sm:rounded-xl md:rounded-[2rem] text-xs sm:text-sm md:text-base lg:text-xl xl:text-2xl font-black transition-all duration-300 relative z-10 ${isCorrect
                 ? 'bg-gradient-to-r from-success-400 to-emerald-600 text-white shadow-[0_20px_50px_-10px_rgba(16,185,129,0.5)]'
                 : 'bg-gradient-to-r from-primary-500 to-primary-700 text-white shadow-[0_20px_50px_-10px_rgba(14,165,233,0.5)]'
                 } hover:scale-[1.02] active:scale-95`}
+              style={{ pointerEvents: 'auto' }}
             >
               {currentIndex < questions.length - 1 ? 'המילה הבאה ✨' : 'סיים בהצטיינות! 🏆'}
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </>
   );

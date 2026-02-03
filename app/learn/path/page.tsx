@@ -58,7 +58,7 @@ export default async function LearnPathPage() {
       const letterProgress = letterProgressRes;
 
       return (
-        <div className="min-h-screen">
+        <div className="min-h-screen relative">
           <ModernNavBar
             name={user.name || 'User'}
             avatar={user.avatar || user.image || '👶'}
@@ -66,7 +66,7 @@ export default async function LearnPathPage() {
             streak={streak}
             xp={levelState.xp}
           />
-          <div className="max-w-2xl mx-auto min-h-screen pt-16 pb-20 md:pb-8">
+          <div className="max-w-2xl mx-auto min-h-screen safe-content relative z-0">
             <LearnPath
               userId={user.id}
               levelState={levelState}

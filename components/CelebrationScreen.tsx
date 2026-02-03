@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Confetti from './Confetti';
 import { Trophy, Sparkles, ArrowRight, ArrowLeft, X } from 'lucide-react';
 
@@ -58,39 +59,47 @@ export default function CelebrationScreen({
     onSecondaryAction?.();
   };
 
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   if (!show) return null;
 
-  return (
+  const celebrationContent = (
     <>
       {showConfetti && <Confetti trigger={confettiTrigger} />}
-      <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-white/60 backdrop-blur-md animate-fade-in">
-        <div className="bg-white rounded-[2.5rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] p-10 md:p-12 max-w-md w-full text-center animate-slide-up border border-neutral-100 relative">
-          {/* Trophy Badge (Circular with Glow) */}
-          <div className="mb-12 flex justify-center">
+      <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md animate-fade-in quiz-celebration-overlay"></div>
+      <div className="quiz-celebration-modal">
+          {/* Trophy Badge (Circular with Glow) - Only show for good scores (60%+) */}
+          {emoji && (emoji === '🎉' || emoji === '👍') && (
+          <div className="mb-4 sm:mb-6 md:mb-8 flex justify-center">
             <div className="relative">
-              <div className="w-32 h-32 bg-amber-400 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(251,191,36,0.5)] border-4 border-amber-100 ring-8 ring-white z-10 relative">
-                <Trophy className="w-16 h-16 text-white fill-white/20" />
+              <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-amber-400 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(251,191,36,0.5)] border-2 border-amber-300 z-10 relative">
+                <Trophy className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-white fill-white/20" />
               </div>
-              <div className="absolute -inset-4 bg-amber-200 rounded-full blur-2xl opacity-40 animate-pulse"></div>
+              <div className="absolute -inset-2 sm:-inset-2 md:-inset-3 bg-amber-200 rounded-full blur-xl opacity-30 animate-pulse"></div>
             </div>
           </div>
+          )}
 
           {/* Title with Emoji */}
-          <h2 className="text-5xl md:text-6xl font-black mb-8 text-indigo-600 tracking-tight leading-tight">
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black mb-3 sm:mb-4 md:mb-6 text-primary-400 tracking-tight leading-tight">
             {title} {emoji}
           </h2>
 
-          <p className="text-2xl md:text-3xl text-neutral-600 mb-12 font-bold tracking-tight leading-relaxed max-w-[320px] mx-auto">
+          <p className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl text-white/90 mb-4 sm:mb-6 md:mb-8 font-bold tracking-tight leading-relaxed max-w-full sm:max-w-[320px] mx-auto">
             {message}
           </p>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2 sm:gap-3">
             {actionLabel && onAction && (
               <button
                 onClick={handleAction}
-                className="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-6 rounded-[2rem] text-2xl font-black shadow-[0_10px_0_0_#4338ca] active:translate-y-2 active:shadow-none transition-all duration-150 flex items-center justify-center gap-4 tracking-tight group"
+                className="w-full bg-gradient-to-r from-primary-500 via-purple-500 to-pink-500 hover:from-primary-600 hover:via-purple-600 hover:to-pink-600 text-white py-2.5 sm:py-3 md:py-4 lg:py-5 rounded-lg sm:rounded-xl md:rounded-2xl text-sm sm:text-base md:text-lg lg:text-xl font-black shadow-[0_8px_0_0_rgba(14,165,233,0.3)] active:translate-y-1 active:shadow-none transition-all duration-150 flex items-center justify-center gap-2 sm:gap-3 tracking-tight group glow-primary"
               >
-                <ArrowLeft className="w-7 h-7 transform group-hover:-translate-x-1 transition-transform" />
+                <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 transform group-hover:-translate-x-1 transition-transform" />
                 <span>{actionLabel}</span>
               </button>
             )}
@@ -98,7 +107,7 @@ export default function CelebrationScreen({
             {secondaryActionLabel && onSecondaryAction && (
               <button
                 onClick={handleSecondaryAction}
-                className="w-full bg-white text-emerald-600 border-2 border-emerald-100 py-4 rounded-2xl text-lg font-black hover:bg-emerald-50 transition-all transition-all"
+                className="w-full glass-card text-emerald-400 border-2 border-emerald-400/50 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl md:rounded-2xl text-xs sm:text-sm md:text-base lg:text-lg font-black hover:bg-emerald-400/10 transition-all"
               >
                 {secondaryActionLabel}
               </button>
@@ -107,14 +116,17 @@ export default function CelebrationScreen({
             {onClose && !actionLabel && !secondaryActionLabel && (
               <button
                 onClick={handleClose}
-                className="w-full text-neutral-400 hover:text-neutral-600 py-3 rounded-xl text-base font-bold transition-colors flex items-center justify-center gap-2"
+                className="w-full text-white/60 hover:text-white py-2 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base font-bold transition-colors flex items-center justify-center gap-2"
               >
                 סגור
               </button>
             )}
           </div>
-        </div>
       </div>
     </>
   );
+
+  if (!mounted) return null;
+
+  return createPortal(celebrationContent, document.body);
 }

@@ -43,7 +43,6 @@ export default function ProgressDashboard({ userId }: ProgressDashboardProps) {
       setStreak(str);
       setLevelState(level);
     } catch (error) {
-      console.error('Error loading progress data:', error);
     }
     setLoading(false);
   };

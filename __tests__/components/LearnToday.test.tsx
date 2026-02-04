@@ -34,10 +34,10 @@ vi.mock('@/components/Confetti', () => ({
 }));
 
 vi.mock('@/components/CelebrationScreen', () => ({
-  default: ({ title, onAction }: any) => (
+  default: ({ title, actionLabel, onAction }: any) => (
     <div data-testid="celebration-screen">
       <h1>{title}</h1>
-      <button onClick={onAction}>חזור למפה</button>
+      <button onClick={onAction}>{actionLabel || 'חזור למפה'}</button>
     </div>
   )
 }));
@@ -62,8 +62,16 @@ describe('LearnToday - Bug Fixes', () => {
     ],
   };
 
+  // Mock window.location
+  const mockLocation = { href: '' };
+  Object.defineProperty(window, 'location', {
+    value: mockLocation,
+    writable: true,
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
+    mockLocation.href = '';
     mockMarkWordSeen.mockResolvedValue({});
     mockCompleteLearningSession.mockResolvedValue({ success: true, xpGained: 10 });
   });
@@ -74,24 +82,42 @@ describe('LearnToday - Bug Fixes', () => {
 
     // First word
     await screen.findByText('red');
-    await user.click(screen.getByText('הבא'));
+    const nextButton = await screen.findByText(/המילה הבאה/);
+    await user.click(nextButton);
 
-    // Second word
-    await screen.findByText('blue');
-    await user.click(screen.getByText('הבא'));
+    // Wait for second word to appear
+    await waitFor(() => {
+      expect(screen.getByText('blue')).toBeInTheDocument();
+    }, { timeout: 3000 });
+
+    // Second word (last word, so button says "סיים יחידה!")
+    // Find button by role and text content - wait a bit for button to update
+    await waitFor(() => {
+      const buttons = screen.getAllByRole('button');
+      const btn = buttons.find(b => b.textContent?.includes('סיים יחידה') || b.textContent?.includes('סיים'));
+      expect(btn).toBeTruthy();
+    }, { timeout: 3000 });
+
+    const buttons = screen.getAllByRole('button');
+    const finishButton = buttons.find(b => b.textContent?.includes('סיים יחידה') || b.textContent?.includes('סיים'));
+    expect(finishButton).toBeTruthy();
+    if (finishButton) {
+      await user.click(finishButton);
+    }
 
     // Wait for celebration
     await waitFor(() => {
       expect(screen.getByTestId('celebration-screen')).toBeInTheDocument();
-    });
+    }, { timeout: 3000 });
 
-    const continueButton = screen.getByText(/חזור למפה/);
+    const continueButton = screen.getByText(/עבור לחידון/);
     await user.click(continueButton);
 
+    // The component uses window.location.href for navigation
+    // Check if window.location.href was set with the correct URL
     await waitFor(() => {
-      expect(mockRouterPush).toHaveBeenCalled();
-      const lastCall = mockRouterPush.mock.calls[0][0];
-      expect(lastCall).toContain('category=Colors');
-    });
+      expect(mockLocation.href).toContain('category=Colors');
+      expect(mockLocation.href).toContain('mode=quiz');
+    }, { timeout: 5000 });
   });
 });

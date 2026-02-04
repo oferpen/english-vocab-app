@@ -46,7 +46,6 @@ const letterProgressCache = new Map<string, Promise<any[]>>();
 function getAllLetterProgressWithCache(userId: string): Promise<any[]> {
   // Validate input
   if (!userId || typeof userId !== 'string') {
-    console.warn('getAllLetterProgress: Invalid userId', userId);
     return Promise.resolve([]);
   }
 
@@ -88,12 +87,7 @@ function getAllLetterProgressWithCache(userId: string): Promise<any[]> {
       if (error?.code === 'P2021' || error?.message?.includes('does not exist')) {
         return [];
       }
-      // Log the error for debugging but return empty array to prevent revalidation failures
-      console.error('Error in getAllLetterProgress:', {
-        error: error?.message || error,
-        code: error?.code,
-        userId,
-      });
+      // Error in getAllLetterProgress - return empty array to prevent revalidation failures
       // Return empty array instead of throwing to prevent 500 errors during revalidation
       return [];
     }
@@ -180,7 +174,6 @@ export async function getUnmasteredLetters(userId: string) {
 
     return allLetters.filter((letter) => !masteredLetterIds.has(letter.id));
   } catch (error: any) {
-    console.error('Error in getUnmasteredLetters:', error);
     // Return all letters if there's an error
     return await getAllLetters().catch(() => []);
   }
@@ -197,7 +190,6 @@ export async function checkLevel1Complete(userId: string): Promise<boolean> {
     // Level 1 complete when at least 20 letters are mastered (out of 26)
     return masteredCount >= 20;
   } catch (error: any) {
-    console.error('Error in checkLevel1Complete:', error);
     // Return false if there's an error (safer to not unlock level 2)
     return false;
   }

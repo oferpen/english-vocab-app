@@ -22,54 +22,49 @@ export default function GoogleSignIn() {
         redirect: true,
       });
     } catch (err: any) {
-      console.error('[GoogleSignIn] Error during sign in:', err);
       setError(`שגיאה בהתחברות: ${err?.message || 'אירעה שגיאה. נסה שוב.'}`);
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-primary-50 flex items-center justify-center p-4 relative overflow-hidden font-sans">
-      {/* Background Decorations */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary-100/50 rounded-full blur-[120px] pointer-events-none animate-blob"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent-100/50 rounded-full blur-[120px] pointer-events-none animate-blob animation-delay-2000"></div>
-
-      <div className="bg-white rounded-[3rem] shadow-2xl p-10 md:p-14 max-w-md w-full text-center relative z-10 border-4 border-primary-100 card-kids">
+    <div className="min-h-screen bg-blue-50 flex items-center justify-center p-4 relative overflow-hidden font-sans">
+      <div className="bg-white rounded-[2.5rem] shadow-lg p-10 md:p-14 max-w-md w-full text-center relative z-10 border border-blue-100">
         {/* App Logo/Icon */}
         <div className="mb-10 flex flex-col items-center">
           <div className="relative mb-6">
-            <div className="w-24 h-24 bg-primary-50 rounded-[2rem] flex items-center justify-center transform rotate-6 shadow-md border-2 border-primary-100">
-              <span className="text-6xl transform -rotate-6">🦉</span>
+            <div className="w-24 h-24 bg-blue-100 rounded-[1.5rem] flex items-center justify-center shadow-sm">
+              <span className="text-6xl">🦉</span>
             </div>
-            <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-accent-100 rounded-xl flex items-center justify-center border-2 border-white shadow-lg">
+            <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-orange-200 rounded-xl flex items-center justify-center shadow-md">
               <span className="text-xl">✨</span>
             </div>
           </div>
 
-          <h1 className="text-5xl md:text-6xl font-black text-primary-600 mb-4 tracking-tight">
+          <h1 className="text-4xl md:text-5xl font-black text-blue-600 mb-4 tracking-tight">
             EnglishPath
           </h1>
-          <p className="text-xl text-neutral-600 font-bold leading-relaxed max-w-xs mx-auto">
-            הצטרפו להרפתקה של פעם בחיים וגלו את עולם האנגלית!
+          <p className="text-lg md:text-xl text-neutral-700 font-medium leading-relaxed max-w-xs mx-auto">
+            הצטרפו להרפתקה של פעם<br />בחיים וגלו את עולם האנגלית!
           </p>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-5">
           <button
             onClick={handleGoogleSignIn}
             disabled={isLoading}
-            className="w-full bg-white border-4 border-neutral-100 text-neutral-700 px-8 py-5 rounded-[2rem] font-bold text-xl hover:border-primary-200 hover:bg-neutral-50 transition-all flex items-center justify-center gap-4 shadow-sm btn-bubbly"
+            className="w-full bg-neutral-100 border border-neutral-200 text-neutral-800 px-6 py-4 rounded-2xl font-medium text-lg hover:bg-neutral-50 transition-all flex items-center justify-center gap-3 shadow-sm"
           >
-            <img src="/google-logo.svg" alt="Google" className="w-6 h-6" />
+            <img src="/google-logo.svg" alt="Google" className="w-5 h-5" />
             <span>כניסה עם גוגל</span>
           </button>
 
-          <div className="relative my-6">
+          <div className="relative my-5">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t-4 border-neutral-50"></span>
+              <span className="w-full border-t border-neutral-200"></span>
             </div>
-            <div className="relative flex justify-center text-sm uppercase">
-              <span className="bg-white px-6 text-neutral-400 font-black tracking-widest text-xs">או</span>
+            <div className="relative flex justify-center">
+              <span className="bg-white px-4 text-neutral-500 font-medium text-sm">או</span>
             </div>
           </div>
 
@@ -89,13 +84,13 @@ export default function GoogleSignIn() {
               }
             }}
             disabled={isLoading}
-            className="w-full bg-accent-500 hover:bg-accent-600 text-neutral-900 px-8 py-6 rounded-[2rem] font-black text-2xl shadow-xl shadow-accent-500/30 transition-all flex items-center justify-center gap-4 group btn-bubbly"
+            className="w-full bg-orange-400 hover:bg-orange-500 text-white px-6 py-5 rounded-2xl font-bold text-xl shadow-md transition-all flex items-center justify-center gap-3 group"
           >
             {isLoading ? (
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900" />
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white" />
             ) : (
               <>
-                <Rocket className="w-10 h-10 group-hover:animate-bounce-slow" />
+                <Rocket className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
                 <span>התחל הרפתקה!</span>
               </>
             )}
@@ -108,10 +103,10 @@ export default function GoogleSignIn() {
           )}
 
           {/* Trust Footer */}
-          <div className="pt-8 mt-4 border-t-2 border-neutral-50 flex flex-col items-center gap-3">
-            <div className="flex items-center gap-2 text-neutral-400 font-black text-xs uppercase tracking-widest">
-              <svg className="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          <div className="pt-6 mt-4 flex flex-col items-center">
+            <div className="flex items-center gap-2 text-blue-400 text-sm font-medium">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
               הרפתקה בטוחה ומאובטחת
             </div>

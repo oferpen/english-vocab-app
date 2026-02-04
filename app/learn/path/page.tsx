@@ -79,14 +79,12 @@ export default async function LearnPathPage() {
         </div>
       );
     } catch (innerError) {
-      console.error('Error fetching data in LearnPathPage:', innerError);
       throw innerError;
     }
   } catch (error: any) {
     if (error?.message?.includes('NEXT_REDIRECT')) {
       throw error;
     }
-    console.error('Error in LearnPathPage:', error);
     return <GoogleSignIn />;
   }
 }

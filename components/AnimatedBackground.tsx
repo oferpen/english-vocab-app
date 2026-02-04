@@ -1,32 +1,48 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function AnimatedBackground() {
     const [stars, setStars] = useState<{ top: string; left: string; delay: string; size: number }[]>([]);
     const [documentHeight, setDocumentHeight] = useState(0);
+    const pathname = usePathname();
+    
+    // Use fewer stars on learn page, more on path page
+    const starCount = pathname?.includes('/learn') && !pathname?.includes('/learn/path') ? 20 : 50;
 
     useEffect(() => {
-        const newStars = [...Array(20)].map(() => ({
+        const newStars = [...Array(starCount)].map(() => ({
             top: `${Math.random() * 100}%`,
             left: `${Math.random() * 100}%`,
             delay: `${Math.random() * 5}s`,
             size: Math.random() * 2 + 2 // Smaller stars: 2-4px
         }));
         setStars(newStars);
+    }, [starCount]);
+
+    useEffect(() => {
+        // Reset height when pathname changes to prevent carryover from previous page
+        setDocumentHeight(window.innerHeight);
 
         // Update height when content changes
         const updateHeight = () => {
-            setDocumentHeight(Math.max(
-                document.documentElement.scrollHeight,
-                document.documentElement.offsetHeight,
-                document.body.scrollHeight,
-                document.body.offsetHeight,
-                window.innerHeight
-            ));
+            // Use requestAnimationFrame to ensure DOM is updated
+            requestAnimationFrame(() => {
+                const height = Math.max(
+                    document.documentElement.scrollHeight,
+                    document.documentElement.offsetHeight,
+                    document.body.scrollHeight,
+                    document.body.offsetHeight,
+                    window.innerHeight
+                );
+                setDocumentHeight(height);
+            });
         };
 
-        updateHeight();
+        // Delay initial update to allow page transition to complete
+        const timeoutId = setTimeout(updateHeight, 100);
+        
         window.addEventListener('resize', updateHeight);
         window.addEventListener('scroll', updateHeight);
         
@@ -35,11 +51,12 @@ export default function AnimatedBackground() {
         observer.observe(document.body, { childList: true, subtree: true });
 
         return () => {
+            clearTimeout(timeoutId);
             window.removeEventListener('resize', updateHeight);
             window.removeEventListener('scroll', updateHeight);
             observer.disconnect();
         };
-    }, []);
+    }, [pathname]);
 
     return (
         <div 

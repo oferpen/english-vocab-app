@@ -73,7 +73,6 @@ export default function ProgressSidePanel({
       await Promise.all(promises);
     } catch (error) {
       // Error loading progress
-      console.error('Error loading progress:', error);
     } finally {
       setLoading(false);
       isLoadingRef.current = false;

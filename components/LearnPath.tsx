@@ -55,6 +55,7 @@ export default function LearnPath({
   const [sections, setSections] = useState<PathSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [levelState, setLevelState] = useState<any>(null);
+  const [progressMap, setProgressMap] = useState<Map<string, any>>(new Map());
   const sectionRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const isScrollingRef = useRef(false);
   const hasScrolledRef = useRef(false);
@@ -197,6 +198,14 @@ export default function LearnPath({
     return 'bg-neutral-50 border-neutral-200 text-neutral-700';
   };
 
+  // Initialize progressMap from propProgress if available
+  useEffect(() => {
+    if (propProgress && propProgress.length > 0) {
+      const progressMapData = new Map(propProgress.map((p: any) => [p.wordId, p]));
+      setProgressMap(progressMapData);
+    }
+  }, [propProgress]);
+
   // Logic: Load Data
   useEffect(() => {
     loadPath();
@@ -237,7 +246,8 @@ export default function LearnPath({
       }
 
       setLevelState(level);
-      const progressMap = new Map(progress.map((p: any) => [p.wordId, p]));
+      const progressMapData = new Map(progress.map((p: any) => [p.wordId, p]));
+      setProgressMap(progressMapData);
       const pathSections: PathSection[] = [];
 
       // Level 1: Letters & Starter Words
@@ -274,7 +284,6 @@ export default function LearnPath({
       if (!propAllWords || propAllWords.length === 0) {
         try { allWords = await getAllWords(); } catch { }
       }
-      console.log('[LearnPath] Loaded allWords:', allWords.length, 'Sample:', allWords[0] ? { english: allWords[0].englishWord, level: allWords[0].level, difficulty: allWords[0].difficulty } : 'empty');
 
       // Process words by level (1, 2, 3)
       const processLevelWords = (lvl: number, colorShift: number) => {
@@ -283,7 +292,6 @@ export default function LearnPath({
           return wordLevel === lvl;
         });
 
-        console.log(`[LearnPath] Level ${lvl} words found:`, lvlWords.length);
         const wordsByCategory = new Map<string, any[]>();
 
         lvlWords.forEach((w: any) => {
@@ -312,13 +320,13 @@ export default function LearnPath({
             id: `word-${word.id}`,
             type: 'word',
             content: word,
-            completed: (progressMap.get(word.id)?.masteryScore || 0) >= 80,
+            completed: (progressMapData.get(word.id)?.masteryScore || 0) >= 80,
             active: true,
             locked: false
           }));
 
           const masteredCount = lessons.filter(l => l.completed).length;
-          const isCategoryCompleted = lessons.length > 0 && (masteredCount / lessons.length) >= 0.6;
+          const isCategoryCompleted = lessons.length > 0 && (masteredCount / lessons.length) >= 0.9;
 
           pathSections.push({
             id: `words-${lvl}-${cat}`,
@@ -339,7 +347,6 @@ export default function LearnPath({
       setSections(pathSections);
 
     } catch (error) {
-      console.error(error);
       setSections([]);
     } finally {
       setLoading(false);
@@ -483,10 +490,16 @@ export default function LearnPath({
                         {/* Stars Indicator */}
                         <div className="flex gap-0.5 mt-2">
                           {[1, 2, 3].map((star) => {
-                            const masteryPercent = section.lessons.length > 0
-                              ? (section.lessons.filter(l => l.completed).length / section.lessons.length)
-                              : 0;
-                            const isStarred = masteryPercent >= (star * 0.33);
+                            // Calculate average mastery score across all words in the section
+                            let masteryPercent = 0;
+                            if (section.lessons.length > 0) {
+                              const totalMastery = section.lessons.reduce((sum, lesson) => {
+                                const progress = progressMap.get(lesson.content.id);
+                                return sum + (progress?.masteryScore || 0);
+                              }, 0);
+                              masteryPercent = totalMastery / section.lessons.length;
+                            }
+                            const isStarred = masteryPercent >= (star * 33.33); // Each star represents ~33% mastery
                             return (
                               <Star
                                 key={star}

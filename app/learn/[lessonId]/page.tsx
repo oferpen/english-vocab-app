@@ -1,7 +1,6 @@
 import { getCurrentUser } from '@/lib/auth';
 import { getLetter } from '@/app/actions/letters';
 import { getWord } from '@/app/actions/words';
-import LearnLetters from '@/components/LearnLetters';
 import LearnToday from '@/components/LearnToday';
 import BottomNav from '@/components/BottomNav';
 import GoogleSignIn from '@/components/auth/GoogleSignIn';
@@ -40,7 +39,7 @@ export default async function LessonPage({ params, searchParams }: LessonPagePro
         <div className="pt-20 md:pt-20">
           <div className="max-w-2xl mx-auto bg-white min-h-screen">
             <PageHeader title="ללמוד" name={user.name || 'User'} avatar={user.avatar || user.image} />
-            <LearnLetters userId={user.id} />
+            <LearnToday userId={user.id} level={1} />
           </div>
         </div>
       </div>

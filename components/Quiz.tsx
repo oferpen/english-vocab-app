@@ -13,7 +13,7 @@ import CelebrationScreen from './CelebrationScreen';
 import { playSuccessSound, playFailureSound } from '@/lib/sounds';
 import { Volume2, SkipBack, CheckCircle2, XCircle } from 'lucide-react';
 
-interface QuizTodayProps {
+interface QuizProps {
   userId: string;
   todayPlan: any;
   category?: string;
@@ -22,10 +22,11 @@ interface QuizTodayProps {
   onModeSwitch?: (mode: 'learn' | 'quiz') => void;
 }
 
-export default function QuizToday({ userId, todayPlan, category, levelState: propLevelState, categoryWords: propCategoryWords, onModeSwitch }: QuizTodayProps) {
+export default function Quiz({ userId, todayPlan, category, levelState: propLevelState, categoryWords: propCategoryWords, onModeSwitch }: QuizProps) {
   const searchParams = useSearchParams();
   const level = searchParams?.get('level');
-  const currentMode = searchParams?.get('mode') || 'quiz';
+  // Don't read mode from URL - use callback prop instead to avoid re-renders
+  const currentMode = 'quiz'; // Always quiz when this component is rendered
   const [currentIndex, setCurrentIndex] = useState(0);
   const [questions, setQuestions] = useState<any[]>([]);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -73,7 +74,10 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
       // Only generate questions if we don't have any yet (preserve state when switching modes)
       if (questions.length === 0 && todayPlan?.words?.length > 0) {
         setCurrentIndex(0); // Reset index when plan changes
-        generateQuestions();
+        // Use requestAnimationFrame to defer question generation and prevent reload
+        requestAnimationFrame(() => {
+          generateQuestions();
+        });
       } else {
         // If plan changed but we have questions, just reset the index (don't regenerate)
         setCurrentIndex(0);
@@ -81,6 +85,19 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [todayPlan?.id]); // Only depend on todayPlan.id
+
+  // Fallback: if loading takes too long or questions are empty but we have words, regenerate
+  useEffect(() => {
+    if (loading && todayPlan?.words?.length > 0 && questions.length === 0) {
+      const timeout = setTimeout(() => {
+        if (questions.length === 0 && !isGeneratingRef.current) {
+          generateQuestions();
+        }
+      }, 3000); // Wait 3 seconds before retrying
+      return () => clearTimeout(timeout);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, questions.length, todayPlan?.words?.length]);
 
   // Reset answer selection when moving to next question
   useEffect(() => {
@@ -132,14 +149,21 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
         setNextCategory(null); // No next category
       }
     } catch (error) {
-      console.error('Error finding next category:', error);
       setNextCategory(null);
     }
   };
 
   const generateQuestions = async (resetUsedWords: boolean = false, useAllAvailableWords: boolean = false) => {
     // Prevent multiple simultaneous calls
-    if (isGeneratingRef.current) return;
+    if (isGeneratingRef.current) {
+      // If already generating, wait a bit and check again
+      setTimeout(() => {
+        if (questions.length === 0 && todayPlan?.words?.length > 0) {
+          generateQuestions(resetUsedWords, useAllAvailableWords);
+        }
+      }, 1000);
+      return;
+    }
 
     try {
       isGeneratingRef.current = true;
@@ -284,6 +308,15 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
         });
       }
 
+      // Ensure we have at least some questions
+      if (questionList.length === 0) {
+        setError('לא ניתן ליצור שאלות. בדוק את הגדרות החידון.');
+        setLoading(false);
+        isGeneratingRef.current = false;
+        setQuestions([]);
+        return;
+      }
+
       setQuestions(questionList);
       // Reset currentIndex when generating new questions (but only if resetting)
       if (resetUsedWords) {
@@ -292,11 +325,14 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
       setLoading(false);
       isGeneratingRef.current = false;
     } catch (err: any) {
-      console.error('Error generating questions:', err);
       setError('שגיאה בטעינת החידון. נסה שוב.');
       setLoading(false);
       isGeneratingRef.current = false;
       setQuestions([]);
+    } finally {
+      // Ensure loading is always set to false
+      setLoading(false);
+      isGeneratingRef.current = false;
     }
   };
 
@@ -341,7 +377,7 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
       false
     );
     setPendingQuizAttempts(prev => [...prev, attemptPromise]);
-    attemptPromise.catch(err => console.error('Error recording quiz attempt:', err));
+    attemptPromise.catch(() => {});
   };
 
   const handleSkip = async () => {
@@ -377,7 +413,6 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
         try {
           await Promise.all(currentPending);
         } catch (error) {
-          console.error('Error waiting for quiz attempts:', error);
         }
       }
 
@@ -506,16 +541,18 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
   };
 
   if (completed || showCelebration) {
-    const percentage = Math.round((score.correct / score.total) * 100);
-    // More appropriate emojis based on performance - don't show flexing bicep for low scores
-    const emoji = percentage >= 80 ? '🎉' : percentage >= 60 ? '👍' : percentage >= 50 ? '💪' : percentage >= 30 ? '📚' : '🌱';
+    const totalQuestions = questions.length;
+    const percentage = totalQuestions > 0 ? Math.round((score.correct / totalQuestions) * 100) : 0;
     
-    // Different messages for low scores
-    const isLowScore = percentage < 50;
-    const title = isLowScore ? 'לא נורא, נסה שוב!' : 'סיימת את החידון!';
-    const message = isLowScore 
-      ? `קיבלת ${score.correct} מתוך ${score.total} נכונים. אל תתייאש - המשך לתרגל ותשתפר! 💪`
-      : `${score.correct} מתוך ${score.total} נכונים (${percentage}%)! קיבלת ${xpGained} נקודות נסיון!`;
+    // Emoji based on performance - appropriate for all score ranges
+    const emoji = percentage >= 70 ? '🎉' : percentage >= 50 ? '💪' : percentage >= 30 ? '📚' : '🌱';
+    
+    // Simple message format like letters quiz, but with appropriate tone for low scores
+    const title = percentage >= 50 ? 'חידון הושלם!' : 'לא נורא, המשך לתרגל';
+    // Remove exclamation marks for low scores
+    const message = percentage >= 50 
+      ? `${score.correct} מתוך ${totalQuestions} נכונים! קיבלת ${xpGained} נקודות נסיון!`
+      : `${score.correct} מתוך ${totalQuestions} נכונים. קיבלת ${xpGained} נקודות נסיון.`;
 
     return (
       <>
@@ -525,7 +562,7 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
           message={message}
           emoji={emoji}
           showConfetti={showCelebration && percentage >= 80}
-          actionLabel="חזור לנתיב הלמידה"
+          actionLabel="חזור למסך הראשי"
           onAction={() => {
             setShowCelebration(false);
             setCompleted(true);
@@ -540,9 +577,11 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
             // Revalidate path via server action
             await revalidateLearnPath();
             // Navigate to next category quiz
-            const nextCategoryUrl = `/learn?mode=quiz&category=${encodeURIComponent(nextCategory)}${level ? `&level=${level}` : ''}`;
-            router.push(nextCategoryUrl);
-            setTimeout(() => router.refresh(), 100);
+            // Use levelState level if available, otherwise use level from URL
+            const levelToUse = propLevelState?.level || level || 1;
+            const nextCategoryUrl = `/learn?mode=quiz&category=${encodeURIComponent(nextCategory)}&level=${levelToUse}`;
+            // Use window.location for full navigation to ensure proper data loading
+            window.location.href = nextCategoryUrl;
           } : undefined}
           onClose={async () => {
             setShowCelebration(false);
@@ -556,14 +595,25 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
     );
   }
 
-  const question = questions[currentIndex];
-  if (!question) {
+  // Show loading state if we're loading or if question doesn't exist
+  if (loading || !questions[currentIndex]) {
     return (
       <div className="p-4 text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary-500 mx-auto mb-4"></div>
         <p className="text-xl text-white font-black">טוען שאלה...</p>
+        {todayPlan?.words?.length > 0 && questions.length === 0 && (
+          <button
+            onClick={() => generateQuestions()}
+            className="mt-4 bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600"
+          >
+            נסה שוב
+          </button>
+        )}
       </div>
     );
   }
+
+  const question = questions[currentIndex];
 
   const progress = ((currentIndex + 1) / questions.length) * 100;
 
@@ -739,7 +789,14 @@ export default function QuizToday({ userId, todayPlan, category, levelState: pro
                 } hover:scale-[1.02] active:scale-95`}
               style={{ pointerEvents: 'auto' }}
             >
-              {currentIndex < questions.length - 1 ? 'המילה הבאה ✨' : 'סיים בהצטיינות! 🏆'}
+              {currentIndex < questions.length - 1 ? 'המילה הבאה ✨' : (() => {
+                // Calculate percentage based on questions answered so far (currentIndex + 1)
+                const totalAnswered = currentIndex + 1;
+                const percentage = totalAnswered > 0 ? Math.round((score.correct / totalAnswered) * 100) : 0;
+                if (percentage >= 70) return 'סיים בהצטיינות! 🏆';
+                if (percentage >= 50) return 'סיים בהצלחה! ✨';
+                return 'סיים! 💪';
+              })()}
             </button>
           </div>
         )}

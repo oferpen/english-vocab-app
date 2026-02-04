@@ -41,7 +41,6 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
   try {
     streak = await getStreak(user.id).catch(() => 0);
   } catch (error) {
-    console.error('Error fetching streak:', error);
   }
 
   const levelState = {

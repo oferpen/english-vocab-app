@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useTransition, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Book, Pencil } from 'lucide-react';
-import QuizToday from './QuizToday';
+import Quiz from './Quiz';
 import LearnToday from './LearnToday';
-import LearnLetters from './LearnLetters';
 import QuizLetters from './QuizLetters';
 
 interface LearnQuizWrapperProps {
@@ -37,22 +36,14 @@ export default function LearnQuizWrapper({
   });
   const [isSwitching, setIsSwitching] = useState(false);
 
-  useEffect(() => {
-    // Sync mode to URL without full page reload
-    const url = new URL(window.location.href);
-    if (url.searchParams.get('mode') !== mode) {
-      url.searchParams.set('mode', mode);
-      window.history.replaceState(null, '', url.toString());
-    }
-  }, [mode]);
-
   const handleModeSwitch = (newMode: 'learn' | 'quiz') => {
     if (mode === newMode || isSwitching) return;
 
     setIsSwitching(true);
     setMode(newMode);
 
-    // Small delay to ensure smooth transition
+    // Don't sync URL at all during mode switch - keep it purely client-side
+    // This prevents Next.js from detecting URL changes and causing reload
     setTimeout(() => {
       setIsSwitching(false);
     }, 100);
@@ -88,11 +79,13 @@ export default function LearnQuizWrapper({
           </button>
         </div>
 
-        {mode === 'quiz' ? (
+        {/* Keep both components mounted but hidden to prevent reload on mode switch */}
+        <div style={{ display: mode === 'quiz' ? 'block' : 'none' }}>
           <QuizLetters userId={userId} onModeSwitch={handleModeSwitch} />
-        ) : (
-          <LearnLetters userId={userId} letterId={letterId} />
-        )}
+        </div>
+        <div style={{ display: mode === 'learn' ? 'block' : 'none' }}>
+          <LearnToday userId={userId} letterId={letterId} level={1} />
+        </div>
       </>
     );
   }
@@ -134,8 +127,9 @@ export default function LearnQuizWrapper({
         </button>
       </div>
 
-      {mode === 'quiz' ? (
-        <QuizToday
+      {/* Keep both components mounted but hidden to prevent reload on mode switch */}
+      <div style={{ display: mode === 'quiz' ? 'block' : 'none' }}>
+        <Quiz
           userId={userId}
           todayPlan={todayPlan}
           category={category}
@@ -143,7 +137,8 @@ export default function LearnQuizWrapper({
           categoryWords={categoryWords}
           onModeSwitch={handleModeSwitch}
         />
-      ) : (
+      </div>
+      <div style={{ display: mode === 'learn' ? 'block' : 'none' }}>
         <LearnToday
           userId={userId}
           todayPlan={todayPlan}
@@ -153,7 +148,7 @@ export default function LearnQuizWrapper({
           onModeSwitch={handleModeSwitch}
           currentMode={mode}
         />
-      )}
+      </div>
     </>
   );
 }

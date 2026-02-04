@@ -122,8 +122,10 @@ export async function recordQuizAttempt(
       const newAttempts = progress.quizAttempts + 1;
       const newCorrect = progress.quizCorrect + (correct ? 1 : 0);
 
-      // Calculate mastery score (0-100)
-      const masteryScore = newAttempts > 0 ? Math.round((newCorrect / newAttempts) * 100) : 0;
+      // Calculate mastery score based on latest attempt only
+      // Since we just created this attempt, it's the latest one
+      // Mastery is 100% if latest attempt was correct, 0% if wrong
+      const masteryScore = correct ? 100 : 0;
 
       await prisma.progress.update({
         where: { id: progress.id },

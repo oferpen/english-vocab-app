@@ -6,7 +6,6 @@ export async function getAuthSession() {
     return await getServerSession(authOptions);
   } catch (error: any) {
     if (process.env.NODE_ENV === 'development') {
-      console.error('[getAuthSession] Failed to get session:', error.message || error);
     }
     return null;
   }

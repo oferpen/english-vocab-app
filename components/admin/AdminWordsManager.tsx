@@ -71,7 +71,6 @@ export default function AdminWordsManager() {
       setWords(allWordsData);
       setCategories(allCategories.sort());
     } catch (error) {
-      console.error('Error loading data:', error);
       alert('שגיאה בטעינת הנתונים');
     } finally {
       setLoading(false);
@@ -158,7 +157,6 @@ export default function AdminWordsManager() {
       setShowAddForm(false);
       setEditingWord(null);
     } catch (error) {
-      console.error('Error saving word:', error);
       alert('שגיאה בשמירת המילה');
     } finally {
       setSaving(false);
@@ -175,7 +173,6 @@ export default function AdminWordsManager() {
       await deleteWord(wordId);
       await loadData();
     } catch (error) {
-      console.error('Error deleting word:', error);
       alert('שגיאה במחיקת המילה');
     } finally {
       setDeleting(null);

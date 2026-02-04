@@ -29,7 +29,6 @@ export default async function Home({
       throw error;
     }
     // For other errors, show sign-in screen
-    console.error('Error in Home page:', error);
     return <GoogleSignIn />;
   }
 }

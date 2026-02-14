@@ -259,7 +259,7 @@ export default function LearnToday({ userId, todayPlan, wordId, letterId, catego
           title="סיימת ללמוד!"
           message={`סיימת ללמוד ${words.length} מילים היום! קיבלת ${xpGained} נקודות נסיון!`}
           emoji={percentage >= 70 ? '🎉' : '💪'}
-          showConfetti={showCelebration && percentage >= 70}
+          showConfetti={false}
           actionLabel="עבור לחידון"
           onAction={() => {
             let categoryToUse = category;

@@ -141,7 +141,7 @@ export async function markLetterSeen(userId: string, letterId: string, correct: 
     // Award XP for mastering a letter
     if (mastered && !existing.mastered) {
       const { addXP } = await import('./levels');
-      await addXP(userId, 5);
+      await addXP(userId, 5, true); // Skip revalidation to prevent unnecessary RSC requests
     }
 
     return { mastered, timesSeen: newTimesSeen, timesCorrect: newTimesCorrect };
@@ -160,7 +160,7 @@ export async function markLetterSeen(userId: string, letterId: string, correct: 
 
     if (mastered) {
       const { addXP } = await import('./levels');
-      await addXP(userId, 5);
+      await addXP(userId, 5, true); // Skip revalidation to prevent unnecessary RSC requests
     }
 
     return { mastered, timesSeen: 1, timesCorrect: correct ? 1 : 0 };

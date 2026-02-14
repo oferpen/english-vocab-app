@@ -688,7 +688,7 @@ export default function Quiz({ userId, todayPlan, category, level, levelState: p
           title={title}
           message={message}
           emoji={emoji}
-          showConfetti={showCelebration && percentage >= (isLettersMode ? 70 : 80)}
+          showConfetti={false}
           actionLabel="חזור למסך הראשי"
           onAction={() => {
             setShowCelebration(false);

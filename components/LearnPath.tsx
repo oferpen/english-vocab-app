@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAllWords } from '@/app/actions/words';
-import { getAllLetters, getAllLetterProgress } from '@/app/actions/letters';
+import { getAllWords, getAllLetters, getAllLetterProgress } from '@/app/actions/content';
 import { getLevelState } from '@/app/actions/levels';
 import {
   Target, Home, School, Dog, Palette, Apple, User, Users,

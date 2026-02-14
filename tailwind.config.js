@@ -6,16 +6,23 @@ module.exports = {
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
+    fontFamily: {
+      sans: ['var(--font-rubik)', 'Rubik', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+    },
     extend: {
+      fontFamily: {
+        heading: ['var(--font-cagliostro)', 'Cagliostro', 'var(--font-rubik)', 'Rubik', 'sans-serif'],
+        playful: ['var(--font-cagliostro)', 'Cagliostro', 'sans-serif'],
+      },
       colors: {
         primary: {
           50: '#f0f9ff',
           100: '#e0f2fe',
           200: '#bae6fd',
           300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9', // Vibrant Sky Blue
-          600: '#0284c7',
+          400: 'var(--primary-400, #38bdf8)',
+          500: 'var(--primary-500, #0ea5e9)', // Vibrant Sky Blue (default) or Warm Orange
+          600: 'var(--primary-600, #0284c7)',
           700: '#0369a1',
           800: '#075985',
           900: '#0c4a6e',
@@ -25,8 +32,8 @@ module.exports = {
           100: '#fef9c3',
           200: '#fef08a',
           300: '#fde047',
-          400: '#facc15',
-          500: '#eab308', // Sunny Yellow
+          400: 'var(--accent-400, #facc15)',
+          500: 'var(--accent-500, #eab308)', // Sunny Yellow (default) or Warm Amber
           600: '#ca8a04',
           700: '#a16207',
           800: '#854d0e',
@@ -67,6 +74,13 @@ module.exports = {
           700: '#334155',
           800: '#1e293b',
           900: '#0f172a', // Deep Slate
+        },
+        purple: {
+          400: 'var(--purple-400, #a855f7)',
+          500: 'var(--purple-500, #a855f7)',
+        },
+        pink: {
+          500: 'var(--pink-500, #ec4899)',
         }
       },
       animation: {

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { getWordsByCategory, getAllCategories } from '@/app/actions/words';
+import { getWordsByCategory, getAllCategories } from '@/app/actions/content';
 import { prisma } from '@/lib/prisma';
 
 vi.mock('react', () => ({

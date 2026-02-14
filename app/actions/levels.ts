@@ -54,7 +54,7 @@ export async function addXP(userId: string, amount: number, skipRevalidate: bool
   // Check level-specific unlock requirements
   if (newLevel === 2 && user.level === 1) {
     // Check if Level 1 (letters) is complete
-    const { checkLevel1Complete } = await import('./letters');
+    const { checkLevel1Complete } = await import('./content');
     const level1Complete = await checkLevel1Complete(userId);
     if (!level1Complete) {
       newLevel = 1; // Stay at level 1 until letters are mastered
@@ -84,7 +84,7 @@ export async function checkAndUnlockLevel2(userId: string) {
   if (!user) return false;
 
   if (user.level === 1) {
-    const { checkLevel1Complete } = await import('./letters');
+    const { checkLevel1Complete } = await import('./content');
     const level1Complete = await checkLevel1Complete(userId);
     if (level1Complete) {
       // Unlock level 2

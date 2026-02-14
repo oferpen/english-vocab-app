@@ -1,6 +1,5 @@
 'use server';
 
-import { cache } from 'react';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/auth';
@@ -13,7 +12,7 @@ export interface AppSettings {
   };
 }
 
-export const getSettings = cache(async (): Promise<AppSettings> => {
+export async function getSettings(): Promise<AppSettings> {
   const user = await getCurrentUser();
   if (!user) {
     return getDefaultSettings();
@@ -34,7 +33,7 @@ export const getSettings = cache(async (): Promise<AppSettings> => {
   } catch {
     return getDefaultSettings();
   }
-});
+}
 
 export async function updateSettings(settings: Partial<AppSettings>) {
   const user = await getCurrentUser();

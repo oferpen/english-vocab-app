@@ -127,7 +127,7 @@ export async function completeLearningSession(
       // Check level-specific unlock requirements
       if (newLevel === 2 && user.level === 1) {
         // Check if Level 1 (letters) is complete
-        const { checkLevel1Complete } = await import('./letters');
+        const { checkLevel1Complete } = await import('./content');
         const level1Complete = await checkLevel1Complete(userId);
         if (!level1Complete) {
           newLevel = 1; // Stay at level 1 until letters are mastered

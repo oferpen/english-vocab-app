@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Quiz from '@/components/Quiz';
-import { getAllWords } from '@/app/actions/words';
+import { getAllWords } from '@/app/actions/content';
 import { getSettings } from '@/app/actions/settings';
 import { getLevelState } from '@/app/actions/levels';
 
@@ -19,7 +19,7 @@ const mocks = vi.hoisted(() => ({
   routerPush: vi.fn(),
 }));
 
-vi.mock('@/app/actions/words', () => ({
+vi.mock('@/app/actions/content', () => ({
   getAllWords: mocks.getAllWords,
   getWordsByCategory: mocks.getWordsByCategory,
 }));

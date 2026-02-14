@@ -14,6 +14,19 @@ const nextConfig = {
     
     return [
       {
+        source: '/sw.js',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/javascript',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
+          },
+        ],
+      },
+      {
         source: '/:path*',
         headers: [
           {
@@ -27,6 +40,7 @@ const nextConfig = {
               "font-src 'self' data:",
               "connect-src 'self' https://accounts.google.com https://oauth2.googleapis.com",
               "frame-src 'self' https://accounts.google.com",
+              "worker-src 'self'", // Allow service workers
             ].join('; '),
           },
           {

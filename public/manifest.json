@@ -1,0 +1,50 @@
+{
+  "name": "EnglishPath - הרפתקת האנגלית",
+  "short_name": "EnglishPath",
+  "description": "לימוד אנגלית לילדים בדרך המהנה ביותר - הצטרפו להרפתקה!",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#3b82f6",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "dir": "rtl",
+  "lang": "he",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "kids"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "למידה",
+      "short_name": "למידה",
+      "description": "התחל ללמוד מילים חדשות",
+      "url": "/learn?mode=learn",
+      "icons": [{ "src": "/favicon.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "חידון",
+      "short_name": "חידון",
+      "description": "בדוק את הידע שלך",
+      "url": "/learn?mode=quiz",
+      "icons": [{ "src": "/favicon.png", "sizes": "192x192" }]
+    }
+  ]
+}

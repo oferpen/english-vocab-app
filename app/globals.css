@@ -8,6 +8,18 @@
   --background-start-rgb: 248, 250, 252;
   /* neutral-50 */
   --background-end-rgb: 255, 255, 255;
+  
+  /* Theme colors */
+  --primary-500: #0ea5e9;
+  --primary-400: #38bdf8;
+  --primary-600: #0284c7;
+  --accent-500: #eab308;
+  --accent-400: #facc15;
+  --purple-400: #a855f7;
+  --purple-500: #a855f7;
+  --pink-500: #ec4899;
+  --success-500: #10b981;
+  --danger-500: #f43f5e;
 }
 
 * {
@@ -51,7 +63,7 @@ body::-webkit-scrollbar {
 body {
   color: rgb(var(--foreground-rgb));
   background-color: rgb(15, 23, 42);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* Font is applied via inline style and className from Next.js font optimization */
   /* Normalize rendering across browsers */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -67,6 +79,31 @@ body {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
+}
+
+/* Typography - Headings use Cagliostro for playful headers */
+/* Body uses Rubik via rubik.className - all text elements inherit from body */
+/* Only headings need explicit font-family override - use CSS variable for Cagliostro */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-cagliostro), 'Cagliostro', sans-serif !important;
+  font-weight: 400;
+}
+
+@layer base {
+  /* Additional base styles can go here */
+}
+
+/* For bold headings, use Rubik Bold - inherit from body which has rubik.className */
+h1.font-bold, h2.font-bold, h3.font-bold, h4.font-bold, h5.font-bold, h6.font-bold,
+.font-heading-bold {
+  font-family: inherit !important;
+  font-weight: 700;
+}
+
+/* Utility class for playful headings */
+.font-heading-playful {
+  font-family: var(--font-cagliostro), 'Cagliostro', sans-serif !important;
+  font-weight: 400;
 }
 
 a {
@@ -109,10 +146,10 @@ a {
 
   /* Mobile header safe area support */
   .safe-top {
-    padding-top: 1rem;
-    padding-top: max(1rem, env(safe-area-inset-top, 0px));
-    min-height: 4rem;
-    min-height: calc(4rem + env(safe-area-inset-top, 0px));
+    padding-top: 0.5rem;
+    padding-top: max(0.5rem, env(safe-area-inset-top, 0px));
+    min-height: 3rem;
+    min-height: calc(3rem + env(safe-area-inset-top, 0px));
     height: auto;
   }
 
@@ -208,7 +245,7 @@ a {
 
   /* Glow Effects */
   .glow-primary {
-    box-shadow: 0 0 20px rgba(14, 165, 233, 0.4), 0 0 40px rgba(14, 165, 233, 0.2);
+    box-shadow: 0 0 20px var(--primary-500, rgba(14, 165, 233, 0.4)), 0 0 40px var(--primary-500, rgba(14, 165, 233, 0.2));
   }
 
   .glow-accent {
@@ -217,7 +254,7 @@ a {
 
   /* Text Effects */
   .text-shimmer {
-    background: linear-gradient(90deg, #ffffff 0%, #e0f2fe 50%, #ffffff 100%);
+    background: linear-gradient(90deg, #ffffff 0%, var(--primary-400, #e0f2fe) 50%, #ffffff 100%);
     background-size: 200% 100%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -228,6 +265,32 @@ a {
   /* Perspective for 3D effects */
   .perspective-2000 {
     perspective: 2000px;
+  }
+
+  /* Override margins for LearnToday flashcard */
+  .learn-today-flashcard {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  /* Override gap for LearnToday container */
+  .learn-today-container {
+    gap: 0 !important;
+    row-gap: 0 !important;
+  }
+
+  /* Eliminate spacing from text rendering */
+  .learn-today-container > * {
+    line-height: 1 !important;
+  }
+
+  .learn-today-container .text-center {
+    line-height: 0.8 !important;
+  }
+
+  .learn-today-container .text-center span {
+    line-height: 0.8 !important;
+    display: block !important;
   }
 
   /* Quiz celebration screen - new dedicated structure */

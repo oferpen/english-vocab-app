@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getAllCategories, createWord, updateWord, deleteWord, getAllWordsAdmin } from '@/app/actions/words';
+import { getAllCategories, createWord, updateWord, deleteWord, getAllWordsAdmin } from '@/app/actions/content';
 import type { Word } from '@prisma/client';
 import {
   Plus,

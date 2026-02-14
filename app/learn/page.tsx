@@ -1,7 +1,8 @@
 import { getCurrentUser } from '@/lib/auth';
 import { getLevelState } from '@/app/actions/levels';
-import { getWordsByCategory } from '@/app/actions/words';
+import { getWordsByCategory } from '@/app/actions/content';
 import { getStreak } from '@/app/actions/streak';
+import { getSettings } from '@/app/actions/settings';
 import { getTodayDate } from '@/lib/utils';
 import LearnQuizWrapper from '@/components/LearnQuizWrapper';
 import GoogleSignIn from '@/components/auth/GoogleSignIn';
@@ -36,11 +37,25 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
   const requestedLevel = params?.level ? parseInt(params.level) : undefined;
   const mode = params?.mode || 'learn';
 
-  // Fetch streak (level/xp are on user object directly)
+  // Fetch streak and settings (level/xp are on user object directly)
   let streak = 0;
+  let settings = null;
   try {
     streak = await getStreak(user.id).catch(() => 0);
   } catch (error) {
+  }
+  
+  try {
+    settings = await getSettings();
+  } catch (error) {
+    // Use default settings if fetch fails
+    settings = {
+      questionTypes: {
+        enToHe: true,
+        heToEn: true,
+        audioToEn: false,
+      },
+    };
   }
 
   const levelState = {
@@ -78,7 +93,7 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
       return (
         <div className="min-h-screen bg-transparent">
           {navBar}
-          <div className="max-w-3xl mx-auto glass-premium min-h-[80vh] mt-24 mb-20 sm:mb-24 md:mb-10 text-center px-8 py-16 rounded-[3rem] safe-content-mobile">
+          <div className="max-w-3xl mx-auto glass-premium min-h-[80vh] mt-14 sm:mt-16 md:mt-20 mb-20 sm:mb-24 md:mb-10 text-center px-8 py-16 rounded-[3rem] safe-content-mobile">
             <div className="text-8xl mb-6">📭</div>
             <h2 className="text-3xl font-black mb-4 text-neutral-800 tracking-tight">אין מילים בקטגוריה</h2>
             <p className="text-xl text-neutral-600 mb-8">לא נמצאו מילים זמינות ברמה זו.</p>
@@ -105,9 +120,9 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
     // ...
 
     return (
-      <div className="min-h-screen bg-transparent overflow-hidden">
+      <div className="min-h-screen bg-transparent">
         {navBar}
-        <div className="w-full max-w-sm sm:max-w-2xl md:max-w-4xl lg:max-w-5xl mx-auto glass-premium mt-20 sm:mt-12 md:mt-16 lg:mt-20 mb-20 sm:mb-24 md:mb-8 lg:mb-12 rounded-xl sm:rounded-[2rem] md:rounded-[3rem] lg:rounded-[4rem] p-2 sm:p-3 md:p-4 lg:p-6 xl:p-12 shadow-[0_60px_120px_-20px_rgba(0,0,0,0.6)] border-white/20 transition-all duration-1000 overflow-hidden safe-content-mobile">
+        <div className="w-full max-w-sm sm:max-w-2xl md:max-w-4xl lg:max-w-5xl mx-auto glass-premium mt-14 sm:mt-12 md:mt-16 lg:mt-20 mb-20 sm:mb-24 md:mb-8 lg:mb-12 rounded-xl sm:rounded-[2rem] md:rounded-[3rem] lg:rounded-[4rem] p-3 sm:p-4 md:p-6 lg:p-12 shadow-[0_60px_120px_-20px_rgba(0,0,0,0.6)] border-white/20 transition-all duration-1000 safe-content-mobile" style={{ height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
           <LearnQuizWrapper
             userId={user.id}
             todayPlan={todayPlan}
@@ -117,6 +132,7 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
             letterId={letterId}
             levelState={levelState}
             categoryWords={categoryWords}
+            settings={settings}
           />
         </div>
       </div>
@@ -128,7 +144,7 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
     return (
       <div className="min-h-screen bg-transparent">
         {navBar}
-        <div className="max-w-3xl mx-auto glass-premium min-h-[80vh] mt-20 sm:mt-20 md:mt-24 mb-20 sm:mb-24 md:mb-10 rounded-[2rem] sm:rounded-[2.5rem] md:rounded-[3rem] p-4 sm:p-6 md:p-10 safe-content-mobile">
+        <div className="max-w-3xl mx-auto glass-premium mt-14 sm:mt-16 md:mt-20 mb-20 sm:mb-24 md:mb-10 rounded-[2rem] sm:rounded-[2.5rem] md:rounded-[3rem] p-3 sm:p-6 md:p-10 safe-content-mobile" style={{ height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
           <LearnQuizWrapper
             userId={user.id}
             todayPlan={null}
@@ -137,6 +153,7 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
             wordId={wordId}
             letterId={letterId}
             levelState={levelState}
+            settings={settings}
           />
         </div>
       </div>

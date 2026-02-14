@@ -2,11 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 export default function BottomNav() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [isVisible, setIsVisible] = useState(true);
   
   // Get category and mode from current URL (works for both learn and quiz pages)
   const category = searchParams?.get('category');
@@ -28,6 +30,11 @@ export default function BottomNav() {
   // Build quiz URL with category if available
   const quizHref = category ? `/learn?mode=quiz&category=${encodeURIComponent(category)}${level ? `&level=${level}` : ''}` : '/learn?mode=quiz';
 
+  // Keep menu always visible - no scroll hiding
+  useEffect(() => {
+    setIsVisible(true);
+  }, [pathname]);
+
   // Handle mode switching on learn page (client-side navigation to avoid full page reload)
   const handleModeSwitch = (newMode: 'learn' | 'quiz') => {
     if (pathname === '/learn' && category) {
@@ -47,7 +54,7 @@ export default function BottomNav() {
   // Quiz page footer design - more action-oriented with gradient (positioned at top)
   if (isQuizPage) {
     return (
-      <nav className="fixed top-0 left-0 right-0 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 shadow-2xl z-50">
+      <nav className={`fixed top-0 left-0 right-0 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 shadow-2xl z-[100] transition-transform duration-300 ${isVisible ? 'translate-y-0' : 'translate-y-0'}`}>
         <div className="flex justify-around items-center h-20 md:h-24 px-4">
           <button
             onClick={() => handleModeSwitch('learn')}
@@ -72,7 +79,7 @@ export default function BottomNav() {
   // Learn page footer design - cleaner, more navigation-focused (positioned at top)
   if (isLearnPage) {
     return (
-      <nav className="fixed top-0 left-0 right-0 bg-gradient-to-br from-blue-50 to-indigo-100 border-b-2 border-blue-200 shadow-xl z-50">
+      <nav className={`fixed top-0 left-0 right-0 bg-gradient-to-br from-blue-50 to-indigo-100 border-b-2 border-blue-200 shadow-xl z-[100] transition-transform duration-300 ${isVisible ? 'translate-y-0' : 'translate-y-0'}`}>
         <div className="flex justify-around items-center h-20 md:h-20 px-4">
           <button
             onClick={() => handleModeSwitch('learn')}
@@ -119,7 +126,7 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white border-b-2 border-gray-200 shadow-2xl z-50">
+    <nav className={`fixed top-0 left-0 right-0 bg-white border-b-2 border-gray-200 shadow-2xl z-[100] transition-transform duration-300 ${isVisible ? 'translate-y-0' : 'translate-y-0'}`}>
       <div className="flex justify-around items-center h-16 md:h-20">
         {navItems.map((item) => {
           const isActive = pathname === item.href || pathname?.startsWith(item.href) || (item.href === '/learn/path' && (pathname === '/learn' || pathname === '/'));

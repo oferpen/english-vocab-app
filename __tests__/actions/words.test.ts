@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getAllWords, getWord, createWord, updateWord, deleteWord } from '@/app/actions/words';
+import { getAllWords, getWord, createWord, updateWord, deleteWord } from '@/app/actions/content';
 import { prisma } from '@/lib/prisma';
 
 vi.mock('react', () => ({

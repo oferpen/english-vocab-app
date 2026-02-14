@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">English Path</string>
+    <string name="title_activity_main">English Path</string>
+    <string name="package_name">com.oferp.englishpath</string>
+    <string name="custom_url_scheme">com.oferp.englishpath</string>
+</resources>

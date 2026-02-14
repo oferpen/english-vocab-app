@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as lettersActions from '@/app/actions/letters';
+import * as lettersActions from '@/app/actions/content';
 import { prisma } from '@/lib/prisma';
 
 vi.mock('react', () => ({

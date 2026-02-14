@@ -9,7 +9,7 @@ export default function AnimatedBackground() {
     const pathname = usePathname();
     
     // Use fewer stars on learn page, more on path page
-    const starCount = pathname?.includes('/learn') && !pathname?.includes('/learn/path') ? 20 : 50;
+    const starCount = pathname?.includes('/learn') && !pathname?.includes('/learn/path') ? 8 : 50;
 
     useEffect(() => {
         const newStars = [...Array(starCount)].map(() => ({

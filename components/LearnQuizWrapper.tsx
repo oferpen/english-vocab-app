@@ -5,7 +5,6 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Book, Pencil } from 'lucide-react';
 import Quiz from './Quiz';
 import LearnToday from './LearnToday';
-import QuizLetters from './QuizLetters';
 
 interface LearnQuizWrapperProps {
   userId: string;
@@ -16,6 +15,7 @@ interface LearnQuizWrapperProps {
   letterId?: string;
   levelState: any;
   categoryWords?: any[]; // Pass categoryWords to avoid fetching them again
+  settings?: any; // Pass settings to avoid client-side server action call
 }
 
 export default function LearnQuizWrapper({
@@ -27,6 +27,7 @@ export default function LearnQuizWrapper({
   letterId,
   levelState,
   categoryWords,
+  settings,
 }: LearnQuizWrapperProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -36,57 +37,72 @@ export default function LearnQuizWrapper({
   });
   const [isSwitching, setIsSwitching] = useState(false);
 
+  // Sync mode from URL params when they change (e.g., on page refresh or navigation)
+  useEffect(() => {
+    const urlMode = searchParams?.get('mode') as 'learn' | 'quiz';
+    if (urlMode && urlMode !== mode) {
+      setMode(urlMode);
+    }
+  }, [searchParams, mode]);
+
   const handleModeSwitch = (newMode: 'learn' | 'quiz') => {
     if (mode === newMode || isSwitching) return;
 
     setIsSwitching(true);
     setMode(newMode);
 
-    // Don't sync URL at all during mode switch - keep it purely client-side
-    // This prevents Next.js from detecting URL changes and causing reload
-    setTimeout(() => {
-      setIsSwitching(false);
-    }, 100);
+    // Update URL to persist mode across page refreshes
+    const params = new URLSearchParams(window.location.search);
+    params.set('mode', newMode);
+    startTransition(() => {
+      router.replace(`${window.location.pathname}?${params.toString()}`, { scroll: false });
+      setTimeout(() => {
+        setIsSwitching(false);
+      }, 100);
+    });
   };
 
   // Render based on mode
   // Level 1 logic: Show Letters Learn/Quiz if no category/todayPlan
   if (level === 1 && !category && !todayPlan) {
     return (
-      <>
-        <div className="mb-2 sm:mb-3 md:mb-4 lg:mb-6 mt-4 sm:mt-0 flex gap-1.5 sm:gap-2 md:gap-3 glass-card rounded-lg sm:rounded-xl md:rounded-2xl p-1 sm:p-1.5 md:p-2 border-white/20">
+      <div className="flex flex-col h-full" style={{ gap: '0' }}>
+        {/* Navigation Tabs */}
+        <div className="flex gap-2 glass-card rounded-xl border-white/20 flex-shrink-0" style={{ marginBottom: '12px', paddingTop: '6px', paddingLeft: '6px', paddingRight: '6px', paddingBottom: '6px' }}>
           <button
             onClick={() => handleModeSwitch('learn')}
             disabled={isSwitching || isPending || mode === 'learn'}
-            className={`flex-1 flex items-center justify-center py-1.5 sm:py-2 md:py-2.5 lg:py-3 px-2 sm:px-3 md:px-4 lg:px-6 rounded-md sm:rounded-lg md:rounded-xl transition-all duration-200 ${mode === 'learn'
+            className={`flex-1 flex items-center justify-center py-2 px-3 rounded-lg transition-all duration-200 ${mode === 'learn'
               ? 'border-2 border-primary-400 text-white font-black shadow-sm bg-primary-500/30 backdrop-blur-sm'
               : 'text-neutral-400 hover:text-white hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed'
               }`}
           >
-            <Book className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 mr-1 sm:mr-1.5 md:mr-2 lg:mr-3" />
-            <span className="text-xs sm:text-sm md:text-base lg:text-lg font-bold">למידה</span>
+            <Book className="w-4 h-4 mr-1.5" />
+            <span className="text-sm font-bold">למידה</span>
           </button>
           <button
             onClick={() => handleModeSwitch('quiz')}
             disabled={isSwitching || isPending || mode === 'quiz'}
-            className={`flex-1 flex items-center justify-center py-1.5 sm:py-2 md:py-2.5 lg:py-3 px-2 sm:px-3 md:px-4 lg:px-6 rounded-md sm:rounded-lg md:rounded-xl transition-all duration-200 ${mode === 'quiz'
+            className={`flex-1 flex items-center justify-center py-2 px-3 rounded-lg transition-all duration-200 ${mode === 'quiz'
               ? 'border-2 border-primary-400 text-white font-black shadow-sm bg-primary-500/30 backdrop-blur-sm'
               : 'text-neutral-400 hover:text-white hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed'
               }`}
           >
-            <Pencil className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 mr-1 sm:mr-1.5 md:mr-2 lg:mr-3" />
-            <span className="text-xs sm:text-sm md:text-base lg:text-lg font-bold">חידון</span>
+            <Pencil className="w-4 h-4 mr-1.5" />
+            <span className="text-sm font-bold">חידון</span>
           </button>
         </div>
 
-        {/* Keep both components mounted but hidden to prevent reload on mode switch */}
-        <div style={{ display: mode === 'quiz' ? 'block' : 'none' }}>
-          <QuizLetters userId={userId} onModeSwitch={handleModeSwitch} />
+        {/* Content */}
+        <div className="min-h-0" style={{ flex: '1 1 auto', height: '0' }}>
+          <div style={{ display: mode === 'quiz' ? 'block' : 'none', height: '100%' }}>
+            <Quiz userId={userId} level={1} onModeSwitch={handleModeSwitch} />
+          </div>
+          <div style={{ display: mode === 'learn' ? 'block' : 'none', height: '100%' }}>
+            <LearnToday userId={userId} letterId={letterId} level={1} />
+          </div>
         </div>
-        <div style={{ display: mode === 'learn' ? 'block' : 'none' }}>
-          <LearnToday userId={userId} letterId={letterId} level={1} />
-        </div>
-      </>
+      </div>
     );
   }
 
@@ -99,56 +115,59 @@ export default function LearnQuizWrapper({
   }
 
   // Keep both components mounted but show/hide based on mode to preserve state
-  return (
-    <>
-      {/* Navigation Tabs - Always visible to prevent flickering */}
-      <div className="mb-2 sm:mb-3 md:mb-4 lg:mb-6 flex gap-1.5 sm:gap-2 md:gap-3 glass-card rounded-lg sm:rounded-xl md:rounded-2xl p-1 sm:p-1.5 md:p-2 border-white/20">
+    return (
+      <div className="flex flex-col h-full" style={{ gap: '0' }}>
+        {/* Navigation Tabs */}
+        <div className="flex gap-2 glass-card rounded-xl border-white/20 flex-shrink-0" style={{ marginBottom: '12px', paddingTop: '6px', paddingLeft: '6px', paddingRight: '6px', paddingBottom: '6px' }}>
         <button
           onClick={() => handleModeSwitch('learn')}
           disabled={isSwitching || isPending || mode === 'learn'}
-          className={`flex-1 flex items-center justify-center py-1.5 sm:py-2 md:py-2.5 lg:py-3 px-2 sm:px-3 md:px-4 lg:px-6 rounded-md sm:rounded-lg md:rounded-xl transition-all duration-200 ${mode === 'learn'
+          className={`flex-1 flex items-center justify-center py-2 px-3 rounded-lg transition-all duration-200 ${mode === 'learn'
             ? 'border-2 border-primary-400 text-white font-black shadow-sm bg-primary-500/30 backdrop-blur-sm'
             : 'text-neutral-400 hover:text-white hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed'
             }`}
         >
-          <Book className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 mr-1 sm:mr-1.5 md:mr-2 lg:mr-3" />
-          <span className="text-xs sm:text-sm md:text-base lg:text-lg font-bold">למידה</span>
+          <Book className="w-4 h-4 mr-1.5" />
+          <span className="text-sm font-bold">למידה</span>
         </button>
         <button
           onClick={() => handleModeSwitch('quiz')}
           disabled={isSwitching || isPending || mode === 'quiz'}
-          className={`flex-1 flex items-center justify-center py-1.5 sm:py-2 md:py-2.5 lg:py-3 px-2 sm:px-3 md:px-4 lg:px-6 rounded-md sm:rounded-lg md:rounded-xl transition-all duration-200 ${mode === 'quiz'
+          className={`flex-1 flex items-center justify-center py-2 px-3 rounded-lg transition-all duration-200 ${mode === 'quiz'
             ? 'border-2 border-primary-400 text-white font-black shadow-sm bg-primary-500/30 backdrop-blur-sm'
             : 'text-neutral-400 hover:text-white hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed'
             }`}
         >
-          <Pencil className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 mr-1 sm:mr-1.5 md:mr-2 lg:mr-3" />
-          <span className="text-xs sm:text-sm md:text-base lg:text-lg font-bold">חידון</span>
+          <Pencil className="w-4 h-4 mr-1.5" />
+          <span className="text-sm font-bold">חידון</span>
         </button>
       </div>
 
-      {/* Keep both components mounted but hidden to prevent reload on mode switch */}
-      <div style={{ display: mode === 'quiz' ? 'block' : 'none' }}>
-        <Quiz
-          userId={userId}
-          todayPlan={todayPlan}
-          category={category}
-          levelState={levelState}
-          categoryWords={categoryWords}
-          onModeSwitch={handleModeSwitch}
-        />
+      {/* Content */}
+      <div className="flex-1 min-h-0">
+        <div style={{ display: mode === 'quiz' ? 'block' : 'none', height: '100%' }}>
+          <Quiz
+            userId={userId}
+            todayPlan={todayPlan}
+            category={category}
+            levelState={levelState}
+            categoryWords={categoryWords}
+            settings={settings}
+            onModeSwitch={handleModeSwitch}
+          />
+        </div>
+        <div style={{ display: mode === 'learn' ? 'block' : 'none', height: '100%' }}>
+          <LearnToday
+            userId={userId}
+            todayPlan={todayPlan}
+            wordId={wordId}
+            category={category}
+            level={level}
+            onModeSwitch={handleModeSwitch}
+            currentMode={mode}
+          />
+        </div>
       </div>
-      <div style={{ display: mode === 'learn' ? 'block' : 'none' }}>
-        <LearnToday
-          userId={userId}
-          todayPlan={todayPlan}
-          wordId={wordId}
-          category={category}
-          level={level}
-          onModeSwitch={handleModeSwitch}
-          currentMode={mode}
-        />
-      </div>
-    </>
+    </div>
   );
 }

@@ -25,9 +25,25 @@ export default function SettingsPanel() {
 
   const loadSettings = async () => {
     setLoading(true);
-    const s = await getSettings();
-    setSettings(s);
-    setLoading(false);
+    try {
+      const s = await getSettings();
+      setSettings(s);
+    } catch (error: any) {
+      // Silently handle 404s - settings panel can work with defaults
+      if (!error?.message?.includes('404') && !error?.message?.includes('Not Found')) {
+        console.error('Failed to load settings:', error);
+      }
+      // Use default settings on error
+      setSettings({
+        questionTypes: {
+          enToHe: true,
+          heToEn: true,
+          audioToEn: false,
+        },
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleToggleQuestionType = async (type: 'enToHe' | 'heToEn' | 'audioToEn') => {
@@ -56,6 +72,7 @@ export default function SettingsPanel() {
       setSaving(false);
     }
   };
+
 
 
   if (loading || !settings) {
@@ -155,14 +172,6 @@ export default function SettingsPanel() {
                 שילוב של תרגול חזותי (אנג → עב) ותרגול פעיל (עב → אנג) יוצר את הלמידה האפקטיבית ביותר!
               </p>
             </div>
-          </div>
-
-          <div className="bg-white rounded-[2.5rem] border-2 border-dashed border-neutral-100 p-8 text-center group">
-            <div className="w-16 h-16 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-neutral-100 transition-colors">
-              <SettingsIcon className="w-8 h-8 text-neutral-300 group-hover:rotate-45 transition-transform duration-500" />
-            </div>
-            <h4 className="text-lg font-black text-neutral-400">הגדרות מתקדמות</h4>
-            <p className="text-sm text-neutral-300 font-bold mt-2 italic">בקרוב תוכלו לשלוט גם ברמת הקושי...</p>
           </div>
         </div>
       </div>

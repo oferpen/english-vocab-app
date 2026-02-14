@@ -1,6 +1,5 @@
 import { getCurrentUser } from '@/lib/auth';
-import { getLetter } from '@/app/actions/letters';
-import { getWord } from '@/app/actions/words';
+import { getLetter, getWord } from '@/app/actions/content';
 import LearnToday from '@/components/LearnToday';
 import BottomNav from '@/components/BottomNav';
 import GoogleSignIn from '@/components/auth/GoogleSignIn';

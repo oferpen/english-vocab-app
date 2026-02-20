@@ -18,6 +18,14 @@ const nextConfig = {
   // },
   async headers() {
     const isDev = process.env.NODE_ENV === 'development';
+    // Check for Vercel preview environment
+    const isPreview = process.env.VERCEL_ENV === 'preview';
+    const isVercel = !!process.env.VERCEL; // VERCEL is set to '1' on all Vercel deployments
+    // Allow Vercel live feedback - Vercel only injects this script in preview deployments anyway
+    // Safe to allow since it won't be present in production
+    const allowVercelLive = isDev || isPreview || isVercel;
+    // Allow unsafe-eval only in development/preview (Next.js Turbopack needs it for hot reload)
+    const allowUnsafeEval = isDev || isPreview;
     
     return [
       {
@@ -40,12 +48,14 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              // Only allow unsafe-eval in development (for Next.js hot reload)
-              `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://*.sentry.io`,
+              // Allow unsafe-eval only in development/preview (Next.js Turbopack hot reload)
+              // Production CSP remains strict without unsafe-eval
+              // Allow vercel.live for preview deployments (Vercel only injects this in preview, not production)
+              `script-src 'self' 'unsafe-inline'${allowUnsafeEval ? " 'unsafe-eval'" : ''} https://*.sentry.io https://vercel.live`,
               "style-src 'self' 'unsafe-inline'", // Tailwind uses inline styles
               "img-src 'self' data: https: *.googleusercontent.com",
               "font-src 'self' data:",
-              "connect-src 'self' https://accounts.google.com https://oauth2.googleapis.com https://*.sentry.io",
+              `connect-src 'self' https://accounts.google.com https://oauth2.googleapis.com https://*.sentry.io https://vercel.live wss://vercel.live`,
               "frame-src 'self' https://accounts.google.com",
               "worker-src 'self'", // Allow service workers
             ].join('; '),

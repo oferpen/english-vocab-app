@@ -91,4 +91,9 @@ const sentryWebpackPluginOptions = {
   },
 };
 
-module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);
+// Only wrap with Sentry if org and project are configured
+if (process.env.SENTRY_ORG && process.env.SENTRY_PROJECT) {
+  module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);
+} else {
+  module.exports = nextConfig;
+}

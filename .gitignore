@@ -45,3 +45,9 @@ next-env.d.ts
 # vitest
 /coverage
 .env.vercel
+
+# Android signing keys (NEVER commit these!)
+*.jks
+*.keystore
+android/key.properties
+english-path-release-key.jks

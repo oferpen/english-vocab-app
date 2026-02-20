@@ -4,6 +4,7 @@ import './globals.css';
 import Providers from '@/components/Providers';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import PWAInstaller from '@/components/PWAInstaller';
+import SentryProvider from '@/components/SentryProvider';
 
 const rubik = Rubik({
   subsets: ['latin', 'hebrew'],
@@ -63,6 +64,7 @@ export default function RootLayout({
   return (
     <html lang="he" dir="rtl" className={`${rubik.variable} ${cagliostro.variable}`}>
       <body style={{ margin: 0, padding: 0, fontFamily: rubik.style.fontFamily }} className={rubik.className}>
+        <SentryProvider />
         <Providers>
           <AnimatedBackground />
           {children}

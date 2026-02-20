@@ -1,5 +1,5 @@
-// Injected content via Sentry wizard below
-const { withSentryConfig } = require('@sentry/nextjs');
+// Temporarily disabled Sentry to fix production issue
+// const { withSentryConfig } = require('@sentry/nextjs');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -12,10 +12,10 @@ const nextConfig = {
       },
     ],
   },
-  // Enable instrumentation for Sentry
-  experimental: {
-    instrumentationHook: true,
-  },
+  // Temporarily disabled instrumentationHook
+  // experimental: {
+  //   instrumentationHook: true,
+  // },
   async headers() {
     const isDev = process.env.NODE_ENV === 'development';
     
@@ -91,9 +91,12 @@ const sentryWebpackPluginOptions = {
   },
 };
 
-// Only wrap with Sentry if org and project are configured
-if (process.env.SENTRY_ORG && process.env.SENTRY_PROJECT) {
-  module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);
-} else {
-  module.exports = nextConfig;
-}
+// Temporarily disabled Sentry wrapper to fix production issue
+module.exports = nextConfig;
+
+// Re-enable Sentry later once production is stable:
+// if (process.env.SENTRY_ORG && process.env.SENTRY_PROJECT) {
+//   module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);
+// } else {
+//   module.exports = nextConfig;
+// }

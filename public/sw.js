@@ -1,7 +1,7 @@
 // Service Worker for EnglishPath PWA
-const CACHE_NAME = 'englishpath-v1';
+const CACHE_NAME = 'englishpath-v2'; // Increment version to clear old cache
 const urlsToCache = [
-  '/',
+  // Don't cache '/' since it redirects - cache the actual destination instead
   '/learn/path',
   '/favicon.png',
   '/apple-touch-icon.png',
@@ -22,7 +22,14 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        return cache.addAll(urlsToCache);
+        // Use add() instead of addAll() to handle redirects individually
+        return Promise.all(
+          urlsToCache.map((url) => 
+            cache.add(url).catch((error) => {
+              console.log(`Failed to cache ${url}:`, error);
+            })
+          )
+        );
       })
       .catch((error) => {
         console.log('Cache install failed:', error);
@@ -71,7 +78,14 @@ self.addEventListener('fetch', (event) => {
     caches.match(event.request)
       .then((response) => {
         // Return cached version or fetch from network
-        return response || fetch(event.request).then((response) => {
+        return response || fetch(event.request, {
+          redirect: 'follow' // Allow following redirects
+        }).then((response) => {
+          // Don't cache redirects (3xx status codes)
+          if (response.status >= 300 && response.status < 400) {
+            return response; // Return redirect response without caching
+          }
+
           // Don't cache non-successful responses
           if (!response || response.status !== 200 || response.type !== 'basic') {
             return response;

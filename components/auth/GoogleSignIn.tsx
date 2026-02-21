@@ -93,23 +93,22 @@ export default function GoogleSignIn() {
             onClick={async () => {
               setIsLoading(true);
               setError(null);
-              try {
-                console.log('[Anonymous Login] Starting...');
-                const { startAnonymousSession } = await import('@/app/actions/auth');
-                console.log('[Anonymous Login] Calling server action...');
-                const result = await startAnonymousSession();
-                console.log('[Anonymous Login] Server action result:', result);
-                
-                // Always redirect - server action handles errors gracefully
-                console.log('[Anonymous Login] Redirecting to homepage...');
-                window.location.href = '/';
-              } catch (err: any) {
-                console.error('[Anonymous Login] Error:', err);
-                setIsLoading(false);
-                // Even on error, try to redirect
-                console.log('[Anonymous Login] Error occurred, but redirecting anyway...');
-                window.location.href = '/';
-              }
+              
+              // Start server action but don't wait for it - redirect immediately
+              console.log('[Anonymous Login] Starting server action (non-blocking)...');
+              const { startAnonymousSession } = await import('@/app/actions/auth');
+              
+              // Call server action but don't await - let it run in background
+              startAnonymousSession().then((result) => {
+                console.log('[Anonymous Login] Server action completed:', result);
+              }).catch((err) => {
+                console.error('[Anonymous Login] Server action error:', err);
+                // Error doesn't matter - redirect already happened
+              });
+              
+              // Redirect immediately without waiting
+              console.log('[Anonymous Login] Redirecting immediately...');
+              window.location.href = '/';
             }}
             disabled={isLoading}
             className="w-full bg-orange-400 hover:bg-orange-500 text-white px-6 py-5 rounded-2xl font-bold text-xl shadow-md transition-all flex items-center justify-center gap-3 group"

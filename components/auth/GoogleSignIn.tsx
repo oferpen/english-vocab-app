@@ -99,11 +99,13 @@ export default function GoogleSignIn() {
                 await startAnonymousSession();
                 console.log('Anonymous session started, redirecting...');
               } catch (err: any) {
-                console.error('Anonymous session error:', err);
-                if (err.message?.includes('NEXT_REDIRECT')) {
-                  // Redirect is expected, let it happen
-                  throw err;
+                // NEXT_REDIRECT is expected - Next.js throws this for redirects
+                if (err?.message?.includes('NEXT_REDIRECT')) {
+                  // Don't log or show error - redirect is working correctly
+                  return; // Let the redirect happen
                 }
+                // Only log/show actual errors
+                console.error('Anonymous session error:', err);
                 setIsLoading(false);
                 setError(`שגיאה: ${err?.message || 'אירעה שגיאה. נסה שוב.'}`);
               }

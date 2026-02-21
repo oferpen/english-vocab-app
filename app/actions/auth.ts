@@ -112,8 +112,8 @@ export async function startAnonymousSession() {
       }
     }
 
-    // Return success instead of redirecting - client will handle redirect
-    return { success: true };
+    // Return success with deviceId for debugging
+    return { success: true, deviceId };
   } catch (error: any) {
     // Log errors but still return success so client can redirect
     if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {

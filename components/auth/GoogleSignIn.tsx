@@ -113,8 +113,16 @@ export default function GoogleSignIn() {
                 const result = await Promise.race([serverActionPromise, timeoutPromise]);
                 console.log('[Anonymous Login] Server action result:', result);
                 
-                // Small delay to ensure cookie is set, then redirect
-                await new Promise(resolve => setTimeout(resolve, 200));
+                // Check if cookie is set client-side (for debugging)
+                const cookieDeviceId = document.cookie
+                  .split('; ')
+                  .find(row => row.startsWith('deviceId='))
+                  ?.split('=')[1];
+                console.log('[Anonymous Login] Cookie deviceId:', cookieDeviceId);
+                console.log('[Anonymous Login] Server returned deviceId:', (result as any)?.deviceId);
+                
+                // Longer delay to ensure cookie is set and response is processed
+                await new Promise(resolve => setTimeout(resolve, 500));
                 
                 // Always redirect - even if server action timed out
                 console.log('[Anonymous Login] Redirecting...');

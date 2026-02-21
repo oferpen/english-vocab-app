@@ -42,7 +42,7 @@ export async function startAnonymousSession() {
       });
     }
 
-    // Add timeout wrapper for database queries - use shorter timeout
+    // Add timeout wrapper for database queries
     let user = null;
     try {
       const dbQuery = prisma.user.findUnique({
@@ -50,16 +50,16 @@ export async function startAnonymousSession() {
       });
       
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Database query timeout')), 3000); // Shorter timeout
+        setTimeout(() => reject(new Error('Database query timeout')), 5000);
       });
 
       user = await Promise.race([dbQuery, timeoutPromise]) as any;
     } catch (error: any) {
       // Database query failed or timed out - continue without user
       if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-        console.error('Anonymous session - database query error:', error);
+        console.error('[Anonymous Session] Database query error:', error?.message);
       }
-      user = null; // Continue without user
+      user = null;
     }
 
     // If it's a Google account (not anonymous), force a NEW deviceId for anonymous learning
@@ -71,27 +71,12 @@ export async function startAnonymousSession() {
         httpOnly: true,
         sameSite: 'lax',
       });
-      // Create new anonymous user with timeout - WAIT for it to complete
-      try {
-        const createPromise = prisma.user.create({
-          data: {
-            deviceId: newDeviceId,
-            isAnonymous: true,
-            name: 'Guest',
-          },
-        });
-        const createTimeout = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Create user timeout')), 3000);
-        });
-        await Promise.race([createPromise, createTimeout]);
-      } catch (createError: any) {
-        // If creation fails, continue anyway - cookie is set
-        if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-          console.error('Anonymous session - create user error:', createError);
-        }
-      }
-    } else if (!user) {
-      // Create new anonymous user if not exists - WAIT for it to complete
+      deviceId = newDeviceId; // Update deviceId for user creation
+      user = null; // Reset user so we create a new anonymous one
+    }
+
+    // Create new anonymous user if not exists - WAIT for it to complete
+    if (!user) {
       try {
         const createPromise = prisma.user.create({
           data: {
@@ -101,47 +86,57 @@ export async function startAnonymousSession() {
           },
         });
         const createTimeout = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Create user timeout')), 3000);
+          setTimeout(() => reject(new Error('Create user timeout')), 5000);
         });
-        const createdUser = await Promise.race([createPromise, createTimeout]) as any;
+        user = await Promise.race([createPromise, createTimeout]) as any;
+        
         if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-          console.log('[Anonymous Session] User created:', createdUser?.id);
+          console.log('[Anonymous Session] User created successfully:', user?.id);
         }
-        user = createdUser;
       } catch (createError: any) {
-        // If creation fails, try to find user again (might have been created by another request)
+        // If creation fails, try to find user (might have been created by race condition)
         if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-          console.error('Anonymous session - create user error:', createError);
+          console.error('[Anonymous Session] Create user error:', createError?.message);
         }
-        // Try to find user one more time in case it was created
+        
+        // Retry finding user - might have been created by concurrent request
         try {
-          const retryUser = await prisma.user.findUnique({
+          const retryQuery = prisma.user.findUnique({
             where: { deviceId },
           });
-          if (retryUser) {
-            user = retryUser;
+          const retryTimeout = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Retry query timeout')), 2000);
+          });
+          user = await Promise.race([retryQuery, retryTimeout]) as any;
+          
+          if (user && process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
+            console.log('[Anonymous Session] User found on retry:', user?.id);
           }
         } catch (retryError) {
           // Ignore retry errors
+          if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
+            console.error('[Anonymous Session] Retry query error:', retryError);
+          }
         }
       }
     }
 
-    // Verify user exists before returning
+    // Final verification - user must exist
     if (!user) {
+      const errorMsg = `Failed to create or find user for deviceId: ${deviceId}`;
       if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-        console.warn('[Anonymous Session] No user found after creation attempt, deviceId:', deviceId);
+        console.error('[Anonymous Session]', errorMsg);
       }
+      return { success: false, error: errorMsg, deviceId };
     }
 
-    // Return success with deviceId and user status for debugging
-    return { success: true, deviceId, userCreated: !!user };
+    // Success - user exists and cookie is set
+    return { success: true, deviceId, userCreated: true, userId: user.id };
   } catch (error: any) {
-    // Log errors but still return success so client can redirect
+    const errorMsg = error?.message || 'Unknown error';
     if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-      console.error('Anonymous session - error:', error);
+      console.error('[Anonymous Session] Unexpected error:', errorMsg);
     }
-    // Return success anyway - let client handle redirect
-    return { success: true, error: error?.message };
+    return { success: false, error: errorMsg };
   }
 }

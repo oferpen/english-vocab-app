@@ -93,68 +93,42 @@ export default function GoogleSignIn() {
             onClick={async () => {
               // Prevent double-clicks
               if (isLoading) {
-                console.log('[Anonymous Login] Already loading, ignoring click');
                 return;
               }
               
-              console.log('[Anonymous Login] Button clicked, starting login flow...');
               setIsLoading(true);
               setError(null);
               
               try {
-                console.log('[Anonymous Login] Starting server action...');
                 const { startAnonymousSession } = await import('@/app/actions/auth');
                 
-                // Wait for server action with timeout
+                // Call server action with timeout
                 const serverActionPromise = startAnonymousSession();
                 const timeoutPromise = new Promise((resolve) => {
-                  setTimeout(() => resolve({ success: true, timeout: true }), 5000); // 5 second timeout
+                  setTimeout(() => resolve({ success: false, timeout: true, error: 'Request timeout' }), 8000);
                 });
                 
-                const result = await Promise.race([serverActionPromise, timeoutPromise]);
-                console.log('[Anonymous Login] Server action completed, result:', result);
+                const result = await Promise.race([serverActionPromise, timeoutPromise]) as any;
                 
-                const resultData = result as any;
-                
-                // If user wasn't created and it's not a timeout, try one more time
-                if (!resultData?.userCreated && !resultData?.timeout) {
-                  console.warn('[Anonymous Login] User was not created, retrying...');
-                  // Wait a moment and try to verify user exists via API
-                  await new Promise(resolve => setTimeout(resolve, 500));
-                  try {
-                    const verifyResponse = await fetch('/api/test-anon');
-                    const verifyData = await verifyResponse.json();
-                    console.log('[Anonymous Login] Verification result:', verifyData);
-                    if (!verifyData.userFound) {
-                      console.error('[Anonymous Login] User still not found after retry');
-                      setError('לא הצלחנו ליצור משתמש. נסה לרענן את הדף.');
-                      setIsLoading(false);
-                      return; // Don't redirect if user creation failed
-                    }
-                  } catch (verifyError) {
-                    console.error('[Anonymous Login] Verification failed:', verifyError);
-                    // Continue with redirect anyway
-                  }
+                // Check if user was successfully created
+                if (!result.success || !result.userCreated) {
+                  const errorMsg = result.error || 'לא הצלחנו ליצור משתמש';
+                  console.error('[Anonymous Login] Failed:', errorMsg);
+                  setError(errorMsg);
+                  setIsLoading(false);
+                  return; // Don't redirect on failure
                 }
                 
-                // Wait a bit longer to ensure server response is fully processed
-                // This gives time for cookies to be set in the response headers
-                console.log('[Anonymous Login] Waiting 500ms for cookie to be set...');
-                await new Promise(resolve => setTimeout(resolve, 500));
+                // User created successfully - wait a moment for cookie to be processed
+                // Cookies set in server actions are in response headers, need time to be set
+                await new Promise(resolve => setTimeout(resolve, 300));
                 
-                // Redirect
-                console.log('[Anonymous Login] Redirecting to homepage...');
-                // Use window.location.replace to avoid back button issues
+                // Redirect to homepage - it will check for user and redirect to /learn/path
                 window.location.replace('/');
               } catch (err: any) {
-                console.error('[Anonymous Login] Exception caught:', err);
-                setIsLoading(false); // Reset loading state on error
+                console.error('[Anonymous Login] Exception:', err);
                 setError(`שגיאה: ${err?.message || 'אירעה שגיאה. נסה שוב.'}`);
-                // Even on error, redirect after a moment
-                setTimeout(() => {
-                  console.log('[Anonymous Login] Error occurred, redirecting anyway...');
-                  window.location.replace('/');
-                }, 1000);
+                setIsLoading(false);
               }
             }}
             disabled={isLoading}

@@ -18,20 +18,13 @@ export default async function Home({
       try {
         const user = await getCurrentUser();
         if (user) {
-          if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-            console.log('[Homepage] User found, redirecting to /learn/path');
-          }
           redirect('/learn/path');
-        } else {
-          if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-            console.log('[Homepage] No user found, showing sign-in screen');
-          }
         }
       } catch (authError: any) {
-        // If auth check fails, just show sign-in screen
+        // If auth check fails (including timeout), just show sign-in screen
         // Don't crash the homepage - this is a graceful fallback
         if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-          console.error('[Homepage] Auth check error:', authError);
+          console.error('[Homepage] Auth check error:', authError?.message);
         }
       }
     }

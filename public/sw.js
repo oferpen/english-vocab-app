@@ -1,5 +1,5 @@
 // Service Worker for EnglishPath PWA
-const CACHE_NAME = 'englishpath-v2'; // Increment version to clear old cache
+const CACHE_NAME = 'englishpath-v3'; // Increment version to clear old cache
 const urlsToCache = [
   // Don't cache '/' since it redirects - cache the actual destination instead
   '/learn/path',

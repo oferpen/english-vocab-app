@@ -94,21 +94,28 @@ export default function GoogleSignIn() {
               setIsLoading(true);
               setError(null);
               
-              // Start server action but don't wait for it - redirect immediately
-              console.log('[Anonymous Login] Starting server action (non-blocking)...');
-              const { startAnonymousSession } = await import('@/app/actions/auth');
-              
-              // Call server action but don't await - let it run in background
-              startAnonymousSession().then((result) => {
-                console.log('[Anonymous Login] Server action completed:', result);
-              }).catch((err) => {
-                console.error('[Anonymous Login] Server action error:', err);
-                // Error doesn't matter - redirect already happened
-              });
-              
-              // Redirect immediately without waiting
-              console.log('[Anonymous Login] Redirecting immediately...');
-              window.location.href = '/';
+              try {
+                console.log('[Anonymous Login] Starting server action...');
+                const { startAnonymousSession } = await import('@/app/actions/auth');
+                
+                // Wait for server action with timeout - but don't fail if it times out
+                const serverActionPromise = startAnonymousSession();
+                const timeoutPromise = new Promise((resolve) => {
+                  setTimeout(() => resolve({ success: true, timeout: true }), 2000); // 2 second timeout
+                });
+                
+                const result = await Promise.race([serverActionPromise, timeoutPromise]);
+                console.log('[Anonymous Login] Server action result:', result);
+                
+                // Always redirect - even if server action timed out
+                console.log('[Anonymous Login] Redirecting...');
+                window.location.href = '/';
+              } catch (err: any) {
+                console.error('[Anonymous Login] Error:', err);
+                // Even on error, redirect
+                console.log('[Anonymous Login] Error occurred, redirecting anyway...');
+                window.location.href = '/';
+              }
             }}
             disabled={isLoading}
             className="w-full bg-orange-400 hover:bg-orange-500 text-white px-6 py-5 rounded-2xl font-bold text-xl shadow-md transition-all flex items-center justify-center gap-3 group"

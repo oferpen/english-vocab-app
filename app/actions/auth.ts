@@ -109,18 +109,26 @@ export async function startAnonymousSession() {
       }
     }
 
+    // Redirect to homepage - Next.js will handle this
     redirect('/');
   } catch (error: any) {
-    // If redirect throws (expected), rethrow it
-    if (error?.message?.includes('NEXT_REDIRECT')) {
-      throw error;
+    // If redirect throws (expected), rethrow it immediately
+    // Next.js uses this special error to perform redirects
+    if (error?.message?.includes('NEXT_REDIRECT') || error?.digest?.startsWith('NEXT_REDIRECT')) {
+      throw error; // Must rethrow for Next.js to handle redirect
     }
     // Log other errors
     if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
       console.error('Anonymous session - unexpected error:', error);
     }
-    // Still try to redirect even on error
-    const { redirect } = await import('next/navigation');
-    redirect('/');
+    // For non-redirect errors, still try to redirect
+    // This ensures user isn't stuck even if something fails
+    try {
+      const { redirect } = await import('next/navigation');
+      redirect('/');
+    } catch (redirectError: any) {
+      // If redirect also fails, rethrow the original error
+      throw error;
+    }
   }
 }

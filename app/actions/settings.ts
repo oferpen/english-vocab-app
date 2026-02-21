@@ -19,7 +19,9 @@ export async function getSettings(): Promise<AppSettings> {
   }
 
   try {
-    const parsed = JSON.parse(user.settingsJson || '{}') as Partial<AppSettings>;
+    // Access settingsJson with type assertion since Prisma types may not include it
+    const settingsJson = (user as any).settingsJson || '{}';
+    const parsed = JSON.parse(settingsJson) as Partial<AppSettings>;
     const defaults = getDefaultSettings();
 
     // Ensure all required fields exist with defaults
@@ -37,7 +39,7 @@ export async function getSettings(): Promise<AppSettings> {
 
 export async function updateSettings(settings: Partial<AppSettings>) {
   const user = await getCurrentUser();
-  if (!user) {
+  if (!user || !(user as any).id) {
     throw new Error('User not found');
   }
 
@@ -45,7 +47,7 @@ export async function updateSettings(settings: Partial<AppSettings>) {
   const updated = { ...current, ...settings };
 
   await prisma.user.update({
-    where: { id: user.id },
+    where: { id: (user as any).id },
     data: {
       settingsJson: JSON.stringify(updated),
     },

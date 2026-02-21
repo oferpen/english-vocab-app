@@ -21,9 +21,11 @@ interface LessonPageProps {
 export default async function LessonPage({ params, searchParams }: LessonPageProps) {
   const user = await getCurrentUser();
 
-  if (!user) {
+  if (!user || !(user as any).id) {
     return <GoogleSignIn />;
   }
+
+  const userWithId = user as any;
 
   // Handle letter lesson
   if (searchParams.letter) {
@@ -37,8 +39,8 @@ export default async function LessonPage({ params, searchParams }: LessonPagePro
         <BottomNav />
         <div className="pt-20 md:pt-20">
           <div className="max-w-2xl mx-auto bg-white min-h-screen">
-            <PageHeader title="ללמוד" name={user.name || 'User'} avatar={user.avatar || user.image} />
-            <LearnToday userId={user.id} level={1} />
+            <PageHeader title="ללמוד" name={userWithId.name || 'User'} avatar={userWithId.avatar || userWithId.image} />
+            <LearnToday userId={userWithId.id} level={1} />
           </div>
         </div>
       </div>
@@ -55,7 +57,7 @@ export default async function LessonPage({ params, searchParams }: LessonPagePro
     // Create a simple plan with just this word (for individual word learning)
     const todayPlan = {
       id: `word-${word.id}`,
-      userId: user.id,
+      userId: userWithId.id,
       date: getTodayDate(),
       words: [{ word }],
     };
@@ -65,8 +67,8 @@ export default async function LessonPage({ params, searchParams }: LessonPagePro
         <BottomNav />
         <div className="pt-20 md:pt-20">
           <div className="max-w-2xl mx-auto bg-white min-h-screen">
-            <PageHeader title="ללמוד" name={user.name || 'User'} avatar={user.avatar || user.image} />
-            <LearnToday userId={user.id} todayPlan={todayPlan} wordId={word.id} category={word.category ?? undefined} />
+            <PageHeader title="ללמוד" name={userWithId.name || 'User'} avatar={userWithId.avatar || userWithId.image} />
+            <LearnToday userId={userWithId.id} todayPlan={todayPlan} wordId={word.id} category={word.category ?? undefined} />
           </div>
         </div>
       </div>

@@ -1,7 +1,8 @@
 import { prisma } from './prisma';
 import { getAuthSession } from './auth-helper';
+import { User } from '@prisma/client';
 
-export async function getCurrentUser() {
+export async function getCurrentUser(): Promise<User | null> {
   // Add timeout wrapper to prevent hanging
   const timeoutPromise = new Promise((_, reject) => {
     setTimeout(() => reject(new Error('getCurrentUser timeout')), 3000); // 3 second timeout
@@ -49,7 +50,7 @@ export async function getCurrentUser() {
       return null;
     })();
 
-    return await Promise.race([userPromise, timeoutPromise]);
+    return await Promise.race([userPromise, timeoutPromise]) as User | null;
   } catch (error: any) {
     // If timeout or other error, log and return null
     if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {

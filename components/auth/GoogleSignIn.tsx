@@ -98,23 +98,29 @@ export default function GoogleSignIn() {
                 console.log('[Anonymous Login] Starting server action...');
                 const { startAnonymousSession } = await import('@/app/actions/auth');
                 
-                // Wait for server action with timeout - but don't fail if it times out
+                // Wait for server action with timeout
                 const serverActionPromise = startAnonymousSession();
                 const timeoutPromise = new Promise((resolve) => {
-                  setTimeout(() => resolve({ success: true, timeout: true }), 2000); // 2 second timeout
+                  setTimeout(() => resolve({ success: true, timeout: true }), 3000); // 3 second timeout
                 });
                 
                 const result = await Promise.race([serverActionPromise, timeoutPromise]);
                 console.log('[Anonymous Login] Server action result:', result);
                 
+                // Small delay to ensure cookie is set, then redirect
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
                 // Always redirect - even if server action timed out
                 console.log('[Anonymous Login] Redirecting...');
-                window.location.href = '/';
+                // Use window.location.replace to avoid back button issues
+                window.location.replace('/');
               } catch (err: any) {
                 console.error('[Anonymous Login] Error:', err);
-                // Even on error, redirect
-                console.log('[Anonymous Login] Error occurred, redirecting anyway...');
-                window.location.href = '/';
+                // Even on error, redirect after a moment
+                setTimeout(() => {
+                  console.log('[Anonymous Login] Error occurred, redirecting anyway...');
+                  window.location.replace('/');
+                }, 500);
               }
             }}
             disabled={isLoading}

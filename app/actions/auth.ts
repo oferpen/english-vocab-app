@@ -71,53 +71,45 @@ export async function startAnonymousSession() {
         httpOnly: true,
         sameSite: 'lax',
       });
-      // Create new anonymous user with timeout - don't wait if it fails
-      const createUser = async () => {
-        try {
-          const createPromise = prisma.user.create({
-            data: {
-              deviceId: newDeviceId,
-              isAnonymous: true,
-              name: 'Guest',
-            },
-          });
-          const createTimeout = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Create user timeout')), 3000);
-          });
-          await Promise.race([createPromise, createTimeout]);
-        } catch (createError: any) {
-          // Silently fail - user creation is not critical for redirect
-          if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-            console.error('Anonymous session - create user error:', createError);
-          }
+      // Create new anonymous user with timeout - WAIT for it to complete
+      try {
+        const createPromise = prisma.user.create({
+          data: {
+            deviceId: newDeviceId,
+            isAnonymous: true,
+            name: 'Guest',
+          },
+        });
+        const createTimeout = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Create user timeout')), 3000);
+        });
+        await Promise.race([createPromise, createTimeout]);
+      } catch (createError: any) {
+        // If creation fails, continue anyway - cookie is set
+        if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
+          console.error('Anonymous session - create user error:', createError);
         }
-      };
-      // Don't await - let it run in background
-      createUser();
+      }
     } else if (!user) {
-      // Create new anonymous user if not exists - don't wait if it fails
-      const createUser = async () => {
-        try {
-          const createPromise = prisma.user.create({
-            data: {
-              deviceId,
-              isAnonymous: true,
-              name: 'Guest',
-            },
-          });
-          const createTimeout = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Create user timeout')), 3000);
-          });
-          await Promise.race([createPromise, createTimeout]);
-        } catch (createError: any) {
-          // Silently fail - user creation is not critical for redirect
-          if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-            console.error('Anonymous session - create user error:', createError);
-          }
+      // Create new anonymous user if not exists - WAIT for it to complete
+      try {
+        const createPromise = prisma.user.create({
+          data: {
+            deviceId,
+            isAnonymous: true,
+            name: 'Guest',
+          },
+        });
+        const createTimeout = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Create user timeout')), 3000);
+        });
+        await Promise.race([createPromise, createTimeout]);
+      } catch (createError: any) {
+        // If creation fails, continue anyway - cookie is set
+        if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
+          console.error('Anonymous session - create user error:', createError);
         }
-      };
-      // Don't await - let it run in background
-      createUser();
+      }
     }
 
     // Return success instead of redirecting - client will handle redirect

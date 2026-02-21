@@ -170,6 +170,12 @@ export const authOptions: NextAuthOptions = {
         }
         return true;
       } catch (error) {
+        // Log error in development/preview for debugging
+        if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
+          console.error('SignIn callback error:', error);
+        }
+        // Still return true to allow login to proceed even if user creation/update fails
+        // The user can still authenticate, just might need to retry
         return true;
       }
     },

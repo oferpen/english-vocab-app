@@ -17,11 +17,22 @@ export default function GoogleSignIn() {
     try {
       setIsLoading(true);
       setError(null);
-      await signIn('google', {
+      
+      // Start sign-in - NextAuth will handle redirect
+      signIn('google', {
         callbackUrl: '/',
         redirect: true,
+      }).catch((err: any) => {
+        // Only catch if signIn throws (shouldn't happen with redirect: true, but just in case)
+        console.error('Google sign-in error:', err);
+        setError(`שגיאה בהתחברות: ${err?.message || 'אירעה שגיאה. נסה שוב.'}`);
+        setIsLoading(false);
       });
+      
+      // Note: With redirect: true, signIn() doesn't return a promise that resolves
+      // The page will redirect before setIsLoading(false) runs
     } catch (err: any) {
+      console.error('Google sign-in setup error:', err);
       setError(`שגיאה בהתחברות: ${err?.message || 'אירעה שגיאה. נסה שוב.'}`);
       setIsLoading(false);
     }

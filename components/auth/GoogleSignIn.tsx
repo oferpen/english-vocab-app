@@ -18,21 +18,31 @@ export default function GoogleSignIn() {
       setIsLoading(true);
       setError(null);
       
-      // Start sign-in - NextAuth will handle redirect
-      signIn('google', {
+      console.log('Starting Google sign-in...');
+      
+      // Use redirect: false to handle errors properly
+      const result = await signIn('google', {
         callbackUrl: '/',
-        redirect: true,
-      }).catch((err: any) => {
-        // Only catch if signIn throws (shouldn't happen with redirect: true, but just in case)
-        console.error('Google sign-in error:', err);
-        setError(`שגיאה בהתחברות: ${err?.message || 'אירעה שגיאה. נסה שוב.'}`);
-        setIsLoading(false);
+        redirect: false,
       });
       
-      // Note: With redirect: true, signIn() doesn't return a promise that resolves
-      // The page will redirect before setIsLoading(false) runs
+      console.log('Sign-in result:', result);
+      
+      if (result?.error) {
+        console.error('Google sign-in error:', result.error);
+        setError(`שגיאה בהתחברות: ${result.error}`);
+        setIsLoading(false);
+      } else if (result?.ok) {
+        // Success - redirect manually
+        console.log('Sign-in successful, redirecting...');
+        window.location.href = '/';
+      } else {
+        // Still processing or pending
+        console.log('Sign-in pending...');
+        setIsLoading(false);
+      }
     } catch (err: any) {
-      console.error('Google sign-in setup error:', err);
+      console.error('Google sign-in exception:', err);
       setError(`שגיאה בהתחברות: ${err?.message || 'אירעה שגיאה. נסה שוב.'}`);
       setIsLoading(false);
     }
@@ -84,14 +94,18 @@ export default function GoogleSignIn() {
               setIsLoading(true);
               setError(null);
               try {
+                console.log('Starting anonymous session...');
                 const { startAnonymousSession } = await import('@/app/actions/auth');
                 await startAnonymousSession();
+                console.log('Anonymous session started, redirecting...');
               } catch (err: any) {
+                console.error('Anonymous session error:', err);
                 if (err.message?.includes('NEXT_REDIRECT')) {
+                  // Redirect is expected, let it happen
                   throw err;
                 }
                 setIsLoading(false);
-                setError('אירעה שגיאה. נסה שוב.');
+                setError(`שגיאה: ${err?.message || 'אירעה שגיאה. נסה שוב.'}`);
               }
             }}
             disabled={isLoading}

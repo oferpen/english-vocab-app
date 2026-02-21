@@ -113,19 +113,17 @@ export default function GoogleSignIn() {
                 const result = await Promise.race([serverActionPromise, timeoutPromise]);
                 console.log('[Anonymous Login] Server action result:', result);
                 
-                // Check if cookie is set client-side (for debugging)
-                const cookieDeviceId = document.cookie
-                  .split('; ')
-                  .find(row => row.startsWith('deviceId='))
-                  ?.split('=')[1];
-                console.log('[Anonymous Login] Cookie deviceId:', cookieDeviceId);
-                console.log('[Anonymous Login] Server returned deviceId:', (result as any)?.deviceId);
+                const resultData = result as any;
+                if (!resultData?.userCreated && !resultData?.timeout) {
+                  console.warn('[Anonymous Login] User was not created, but proceeding with redirect');
+                }
                 
-                // Longer delay to ensure cookie is set and response is processed
-                await new Promise(resolve => setTimeout(resolve, 500));
+                // Wait a bit longer to ensure server response is fully processed
+                // This gives time for cookies to be set in the response headers
+                await new Promise(resolve => setTimeout(resolve, 800));
                 
-                // Always redirect - even if server action timed out
-                console.log('[Anonymous Login] Redirecting...');
+                // Always redirect - even if server action timed out or user creation failed
+                console.log('[Anonymous Login] Redirecting to homepage...');
                 // Use window.location.replace to avoid back button issues
                 window.location.replace('/');
               } catch (err: any) {

@@ -103,17 +103,39 @@ export async function startAnonymousSession() {
         const createTimeout = new Promise((_, reject) => {
           setTimeout(() => reject(new Error('Create user timeout')), 3000);
         });
-        await Promise.race([createPromise, createTimeout]);
+        const createdUser = await Promise.race([createPromise, createTimeout]) as any;
+        if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
+          console.log('[Anonymous Session] User created:', createdUser?.id);
+        }
+        user = createdUser;
       } catch (createError: any) {
-        // If creation fails, continue anyway - cookie is set
+        // If creation fails, try to find user again (might have been created by another request)
         if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
           console.error('Anonymous session - create user error:', createError);
+        }
+        // Try to find user one more time in case it was created
+        try {
+          const retryUser = await prisma.user.findUnique({
+            where: { deviceId },
+          });
+          if (retryUser) {
+            user = retryUser;
+          }
+        } catch (retryError) {
+          // Ignore retry errors
         }
       }
     }
 
-    // Return success with deviceId for debugging
-    return { success: true, deviceId };
+    // Verify user exists before returning
+    if (!user) {
+      if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
+        console.warn('[Anonymous Session] No user found after creation attempt, deviceId:', deviceId);
+      }
+    }
+
+    // Return success with deviceId and user status for debugging
+    return { success: true, deviceId, userCreated: !!user };
   } catch (error: any) {
     // Log errors but still return success so client can redirect
     if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {

@@ -68,15 +68,19 @@ export async function startAnonymousSession() {
         httpOnly: true,
         sameSite: 'lax',
       });
-      // Create new anonymous user
+      // Create new anonymous user with timeout
       try {
-        await prisma.user.create({
+        const createPromise = prisma.user.create({
           data: {
             deviceId: newDeviceId,
             isAnonymous: true,
             name: 'Guest',
           },
         });
+        const createTimeout = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Create user timeout')), 5000);
+        });
+        await Promise.race([createPromise, createTimeout]);
       } catch (createError: any) {
         if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
           console.error('Anonymous session - create user error:', createError);
@@ -84,15 +88,19 @@ export async function startAnonymousSession() {
         // Continue anyway - redirect will work even if user creation fails
       }
     } else if (!user) {
-      // Create new anonymous user if not exists
+      // Create new anonymous user if not exists with timeout
       try {
-        await prisma.user.create({
+        const createPromise = prisma.user.create({
           data: {
             deviceId,
             isAnonymous: true,
             name: 'Guest',
           },
         });
+        const createTimeout = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Create user timeout')), 5000);
+        });
+        await Promise.race([createPromise, createTimeout]);
       } catch (createError: any) {
         if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
           console.error('Anonymous session - create user error:', createError);

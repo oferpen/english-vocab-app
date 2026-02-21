@@ -20,12 +20,14 @@ const nextConfig = {
     const isDev = process.env.NODE_ENV === 'development';
     // Check for Vercel preview environment
     const isPreview = process.env.VERCEL_ENV === 'preview';
+    const isProduction = process.env.VERCEL_ENV === 'production';
     const isVercel = !!process.env.VERCEL; // VERCEL is set to '1' on all Vercel deployments
     // Allow Vercel live feedback - Vercel only injects this script in preview deployments anyway
     // Safe to allow since it won't be present in production
     const allowVercelLive = isDev || isPreview || isVercel;
-    // Allow unsafe-eval only in development/preview (Next.js Turbopack needs it for hot reload)
-    const allowUnsafeEval = isDev || isPreview;
+    // Allow unsafe-eval in development/preview (Next.js Turbopack and Vercel Live may need it)
+    // Never allow in production for security
+    const allowUnsafeEval = isDev || (isVercel && !isProduction);
     
     return [
       {

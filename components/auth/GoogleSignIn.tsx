@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Rocket } from 'lucide-react';
 
 export default function GoogleSignIn() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     // Component mounted
@@ -119,12 +121,35 @@ export default function GoogleSignIn() {
                   return; // Don't redirect on failure
                 }
                 
-                // User created successfully - wait a moment for cookie to be processed
-                // Cookies set in server actions are in response headers, need time to be set
+                // User created successfully
+                // Verify user exists via API to ensure cookie is set and user is accessible
                 await new Promise(resolve => setTimeout(resolve, 300));
                 
-                // Redirect to homepage - it will check for user and redirect to /learn/path
-                window.location.replace('/');
+                try {
+                  const verifyResponse = await fetch('/api/test-anon');
+                  const verifyData = await verifyResponse.json();
+                  
+                  if (verifyData.userFound) {
+                    // User exists, cookie should be set - redirect
+                    router.replace('/');
+                  } else {
+                    // User not found - wait a bit more and try again
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    const retryResponse = await fetch('/api/test-anon');
+                    const retryData = await retryResponse.json();
+                    
+                    if (retryData.userFound) {
+                      router.replace('/');
+                    } else {
+                      setError('לא הצלחנו לאמת את המשתמש. נסה לרענן את הדף.');
+                      setIsLoading(false);
+                    }
+                  }
+                } catch (verifyError) {
+                  // Verification failed, but proceed with redirect anyway
+                  console.error('[Anonymous Login] Verification error:', verifyError);
+                  router.replace('/');
+                }
               } catch (err: any) {
                 console.error('[Anonymous Login] Exception:', err);
                 setError(`שגיאה: ${err?.message || 'אירעה שגיאה. נסה שוב.'}`);

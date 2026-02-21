@@ -49,6 +49,10 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async redirect({ url, baseUrl }) {
+      // Log redirect for debugging
+      if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
+        console.log('NextAuth redirect callback:', { url, baseUrl });
+      }
       // Allows relative URLs
       if (url.startsWith('/')) return `${baseUrl}${url}`;
       // Allows URLs on the same origin

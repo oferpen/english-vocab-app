@@ -91,6 +91,12 @@ export default function GoogleSignIn() {
 
           <button
             onClick={async () => {
+              // Prevent double-clicks
+              if (isLoading) {
+                console.log('[Anonymous Login] Already loading, ignoring click');
+                return;
+              }
+              
               setIsLoading(true);
               setError(null);
               
@@ -101,14 +107,14 @@ export default function GoogleSignIn() {
                 // Wait for server action with timeout
                 const serverActionPromise = startAnonymousSession();
                 const timeoutPromise = new Promise((resolve) => {
-                  setTimeout(() => resolve({ success: true, timeout: true }), 3000); // 3 second timeout
+                  setTimeout(() => resolve({ success: true, timeout: true }), 5000); // 5 second timeout
                 });
                 
                 const result = await Promise.race([serverActionPromise, timeoutPromise]);
                 console.log('[Anonymous Login] Server action result:', result);
                 
                 // Small delay to ensure cookie is set, then redirect
-                await new Promise(resolve => setTimeout(resolve, 100));
+                await new Promise(resolve => setTimeout(resolve, 200));
                 
                 // Always redirect - even if server action timed out
                 console.log('[Anonymous Login] Redirecting...');
@@ -116,6 +122,7 @@ export default function GoogleSignIn() {
                 window.location.replace('/');
               } catch (err: any) {
                 console.error('[Anonymous Login] Error:', err);
+                setIsLoading(false); // Reset loading state on error
                 // Even on error, redirect after a moment
                 setTimeout(() => {
                   console.log('[Anonymous Login] Error occurred, redirecting anyway...');

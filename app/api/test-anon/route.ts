@@ -28,11 +28,11 @@ export async function GET() {
     });
 
     const startTime = Date.now();
-    let user;
+    let user: any = null;
     let dbError = null;
 
     try {
-      user = await Promise.race([dbQuery, timeoutPromise]);
+      user = await Promise.race([dbQuery, timeoutPromise]) as any;
     } catch (error: any) {
       dbError = error.message;
       user = null;

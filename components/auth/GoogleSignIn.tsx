@@ -115,16 +115,34 @@ export default function GoogleSignIn() {
                 console.log('[Anonymous Login] Server action completed, result:', result);
                 
                 const resultData = result as any;
+                
+                // If user wasn't created and it's not a timeout, try one more time
                 if (!resultData?.userCreated && !resultData?.timeout) {
-                  console.warn('[Anonymous Login] User was not created, but proceeding with redirect');
+                  console.warn('[Anonymous Login] User was not created, retrying...');
+                  // Wait a moment and try to verify user exists via API
+                  await new Promise(resolve => setTimeout(resolve, 500));
+                  try {
+                    const verifyResponse = await fetch('/api/test-anon');
+                    const verifyData = await verifyResponse.json();
+                    console.log('[Anonymous Login] Verification result:', verifyData);
+                    if (!verifyData.userFound) {
+                      console.error('[Anonymous Login] User still not found after retry');
+                      setError('לא הצלחנו ליצור משתמש. נסה לרענן את הדף.');
+                      setIsLoading(false);
+                      return; // Don't redirect if user creation failed
+                    }
+                  } catch (verifyError) {
+                    console.error('[Anonymous Login] Verification failed:', verifyError);
+                    // Continue with redirect anyway
+                  }
                 }
                 
                 // Wait a bit longer to ensure server response is fully processed
                 // This gives time for cookies to be set in the response headers
-                console.log('[Anonymous Login] Waiting 800ms for cookie to be set...');
-                await new Promise(resolve => setTimeout(resolve, 800));
+                console.log('[Anonymous Login] Waiting 500ms for cookie to be set...');
+                await new Promise(resolve => setTimeout(resolve, 500));
                 
-                // Always redirect - even if server action timed out or user creation failed
+                // Redirect
                 console.log('[Anonymous Login] Redirecting to homepage...');
                 // Use window.location.replace to avoid back button issues
                 window.location.replace('/');

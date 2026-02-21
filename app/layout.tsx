@@ -22,6 +22,7 @@ const cagliostro = Cagliostro({
   display: 'swap',
   variable: '--font-cagliostro',
   fallback: ['var(--font-rubik)', 'Rubik', 'sans-serif'],
+  preload: false, // Don't preload - only used for headings, not critical for initial render
 });
 
 export const metadata: Metadata = {

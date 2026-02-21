@@ -96,15 +96,18 @@ export default function GoogleSignIn() {
               try {
                 console.log('Starting anonymous session...');
                 const { startAnonymousSession } = await import('@/app/actions/auth');
-                await startAnonymousSession();
-                console.log('Anonymous session started, redirecting...');
-              } catch (err: any) {
-                // NEXT_REDIRECT is expected - Next.js throws this for redirects
-                // We MUST rethrow it so Next.js can handle the redirect
-                if (err?.message?.includes('NEXT_REDIRECT') || err?.digest?.startsWith('NEXT_REDIRECT')) {
-                  throw err; // Rethrow so Next.js handles the redirect
+                const result = await startAnonymousSession();
+                console.log('Anonymous session result:', result);
+                
+                // Redirect client-side after server action completes
+                if (result?.success !== false) {
+                  console.log('Redirecting to homepage...');
+                  window.location.href = '/';
+                } else {
+                  setIsLoading(false);
+                  setError('אירעה שגיאה. נסה שוב.');
                 }
-                // Only log/show actual errors (not redirects)
+              } catch (err: any) {
                 console.error('Anonymous session error:', err);
                 setIsLoading(false);
                 setError(`שגיאה: ${err?.message || 'אירעה שגיאה. נסה שוב.'}`);

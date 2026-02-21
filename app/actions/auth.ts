@@ -28,7 +28,6 @@ export async function isGoogleAuthenticated(): Promise<boolean> {
 export async function startAnonymousSession() {
   try {
     const { cookies } = await import('next/headers');
-    const { redirect } = await import('next/navigation');
     const cookieStore = await cookies();
     let deviceId = cookieStore.get('deviceId')?.value;
 
@@ -85,7 +84,7 @@ export async function startAnonymousSession() {
         if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
           console.error('Anonymous session - create user error:', createError);
         }
-        // Continue anyway - redirect will work even if user creation fails
+        // Continue anyway - we'll redirect client-side
       }
     } else if (!user) {
       // Create new anonymous user if not exists with timeout
@@ -105,30 +104,18 @@ export async function startAnonymousSession() {
         if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
           console.error('Anonymous session - create user error:', createError);
         }
-        // Continue anyway - redirect will work even if user creation fails
+        // Continue anyway - we'll redirect client-side
       }
     }
 
-    // Redirect to homepage - Next.js will handle this
-    redirect('/');
+    // Return success instead of redirecting - client will handle redirect
+    return { success: true };
   } catch (error: any) {
-    // If redirect throws (expected), rethrow it immediately
-    // Next.js uses this special error to perform redirects
-    if (error?.message?.includes('NEXT_REDIRECT') || error?.digest?.startsWith('NEXT_REDIRECT')) {
-      throw error; // Must rethrow for Next.js to handle redirect
-    }
-    // Log other errors
+    // Log errors but still return success so client can redirect
     if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-      console.error('Anonymous session - unexpected error:', error);
+      console.error('Anonymous session - error:', error);
     }
-    // For non-redirect errors, still try to redirect
-    // This ensures user isn't stuck even if something fails
-    try {
-      const { redirect } = await import('next/navigation');
-      redirect('/');
-    } catch (redirectError: any) {
-      // If redirect also fails, rethrow the original error
-      throw error;
-    }
+    // Return success anyway - let client handle redirect
+    return { success: true, error: error?.message };
   }
 }

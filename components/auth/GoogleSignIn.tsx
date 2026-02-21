@@ -97,6 +97,7 @@ export default function GoogleSignIn() {
                 return;
               }
               
+              console.log('[Anonymous Login] Button clicked, starting login flow...');
               setIsLoading(true);
               setError(null);
               
@@ -111,7 +112,7 @@ export default function GoogleSignIn() {
                 });
                 
                 const result = await Promise.race([serverActionPromise, timeoutPromise]);
-                console.log('[Anonymous Login] Server action result:', result);
+                console.log('[Anonymous Login] Server action completed, result:', result);
                 
                 const resultData = result as any;
                 if (!resultData?.userCreated && !resultData?.timeout) {
@@ -120,6 +121,7 @@ export default function GoogleSignIn() {
                 
                 // Wait a bit longer to ensure server response is fully processed
                 // This gives time for cookies to be set in the response headers
+                console.log('[Anonymous Login] Waiting 800ms for cookie to be set...');
                 await new Promise(resolve => setTimeout(resolve, 800));
                 
                 // Always redirect - even if server action timed out or user creation failed
@@ -127,13 +129,14 @@ export default function GoogleSignIn() {
                 // Use window.location.replace to avoid back button issues
                 window.location.replace('/');
               } catch (err: any) {
-                console.error('[Anonymous Login] Error:', err);
+                console.error('[Anonymous Login] Exception caught:', err);
                 setIsLoading(false); // Reset loading state on error
+                setError(`שגיאה: ${err?.message || 'אירעה שגיאה. נסה שוב.'}`);
                 // Even on error, redirect after a moment
                 setTimeout(() => {
                   console.log('[Anonymous Login] Error occurred, redirecting anyway...');
                   window.location.replace('/');
-                }, 500);
+                }, 1000);
               }
             }}
             disabled={isLoading}

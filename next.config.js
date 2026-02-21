@@ -58,9 +58,13 @@ const nextConfig = {
               "img-src 'self' data: https: *.googleusercontent.com",
               "font-src 'self' data:",
               `connect-src 'self' https://accounts.google.com https://oauth2.googleapis.com https://*.sentry.io https://vercel.live wss://vercel.live`,
-              "frame-src 'self' https://accounts.google.com https://vercel.live", // Allow Vercel Live feedback iframe - CSP v3
+              "frame-src 'self' https://accounts.google.com https://vercel.live", // Allow Vercel Live feedback iframe - CSP v4
               "worker-src 'self'", // Allow service workers
             ].join('; '),
+          },
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate', // Prevent CSP header caching
           },
           {
             key: 'X-Content-Type-Options',

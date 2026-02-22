@@ -9,23 +9,23 @@ import { cookies } from 'next/headers';
 export class AuthService {
   /**
    * Get or create device ID from cookie
-   * Retries once if cookie not found (handles timing issues)
    */
   static async getDeviceId(): Promise<string> {
     const cookieStore = await cookies();
     let deviceId = cookieStore.get('deviceId')?.value;
 
-    // If no deviceId, wait a moment and retry (middleware might have just set it)
-    if (!deviceId) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      const retryCookieStore = await cookies();
-      deviceId = retryCookieStore.get('deviceId')?.value;
-    }
-
-    // If still no deviceId, create one
+    // If no deviceId, create one and set it in the same cookie store
     if (!deviceId) {
       deviceId = randomUUID();
-      await this.setDeviceIdCookie(deviceId);
+      const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
+      
+      cookieStore.set('deviceId', deviceId, {
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: isProduction,
+      });
     }
 
     return deviceId;

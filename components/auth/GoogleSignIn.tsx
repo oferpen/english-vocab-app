@@ -79,6 +79,7 @@ export default function GoogleSignIn() {
                 // User created successfully
                 // The cookie should be set in the server action response
                 // Redirect with deviceId in URL so middleware can use it if cookie isn't available yet
+                const resultData = result as any;
                 console.log('[Anonymous Login] User created, deviceId:', resultData.deviceId);
                 console.log('[Anonymous Login] Redirecting with deviceId in URL...');
                 

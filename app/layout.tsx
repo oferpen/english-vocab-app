@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import { Rubik, Cagliostro } from 'next/font/google';
 import './globals.css';
 import Providers from '@/components/Providers';
@@ -73,13 +74,11 @@ export default function RootLayout({
 
   return (
     <html lang="he" dir="rtl" className={`${rubik.variable} ${cagliostro.variable}`}>
-      <head>
-        {/* Critical: Cache control meta tags for mobile browsers */}
-        <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-        <meta httpEquiv="Pragma" content="no-cache" />
-        <meta httpEquiv="Expires" content="0" />
-        {/* Critical: Run cache clearing IMMEDIATELY in head before anything loads */}
-        <script
+      <body style={{ margin: 0, padding: 0, fontFamily: rubik.style.fontFamily }} className={rubik.className}>
+        {/* Critical: Run cache clearing IMMEDIATELY before anything loads */}
+        <Script
+          id="cache-clear"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
@@ -128,8 +127,6 @@ export default function RootLayout({
             `,
           }}
         />
-      </head>
-      <body style={{ margin: 0, padding: 0, fontFamily: rubik.style.fontFamily }} className={rubik.className}>
         {/* Temporarily disabled SentryProvider to debug production issue */}
         {/* <SentryProvider /> */}
         <Providers>

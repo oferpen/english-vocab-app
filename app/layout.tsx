@@ -78,44 +78,52 @@ export default function RootLayout({
           {children}
           <PWAInstaller />
         </Providers>
-        {/* Aggressive cache clearing and service worker cleanup */}
+        {/* CRITICAL: Run cache clearing IMMEDIATELY before anything else loads */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
+                'use strict';
                 if (typeof window === 'undefined') return;
                 
-                // Immediately unregister all service workers
-                if ('serviceWorker' in navigator) {
-                  navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                    registrations.forEach(function(registration) {
-                      registration.unregister().then(function() {
-                        console.log('Service Worker unregistered');
-                      }).catch(function(err) {
-                        console.log('Error unregistering service worker:', err);
-                      });
+                // Force immediate execution - don't wait for anything
+                try {
+                  // Unregister ALL service workers immediately
+                  if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                      for (var i = 0; i < registrations.length; i++) {
+                        registrations[i].unregister();
+                      }
                     });
-                  }).catch(function(err) {
-                    console.log('Error getting service worker registrations:', err);
-                  });
-                }
-                
-                // Clear all caches
-                if ('caches' in window) {
-                  caches.keys().then(function(cacheNames) {
-                    cacheNames.forEach(function(cacheName) {
-                      caches.delete(cacheName).then(function() {
-                        console.log('Cache deleted:', cacheName);
-                      }).catch(function(err) {
-                        console.log('Error deleting cache:', err);
-                      });
+                  }
+                  
+                  // Delete ALL caches immediately
+                  if ('caches' in window) {
+                    caches.keys().then(function(cacheNames) {
+                      for (var i = 0; i < cacheNames.length; i++) {
+                        caches.delete(cacheNames[i]);
+                      }
                     });
-                  }).catch(function(err) {
-                    console.log('Error getting cache keys:', err);
-                  });
+                  }
+                  
+                  // Force reload if we detect old cached content
+                  if (sessionStorage.getItem('force-reload') !== 'v2') {
+                    sessionStorage.setItem('force-reload', 'v2');
+                    window.location.reload(true);
+                    return;
+                  }
+                } catch(e) {
+                  console.error('Cache clear error:', e);
                 }
-                
-                // Suppress browser extension message errors
+              })();
+            `,
+          }}
+        />
+        {/* Suppress browser extension message errors */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined') {
                 window.addEventListener('error', function(e) {
                   if (e.message && e.message.includes('message channel closed')) {
                     e.preventDefault();
@@ -128,7 +136,7 @@ export default function RootLayout({
                     return false;
                   }
                 });
-              })();
+              }
             `,
           }}
         />

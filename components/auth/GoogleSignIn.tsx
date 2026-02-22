@@ -95,11 +95,21 @@ export default function GoogleSignIn() {
                 // Redirect with deviceId in URL so middleware can use it if cookie isn't available yet
                 const resultData = result as any;
                 console.log('[Anonymous Login] User created, deviceId:', resultData.deviceId);
-                console.log('[Anonymous Login] Redirecting with deviceId in URL...');
                 
-                // Redirect with deviceId as query param as fallback
-                // This ensures middleware can set the cookie even if it wasn't processed from the previous response
-                window.location.href = `/?deviceId=${resultData.deviceId}`;
+                // Check if deviceId is already in URL (prevent loops)
+                const currentUrl = new URL(window.location.href);
+                const existingDeviceId = currentUrl.searchParams.get('deviceId');
+                
+                if (existingDeviceId === resultData.deviceId) {
+                  // Already have this deviceId in URL, just redirect to clean URL
+                  console.log('[Anonymous Login] deviceId already in URL, redirecting to clean URL...');
+                  window.location.href = '/';
+                } else {
+                  console.log('[Anonymous Login] Redirecting with deviceId in URL...');
+                  // Redirect with deviceId as query param as fallback
+                  // This ensures middleware can set the cookie even if it wasn't processed from the previous response
+                  window.location.href = `/?deviceId=${resultData.deviceId}`;
+                }
               } catch (err: any) {
                 console.error('[Anonymous Login] Exception:', err);
                 clearTimeout(safetyTimeout);

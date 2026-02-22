@@ -1,5 +1,5 @@
 // Service Worker for EnglishPath PWA
-const CACHE_NAME = 'englishpath-v4'; // Increment version to clear old cache and force new login component
+const CACHE_NAME = 'englishpath-v5'; // Increment version to clear old cache and force new login component
 const urlsToCache = [
   // Don't cache '/' since it redirects - cache the actual destination instead
   '/learn/path',

@@ -107,9 +107,22 @@ export default function RootLayout({
                   }
                   
                   // Force reload if we detect old cached content
-                  if (sessionStorage.getItem('force-reload') !== 'v2') {
-                    sessionStorage.setItem('force-reload', 'v2');
-                    window.location.reload(true);
+                  // Use timestamp-based version to force reload on every deploy
+                  var currentVersion = 'v3-' + Date.now();
+                  var storedVersion = sessionStorage.getItem('app-version');
+                  
+                  if (!storedVersion || storedVersion !== currentVersion) {
+                    // Clear all storage to ensure fresh start
+                    try {
+                      sessionStorage.clear();
+                      localStorage.clear();
+                    } catch(e) {
+                      // Ignore errors
+                    }
+                    
+                    sessionStorage.setItem('app-version', currentVersion);
+                    // Force hard reload
+                    window.location.href = window.location.href.split('?')[0] + '?v=' + Date.now();
                     return;
                   }
                 } catch(e) {

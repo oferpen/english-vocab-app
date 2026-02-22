@@ -14,27 +14,31 @@ export default function NewLogin() {
     setError(null);
 
     try {
-      // Call the new login API
+      // Call the new login API endpoint
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        cache: 'no-store', // Prevent caching
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Login failed' }));
+        throw new Error(errorData.error || 'Login failed');
+      }
 
       const data = await response.json();
 
-      if (!response.ok || !data.success) {
+      if (!data.success) {
         throw new Error(data.error || 'Login failed');
       }
 
       // Login successful - wait a moment for cookie to be set
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 300));
 
-      // Redirect to learn path
-      router.push('/learn/path');
-      // Also force a refresh to ensure server components see the cookie
-      router.refresh();
+      // Use window.location for a full page reload to ensure cookie is processed
+      window.location.href = '/learn/path';
     } catch (err: any) {
       console.error('[NewLogin] Error:', err);
       setError(err?.message || 'שגיאה בהתחברות. נסה שוב.');

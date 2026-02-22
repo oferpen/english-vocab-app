@@ -19,36 +19,36 @@ export default async function Home({
       try {
         // If deviceId is in URL, try to find user directly first
         if (deviceIdFromUrl) {
-          if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-            console.log('[Homepage] deviceId from URL:', deviceIdFromUrl);
-          }
+          console.log('[Homepage] deviceId from URL:', deviceIdFromUrl);
           
           // Try direct database lookup first (bypass cookie timing issues)
           try {
             const { prisma } = await import('@/lib/prisma');
+            console.log('[Homepage] Starting direct DB lookup...');
+            
             const directUser = await Promise.race([
               prisma.user.findUnique({
                 where: { deviceId: deviceIdFromUrl },
               }),
               new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Direct lookup timeout')), 3000)
+                setTimeout(() => reject(new Error('Direct lookup timeout')), 5000)
               )
             ]) as any;
             
+            console.log('[Homepage] Direct lookup result:', directUser ? `Found user ${directUser.id}` : 'No user found');
+            
             if (directUser) {
-              if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-                console.log('[Homepage] Found user via direct lookup:', directUser.id);
-              }
-              redirect('/learn/path');
+              console.log('[Homepage] Redirecting to /learn/path');
+              redirect('/learn/path'); // This throws NEXT_REDIRECT - will be caught by outer try-catch
             } else {
-              if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-                console.log('[Homepage] Direct lookup: no user found for deviceId:', deviceIdFromUrl);
-              }
+              console.log('[Homepage] No user found for deviceId, will try cookie lookup');
             }
           } catch (dbError: any) {
-            if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-              console.error('[Homepage] Direct DB lookup error:', dbError?.message);
+            // If it's a redirect error, rethrow it
+            if (dbError?.message?.includes('NEXT_REDIRECT')) {
+              throw dbError;
             }
+            console.error('[Homepage] Direct DB lookup error:', dbError?.message, dbError);
           }
           
           // Wait for middleware to set cookie, then try getCurrentUser
@@ -57,28 +57,30 @@ export default async function Home({
         
         let user = await getCurrentUser();
         
-        if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-          console.log('[Homepage] getCurrentUser result:', user ? `found user ${user.id}` : 'not found');
-        }
+        console.log('[Homepage] getCurrentUser result:', user ? `found user ${user.id}` : 'not found');
         
         // If deviceId was in URL but user not found, retry once more
         if (!user && deviceIdFromUrl) {
-          await new Promise(resolve => setTimeout(resolve, 500));
+          console.log('[Homepage] Retrying getCurrentUser...');
+          await new Promise(resolve => setTimeout(resolve, 1000));
           user = await getCurrentUser();
-          if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-            console.log('[Homepage] Retry getCurrentUser result:', user ? `found user ${user.id}` : 'not found');
-          }
+          console.log('[Homepage] Retry getCurrentUser result:', user ? `found user ${user.id}` : 'not found');
         }
         
         if (user) {
+          console.log('[Homepage] User found, redirecting to /learn/path');
           redirect('/learn/path');
+        } else {
+          console.log('[Homepage] No user found, showing login screen');
         }
       } catch (authError: any) {
+        // If it's a redirect error, rethrow it so Next.js can handle it
+        if (authError?.message?.includes('NEXT_REDIRECT')) {
+          throw authError;
+        }
         // If auth check fails (including timeout), just show sign-in screen
         // Don't crash the homepage - this is a graceful fallback
-        if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-          console.error('[Homepage] Auth check error:', authError?.message);
-        }
+        console.error('[Homepage] Auth check error:', authError?.message);
       }
     }
 

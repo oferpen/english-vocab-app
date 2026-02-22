@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Rocket } from 'lucide-react';
 
 export default function GoogleSignIn() {
@@ -9,9 +11,48 @@ export default function GoogleSignIn() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
+  useEffect(() => {
+    // Component mounted
+  }, []);
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      console.log('Starting Google sign-in...');
+      
+      // Use redirect: false to handle errors properly
+      const result = await signIn('google', {
+        callbackUrl: '/',
+        redirect: false,
+      });
+      
+      console.log('Sign-in result:', result);
+      
+      if (result?.error) {
+        console.error('Google sign-in error:', result.error);
+        setError(`שגיאה בהתחברות: ${result.error}`);
+        setIsLoading(false);
+      } else if (result?.ok) {
+        // Success - redirect manually
+        console.log('Sign-in successful, redirecting...');
+        window.location.href = '/';
+      } else {
+        // Still processing or pending
+        console.log('Sign-in pending...');
+        setIsLoading(false);
+      }
+    } catch (err: any) {
+      console.error('Google sign-in exception:', err);
+      setError(`שגיאה בהתחברות: ${err?.message || 'אירעה שגיאה. נסה שוב.'}`);
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-blue-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-[2.5rem] shadow-lg p-10 md:p-14 max-w-md w-full text-center">
+    <div className="min-h-screen bg-blue-50 flex items-center justify-center p-4 relative overflow-hidden font-sans">
+      <div className="bg-white rounded-[2.5rem] shadow-lg p-10 md:p-14 max-w-md w-full text-center relative z-10 border border-blue-100">
         {/* App Logo/Icon */}
         <div className="mb-10 flex flex-col items-center">
           <div className="relative mb-6">
@@ -32,6 +73,24 @@ export default function GoogleSignIn() {
         </div>
 
         <div className="space-y-5">
+          <button
+            onClick={handleGoogleSignIn}
+            disabled={isLoading}
+            className="w-full bg-neutral-100 border border-neutral-200 text-neutral-800 px-6 py-4 rounded-2xl font-medium text-lg hover:bg-neutral-50 transition-all flex items-center justify-center gap-3 shadow-sm"
+          >
+            <img src="/google-logo.svg" alt="Google" className="w-5 h-5" />
+            <span>כניסה עם גוגל</span>
+          </button>
+
+          <div className="relative my-5">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-neutral-200"></span>
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-white px-4 text-neutral-500 font-medium text-sm">או</span>
+            </div>
+          </div>
+
           <button
             onClick={async () => {
               // Prevent double-clicks
@@ -98,7 +157,7 @@ export default function GoogleSignIn() {
               }
             }}
             disabled={isLoading}
-            className="w-full bg-orange-400 hover:bg-orange-500 text-white px-6 py-5 rounded-2xl font-bold text-xl shadow-md transition-all flex items-center justify-center gap-3 group disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-orange-400 hover:bg-orange-500 text-white px-6 py-5 rounded-2xl font-bold text-xl shadow-md transition-all flex items-center justify-center gap-3 group"
           >
             {isLoading ? (
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white" />

@@ -38,17 +38,18 @@ export async function startAnonymousSession() {
     }
     
     // Always set the cookie to ensure it's in the response headers
+    // Use VERCEL_ENV for secure flag since Vercel sets that, not NODE_ENV
+    const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
     cookieStore.set('deviceId', deviceId, {
       maxAge: 60 * 60 * 24 * 365,
       path: '/',
       httpOnly: true,
       sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction, // HTTPS required in production
     });
     
-    if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-      console.log('[Anonymous Session] Cookie set with deviceId:', deviceId);
-    }
+    // Enable logging in production for debugging
+    console.log('[Anonymous Session] Cookie set with deviceId:', deviceId, 'secure:', isProduction);
 
     // Add timeout wrapper for database queries
     let user = null;
@@ -73,12 +74,13 @@ export async function startAnonymousSession() {
     // If it's a Google account (not anonymous), force a NEW deviceId for anonymous learning
     if (user && !user.isAnonymous) {
       const newDeviceId = randomUUID();
+      const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
       cookieStore.set('deviceId', newDeviceId, {
         maxAge: 60 * 60 * 24 * 365,
         path: '/',
         httpOnly: true,
         sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
+        secure: isProduction,
       });
       deviceId = newDeviceId; // Update deviceId for user creation
       user = null; // Reset user so we create a new anonymous one

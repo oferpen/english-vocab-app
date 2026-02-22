@@ -10,6 +10,9 @@ export async function proxy(request: NextRequest) {
   const url = new URL(request.url);
   const deviceIdFromUrl = url.searchParams.get('deviceId');
   
+  // Use VERCEL_ENV for secure flag since Vercel sets that, not NODE_ENV
+  const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
+  
   // Use deviceId from URL if cookie doesn't exist (cookie timing issue workaround)
   if (!deviceId && deviceIdFromUrl) {
     deviceId = deviceIdFromUrl;
@@ -19,7 +22,7 @@ export async function proxy(request: NextRequest) {
       path: '/',
       httpOnly: true,
       sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction,
     });
     // Don't redirect - let the request continue with the cookie set
     // The cookie will be available to the page component
@@ -34,7 +37,7 @@ export async function proxy(request: NextRequest) {
       path: '/',
       httpOnly: true,
       sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction,
     });
   }
 

@@ -73,6 +73,27 @@ export default function RootLayout({
           {children}
           <PWAInstaller />
         </Providers>
+        {/* Suppress browser extension message errors */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined') {
+                window.addEventListener('error', (e) => {
+                  if (e.message && e.message.includes('message channel closed')) {
+                    e.preventDefault();
+                    return false;
+                  }
+                });
+                window.addEventListener('unhandledrejection', (e) => {
+                  if (e.reason && e.reason.message && e.reason.message.includes('message channel closed')) {
+                    e.preventDefault();
+                    return false;
+                  }
+                });
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   );

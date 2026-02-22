@@ -31,16 +31,13 @@ export async function getCurrentUser(): Promise<User | null> {
         const { cookies } = await import('next/headers');
         const cookieStore = await cookies();
         const deviceId = cookieStore.get('deviceId')?.value;
-        if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-          console.log('[getCurrentUser] deviceId from cookie:', deviceId ? 'found' : 'not found');
-        }
+        // Enable logging in production for debugging
+        console.log('[getCurrentUser] deviceId from cookie:', deviceId ? 'found' : 'not found', 'VERCEL_ENV:', process.env.VERCEL_ENV);
         if (deviceId) {
           const user = await prisma.user.findUnique({
             where: { deviceId },
           });
-          if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
-            console.log('[getCurrentUser] User lookup result:', user ? `found user ${user.id}` : 'not found');
-          }
+          console.log('[getCurrentUser] User lookup result:', user ? `found user ${user.id}` : 'not found');
           // Allow device-based login for anonymous users or valid google users who are just not in session yet (though session check above handles that usually)
           // Actually, for pure anonymous access, we mostly care about the deviceId.
           if (user) return user;

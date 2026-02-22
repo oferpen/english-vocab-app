@@ -28,37 +28,35 @@ export default function PWAInstaller() {
     }
 
     function registerServiceWorker() {
-      // In development, unregister existing service workers to avoid caching issues
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        navigator.serviceWorker.getRegistrations().then((registrations) => {
-          registrations.forEach((registration) => {
-            registration.unregister().then(() => {
-              console.log('Service Worker unregistered in development mode');
-            });
+      // Temporarily disable service worker registration to debug production issues
+      // Unregister all existing service workers first
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => {
+          registration.unregister().then(() => {
+            console.log('Service Worker unregistered');
+          }).catch((err) => {
+            console.log('Error unregistering service worker:', err);
           });
         });
-        // Clear all caches in development
-        if ('caches' in window) {
-          caches.keys().then((cacheNames) => {
-            cacheNames.forEach((cacheName) => {
-              caches.delete(cacheName);
+      }).catch((err) => {
+        console.log('Error getting service worker registrations:', err);
+      });
+
+      // Clear all caches
+      if ('caches' in window) {
+        caches.keys().then((cacheNames) => {
+          cacheNames.forEach((cacheName) => {
+            caches.delete(cacheName).catch((err) => {
+              console.log('Error deleting cache:', err);
             });
           });
-        }
-        return; // Don't register in development
+        }).catch((err) => {
+          console.log('Error getting cache keys:', err);
+        });
       }
 
-      navigator.serviceWorker
-        .register('/sw.js', { scope: '/' })
-        .then((registration) => {
-          console.log('Service Worker registered:', registration);
-        })
-        .catch((error) => {
-          // Only log error if it's not a 404 (file might not exist in dev)
-          if (!error.message?.includes('404')) {
-            console.log('Service Worker registration failed:', error);
-          }
-        });
+      // Don't register new service worker for now
+      return;
     }
 
     // Listen for beforeinstallprompt event

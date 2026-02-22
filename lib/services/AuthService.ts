@@ -11,24 +11,30 @@ export class AuthService {
    * Get or create device ID from cookie
    */
   static async getDeviceId(): Promise<string> {
-    const cookieStore = await cookies();
-    let deviceId = cookieStore.get('deviceId')?.value;
+    try {
+      const cookieStore = await cookies();
+      let deviceId = cookieStore.get('deviceId')?.value;
 
-    // If no deviceId, create one and set it in the same cookie store
-    if (!deviceId) {
-      deviceId = randomUUID();
-      const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
-      
-      cookieStore.set('deviceId', deviceId, {
-        maxAge: 60 * 60 * 24 * 365, // 1 year
-        path: '/',
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: isProduction,
-      });
+      // If no deviceId, create one and set it in the same cookie store
+      if (!deviceId) {
+        deviceId = randomUUID();
+        const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
+        
+        cookieStore.set('deviceId', deviceId, {
+          maxAge: 60 * 60 * 24 * 365, // 1 year
+          path: '/',
+          httpOnly: true,
+          sameSite: 'lax',
+          secure: isProduction,
+        });
+      }
+
+      return deviceId;
+    } catch (error: any) {
+      console.error('[AuthService.getDeviceId] Error:', error?.message);
+      // If cookies() fails, generate a new deviceId (will be set by middleware)
+      return randomUUID();
     }
-
-    return deviceId;
   }
 
   /**

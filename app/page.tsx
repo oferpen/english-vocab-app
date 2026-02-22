@@ -17,17 +17,21 @@ export default async function Home({
     if (!isLoggedOut) {
       try {
         const deviceId = await AuthService.getDeviceId();
-        const user = await AuthService.findUserByDeviceId(deviceId);
-        
-        if (user) {
-          redirect('/learn/path');
+        if (deviceId) {
+          const user = await AuthService.findUserByDeviceId(deviceId);
+          
+          if (user) {
+            redirect('/learn/path');
+          }
         }
       } catch (authError: any) {
         // If it's a redirect error, rethrow it
         if (authError?.message?.includes('NEXT_REDIRECT')) {
           throw authError;
         }
-        // Otherwise, just show login screen
+        // Log error for debugging but don't crash
+        console.error('[Home] Auth check error:', authError?.message);
+        // Continue to show login screen
       }
     }
 
@@ -38,6 +42,8 @@ export default async function Home({
     if (error?.message?.includes('NEXT_REDIRECT')) {
       throw error;
     }
+    // Log error for debugging
+    console.error('[Home] Error:', error?.message);
     // For any other errors, show login screen
     return <NewLogin />;
   }

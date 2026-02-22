@@ -11,15 +11,32 @@ export default function GoogleSignIn() {
   const searchParams = useSearchParams();
   
   // Clean up deviceId from URL if present (cookie should be set by now)
+  // Also check if we're stuck in a loop
   useEffect(() => {
     const deviceId = searchParams.get('deviceId');
     if (deviceId && typeof window !== 'undefined') {
-      // Wait a moment then clean up URL
-      setTimeout(() => {
+      // Check if we've been on this page with deviceId for more than 2 seconds
+      // If so, something is wrong - try to redirect to clean URL
+      const checkTimeout = setTimeout(() => {
+        console.log('[GoogleSignIn] deviceId in URL for >2s, cleaning up URL to prevent loop');
         const url = new URL(window.location.href);
         url.searchParams.delete('deviceId');
         window.history.replaceState({}, '', url.toString());
-      }, 1000);
+        // Force a reload to check for user again
+        window.location.reload();
+      }, 2000);
+      
+      // Also clean up URL after 500ms normally
+      const cleanupTimeout = setTimeout(() => {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('deviceId');
+        window.history.replaceState({}, '', url.toString());
+      }, 500);
+      
+      return () => {
+        clearTimeout(checkTimeout);
+        clearTimeout(cleanupTimeout);
+      };
     }
   }, [searchParams]);
 
@@ -101,9 +118,10 @@ export default function GoogleSignIn() {
                 const existingDeviceId = currentUrl.searchParams.get('deviceId');
                 
                 if (existingDeviceId === resultData.deviceId) {
-                  // Already have this deviceId in URL, just redirect to clean URL
-                  console.log('[Anonymous Login] deviceId already in URL, redirecting to clean URL...');
-                  window.location.href = '/';
+                  // Already have this deviceId in URL - we're in a loop
+                  // Try redirecting directly to /learn/path since user should exist
+                  console.log('[Anonymous Login] deviceId already in URL - possible loop, redirecting to /learn/path directly...');
+                  window.location.href = '/learn/path';
                 } else {
                   console.log('[Anonymous Login] Redirecting with deviceId in URL...');
                   // Redirect with deviceId as query param as fallback

@@ -35,8 +35,18 @@ export default async function Home({
         console.log('[Homepage] Direct lookup result:', directUser ? `Found user ${directUser.id}` : 'No user found');
         
         if (directUser) {
-          console.log('[Homepage] User found via deviceId in URL, redirecting to /learn/path');
+          console.log('[Homepage] User found via deviceId in URL, ensuring cookie is set...');
+          
+          // Ensure cookie is set before redirecting
+          // The middleware should have set it, but let's make sure by waiting a bit
+          await new Promise(resolve => setTimeout(resolve, 300));
+          
+          console.log('[Homepage] Redirecting to /learn/path');
+          // Redirect to clean URL without deviceId parameter
           redirect('/learn/path');
+        } else {
+          console.log('[Homepage] No user found for deviceId in URL - user may not exist yet or was deleted');
+          // If no user found, this might be a stale deviceId - continue to show login
         }
       } catch (dbError: any) {
         // If it's a redirect error, rethrow it

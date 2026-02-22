@@ -107,8 +107,8 @@ export default function RootLayout({
                   }
                   
                   // Force reload if we detect old cached content
-                  // Use timestamp-based version to force reload on every deploy
-                  var currentVersion = 'v3-' + Date.now();
+                  // Version changes on each deploy to force cache clear
+                  var currentVersion = 'v3-20260203';
                   var storedVersion = sessionStorage.getItem('app-version');
                   
                   if (!storedVersion || storedVersion !== currentVersion) {
@@ -121,8 +121,12 @@ export default function RootLayout({
                     }
                     
                     sessionStorage.setItem('app-version', currentVersion);
-                    // Force hard reload
-                    window.location.href = window.location.href.split('?')[0] + '?v=' + Date.now();
+                    // Force hard reload with cache busting
+                    var url = window.location.href.split('?')[0];
+                    if (url.indexOf('?') === -1) {
+                      url += '?_=' + Date.now();
+                    }
+                    window.location.href = url;
                     return;
                   }
                 } catch(e) {

@@ -4,7 +4,7 @@ import { getAllProgress } from '@/app/actions/progress';
 import { getStreak } from '@/app/actions/streak';
 import { getAllWords, getAllLetters, getAllLetterProgress } from '@/app/actions/content';
 import LearnPath from '@/components/LearnPath';
-import GoogleSignIn from '@/components/auth/GoogleSignIn';
+import NewLogin from '@/components/auth/NewLogin';
 import ModernNavBar from '@/components/ModernNavBar';
 
 export const dynamic = 'force-dynamic';
@@ -18,7 +18,7 @@ export default async function LearnPathPage() {
     const user = await getCurrentUser();
 
     if (!user) {
-      return <GoogleSignIn />;
+      return <NewLogin />;
     }
 
     // Fetch all data server-side to avoid duplicate HTTP requests from client components
@@ -84,6 +84,6 @@ export default async function LearnPathPage() {
     if (error?.message?.includes('NEXT_REDIRECT')) {
       throw error;
     }
-    return <GoogleSignIn />;
+    return <NewLogin />;
   }
 }

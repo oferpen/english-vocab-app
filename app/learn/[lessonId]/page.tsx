@@ -2,7 +2,7 @@ import { getCurrentUser } from '@/lib/auth';
 import { getLetter, getWord } from '@/app/actions/content';
 import LearnToday from '@/components/LearnToday';
 import BottomNav from '@/components/BottomNav';
-import GoogleSignIn from '@/components/auth/GoogleSignIn';
+import NewLogin from '@/components/auth/NewLogin';
 import PageHeader from '@/components/PageHeader';
 import { getTodayDate } from '@/lib/utils';
 
@@ -22,7 +22,7 @@ export default async function LessonPage({ params, searchParams }: LessonPagePro
   const user = await getCurrentUser();
 
   if (!user || !(user as any).id) {
-    return <GoogleSignIn />;
+    return <NewLogin />;
   }
 
   const userWithId = user as any;

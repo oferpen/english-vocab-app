@@ -5,7 +5,7 @@ import { getLevelState, getXPForNextLevel, getXPForLevel } from '@/app/actions/l
 import { getAllMissions } from '@/app/actions/missions';
 import ProgressDisplay from '@/components/ProgressDisplay';
 import BottomNav from '@/components/BottomNav';
-import GoogleSignIn from '@/components/auth/GoogleSignIn';
+import NewLogin from '@/components/auth/NewLogin';
 import PageHeader from '@/components/PageHeader';
 
 export const dynamic = 'force-dynamic';
@@ -14,7 +14,7 @@ export default async function ProgressPage() {
   const user = await getCurrentUser();
 
   if (!user) {
-    return <GoogleSignIn />;
+    return <NewLogin />;
   }
 
   const progress = await getAllProgress(user.id);

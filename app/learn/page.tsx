@@ -5,7 +5,7 @@ import { getStreak } from '@/app/actions/streak';
 import { getSettings } from '@/app/actions/settings';
 import { getTodayDate } from '@/lib/utils';
 import LearnQuizWrapper from '@/components/LearnQuizWrapper';
-import GoogleSignIn from '@/components/auth/GoogleSignIn';
+import NewLogin from '@/components/auth/NewLogin';
 import ModernNavBar from '@/components/ModernNavBar';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -27,7 +27,7 @@ export default async function LearnPage({ searchParams }: LearnPageProps) {
   const user = await getCurrentUser();
 
   if (!user) {
-    return <GoogleSignIn />;
+    return <NewLogin />;
   }
 
   const params = await searchParams;

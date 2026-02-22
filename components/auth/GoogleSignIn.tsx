@@ -36,63 +36,53 @@ export default function GoogleSignIn() {
             onClick={async () => {
               // Prevent double-clicks
               if (isLoading) {
+                console.log('[Anonymous Login] Already loading, ignoring click');
                 return;
               }
               
               setIsLoading(true);
               setError(null);
               
+              // Safety timeout - always reset loading state after 15 seconds
+              const safetyTimeout = setTimeout(() => {
+                console.error('[Anonymous Login] Safety timeout - resetting button');
+                setIsLoading(false);
+                setError('הבקשה ארכה יותר מדי זמן. נסה לרענן את הדף.');
+              }, 15000);
+              
               try {
+                console.log('[Anonymous Login] Starting...');
                 const { startAnonymousSession } = await import('@/app/actions/auth');
                 
                 // Call server action with timeout
                 const serverActionPromise = startAnonymousSession();
                 const timeoutPromise = new Promise((resolve) => {
-                  setTimeout(() => resolve({ success: false, timeout: true, error: 'Request timeout' }), 8000);
+                  setTimeout(() => resolve({ success: false, timeout: true, error: 'Request timeout' }), 10000);
                 });
                 
+                console.log('[Anonymous Login] Waiting for server action...');
                 const result = await Promise.race([serverActionPromise, timeoutPromise]) as any;
+                console.log('[Anonymous Login] Server action result:', result);
+                
+                // Clear safety timeout since we got a response
+                clearTimeout(safetyTimeout);
                 
                 // Check if user was successfully created
                 if (!result.success || !result.userCreated) {
-                  const errorMsg = result.error || 'לא הצלחנו ליצור משתמש';
-                  console.error('[Anonymous Login] Failed:', errorMsg);
+                  const errorMsg = result.timeout ? 'הבקשה ארכה יותר מדי זמן' : (result.error || 'לא הצלחנו ליצור משתמש');
+                  console.error('[Anonymous Login] Failed:', errorMsg, result);
                   setError(errorMsg);
                   setIsLoading(false);
                   return; // Don't redirect on failure
                 }
                 
-                // User created successfully
-                // Verify user exists via API to ensure cookie is set and user is accessible
-                await new Promise(resolve => setTimeout(resolve, 300));
-                
-                try {
-                  const verifyResponse = await fetch('/api/test-anon');
-                  const verifyData = await verifyResponse.json();
-                  
-                  if (verifyData.userFound) {
-                    // User exists, cookie should be set - redirect
-                    router.replace('/');
-                  } else {
-                    // User not found - wait a bit more and try again
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    const retryResponse = await fetch('/api/test-anon');
-                    const retryData = await retryResponse.json();
-                    
-                    if (retryData.userFound) {
-                      router.replace('/');
-                    } else {
-                      setError('לא הצלחנו לאמת את המשתמש. נסה לרענן את הדף.');
-                      setIsLoading(false);
-                    }
-                  }
-                } catch (verifyError) {
-                  // Verification failed, but proceed with redirect anyway
-                  console.error('[Anonymous Login] Verification error:', verifyError);
-                  router.replace('/');
-                }
+                // User created successfully - redirect immediately
+                console.log('[Anonymous Login] User created, redirecting...');
+                // Use window.location instead of router to ensure full page reload and cookie processing
+                window.location.href = '/';
               } catch (err: any) {
                 console.error('[Anonymous Login] Exception:', err);
+                clearTimeout(safetyTimeout);
                 setError(`שגיאה: ${err?.message || 'אירעה שגיאה. נסה שוב.'}`);
                 setIsLoading(false);
               }

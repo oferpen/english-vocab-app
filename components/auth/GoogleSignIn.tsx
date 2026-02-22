@@ -1,13 +1,27 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Rocket } from 'lucide-react';
 
 export default function GoogleSignIn() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // Clean up deviceId from URL if present (cookie should be set by now)
+  useEffect(() => {
+    const deviceId = searchParams.get('deviceId');
+    if (deviceId && typeof window !== 'undefined') {
+      // Wait a moment then clean up URL
+      setTimeout(() => {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('deviceId');
+        window.history.replaceState({}, '', url.toString());
+      }, 1000);
+    }
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen bg-blue-50 flex items-center justify-center p-4">

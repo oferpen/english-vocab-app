@@ -21,9 +21,8 @@ export async function proxy(request: NextRequest) {
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
     });
-    // Remove deviceId from URL to clean it up
-    url.searchParams.delete('deviceId');
-    return NextResponse.redirect(url.toString());
+    // Don't redirect - let the request continue with the cookie set
+    // The cookie will be available to the page component
   }
 
   // If no deviceId, generate one and set it

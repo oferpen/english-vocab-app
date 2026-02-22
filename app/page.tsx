@@ -7,16 +7,29 @@ export const dynamic = 'force-dynamic';
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ loggedOut?: string }>;
+  searchParams: Promise<{ loggedOut?: string; deviceId?: string }>;
 }) {
   try {
     const params = await searchParams;
     const isLoggedOut = params.loggedOut === 'true';
+    const deviceIdFromUrl = params.deviceId;
 
     // If not explicitly logged out, check if user exists (Google or Anonymous)
     if (!isLoggedOut) {
       try {
-        const user = await getCurrentUser();
+        // If deviceId is in URL, wait a moment for middleware to set cookie
+        if (deviceIdFromUrl) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        
+        let user = await getCurrentUser();
+        
+        // If deviceId was in URL but user not found, retry once more
+        if (!user && deviceIdFromUrl) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          user = await getCurrentUser();
+        }
+        
         if (user) {
           redirect('/learn/path');
         }

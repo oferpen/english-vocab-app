@@ -68,8 +68,67 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Build-time version - changes with each deploy
+  const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION || 'v4-20260203';
+
   return (
     <html lang="he" dir="rtl" className={`${rubik.variable} ${cagliostro.variable}`}>
+      <head>
+        {/* Critical: Cache control meta tags for mobile browsers */}
+        <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta httpEquiv="Pragma" content="no-cache" />
+        <meta httpEquiv="Expires" content="0" />
+        {/* Critical: Run cache clearing IMMEDIATELY in head before anything loads */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                'use strict';
+                if (typeof window === 'undefined') return;
+                
+                var APP_VERSION = '${APP_VERSION}';
+                var storedVersion = sessionStorage.getItem('app-version');
+                
+                // If version mismatch or first visit, clear everything and reload
+                if (!storedVersion || storedVersion !== APP_VERSION) {
+                  try {
+                    // Unregister ALL service workers immediately
+                    if ('serviceWorker' in navigator) {
+                      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                        for (var i = 0; i < registrations.length; i++) {
+                          registrations[i].unregister();
+                        }
+                      });
+                    }
+                    
+                    // Delete ALL caches immediately
+                    if ('caches' in window) {
+                      caches.keys().then(function(cacheNames) {
+                        for (var i = 0; i < cacheNames.length; i++) {
+                          caches.delete(cacheNames[i]);
+                        }
+                      });
+                    }
+                    
+                    // Clear all storage
+                    try {
+                      sessionStorage.clear();
+                      localStorage.clear();
+                    } catch(e) {}
+                    
+                    // Set new version and reload with cache busting
+                    sessionStorage.setItem('app-version', APP_VERSION);
+                    var url = window.location.href.split('?')[0] + '?_cb=' + Date.now();
+                    window.location.replace(url);
+                  } catch(e) {
+                    console.error('Cache clear error:', e);
+                  }
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
       <body style={{ margin: 0, padding: 0, fontFamily: rubik.style.fontFamily }} className={rubik.className}>
         {/* Temporarily disabled SentryProvider to debug production issue */}
         {/* <SentryProvider /> */}
@@ -78,64 +137,6 @@ export default function RootLayout({
           {children}
           <PWAInstaller />
         </Providers>
-        {/* CRITICAL: Run cache clearing IMMEDIATELY before anything else loads */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                'use strict';
-                if (typeof window === 'undefined') return;
-                
-                // Force immediate execution - don't wait for anything
-                try {
-                  // Unregister ALL service workers immediately
-                  if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                      for (var i = 0; i < registrations.length; i++) {
-                        registrations[i].unregister();
-                      }
-                    });
-                  }
-                  
-                  // Delete ALL caches immediately
-                  if ('caches' in window) {
-                    caches.keys().then(function(cacheNames) {
-                      for (var i = 0; i < cacheNames.length; i++) {
-                        caches.delete(cacheNames[i]);
-                      }
-                    });
-                  }
-                  
-                  // Force reload if we detect old cached content
-                  // Version changes on each deploy to force cache clear
-                  var currentVersion = 'v3-20260203';
-                  var storedVersion = sessionStorage.getItem('app-version');
-                  
-                  if (!storedVersion || storedVersion !== currentVersion) {
-                    // Clear all storage to ensure fresh start
-                    try {
-                      sessionStorage.clear();
-                      localStorage.clear();
-                    } catch(e) {
-                      // Ignore errors
-                    }
-                    
-                    sessionStorage.setItem('app-version', currentVersion);
-                    // Force hard reload with cache busting
-                    var url = window.location.href.split('?')[0];
-                    if (url.indexOf('?') === -1) {
-                      url += '?_=' + Date.now();
-                    }
-                    window.location.href = url;
-                    return;
-                  }
-                } catch(e) {
-                  console.error('Cache clear error:', e);
-                }
-              })();
-            `,
-          }}
-        />
         {/* Suppress browser extension message errors */}
         <script
           dangerouslySetInnerHTML={{

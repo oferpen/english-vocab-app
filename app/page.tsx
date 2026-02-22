@@ -7,31 +7,18 @@ export const dynamic = 'force-dynamic';
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ loggedOut?: string; justLoggedIn?: string }>;
+  searchParams: Promise<{ loggedOut?: string }>;
 }) {
   try {
     const params = await searchParams;
     const isLoggedOut = params.loggedOut === 'true';
-    const justLoggedIn = params.justLoggedIn === '1';
 
     // If not explicitly logged out, check if user exists (Google or Anonymous)
     if (!isLoggedOut) {
       try {
-        // If we just logged in, wait a moment for cookie to be available
-        if (justLoggedIn) {
-          await new Promise(resolve => setTimeout(resolve, 500));
-        }
-        
         const user = await getCurrentUser();
         if (user) {
           redirect('/learn/path');
-        } else if (justLoggedIn) {
-          // If we just logged in but user not found, wait a bit more and retry
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          const retryUser = await getCurrentUser();
-          if (retryUser) {
-            redirect('/learn/path');
-          }
         }
       } catch (authError: any) {
         // If auth check fails (including timeout), just show sign-in screen

@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/prisma';
 import { getAuthSession } from '@/lib/auth-helper';
 import { randomUUID } from 'crypto';
+import { revalidatePath } from 'next/cache';
 
 export async function getCurrentUser() {
   const session = await getAuthSession();
@@ -131,6 +132,9 @@ export async function startAnonymousSession() {
     }
 
     // Success - user exists and cookie is set
+    // Revalidate the homepage to ensure it picks up the new cookie
+    revalidatePath('/');
+    
     return { success: true, deviceId, userCreated: true, userId: user.id };
   } catch (error: any) {
     const errorMsg = error?.message || 'Unknown error';

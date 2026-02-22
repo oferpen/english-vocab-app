@@ -76,10 +76,14 @@ export default function GoogleSignIn() {
                   return; // Don't redirect on failure
                 }
                 
-                // User created successfully - redirect immediately
-                console.log('[Anonymous Login] User created, redirecting...');
+                // User created successfully - wait a moment for cookie to be set in browser
+                console.log('[Anonymous Login] User created, waiting for cookie...');
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second for cookie
+                
+                console.log('[Anonymous Login] Redirecting...');
                 // Use window.location instead of router to ensure full page reload and cookie processing
-                window.location.href = '/';
+                // Add query param to indicate we just logged in
+                window.location.href = '/?justLoggedIn=1';
               } catch (err: any) {
                 console.error('[Anonymous Login] Exception:', err);
                 clearTimeout(safetyTimeout);

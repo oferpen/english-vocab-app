@@ -47,6 +47,11 @@ export const metadata: Metadata = {
     title: 'EnglishPath - הרפתקת האנגלית שלכם!',
     description: 'לימוד אנגלית לילדים בדרך המהנה ביותר - הצטרפו להרפתקה!',
   },
+  other: {
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+  },
 };
 
 export const viewport: Viewport = {
@@ -73,24 +78,57 @@ export default function RootLayout({
           {children}
           <PWAInstaller />
         </Providers>
-        {/* Suppress browser extension message errors */}
+        {/* Aggressive cache clearing and service worker cleanup */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              if (typeof window !== 'undefined') {
-                window.addEventListener('error', (e) => {
+              (function() {
+                if (typeof window === 'undefined') return;
+                
+                // Immediately unregister all service workers
+                if ('serviceWorker' in navigator) {
+                  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    registrations.forEach(function(registration) {
+                      registration.unregister().then(function() {
+                        console.log('Service Worker unregistered');
+                      }).catch(function(err) {
+                        console.log('Error unregistering service worker:', err);
+                      });
+                    });
+                  }).catch(function(err) {
+                    console.log('Error getting service worker registrations:', err);
+                  });
+                }
+                
+                // Clear all caches
+                if ('caches' in window) {
+                  caches.keys().then(function(cacheNames) {
+                    cacheNames.forEach(function(cacheName) {
+                      caches.delete(cacheName).then(function() {
+                        console.log('Cache deleted:', cacheName);
+                      }).catch(function(err) {
+                        console.log('Error deleting cache:', err);
+                      });
+                    });
+                  }).catch(function(err) {
+                    console.log('Error getting cache keys:', err);
+                  });
+                }
+                
+                // Suppress browser extension message errors
+                window.addEventListener('error', function(e) {
                   if (e.message && e.message.includes('message channel closed')) {
                     e.preventDefault();
                     return false;
                   }
                 });
-                window.addEventListener('unhandledrejection', (e) => {
+                window.addEventListener('unhandledrejection', function(e) {
                   if (e.reason && e.reason.message && e.reason.message.includes('message channel closed')) {
                     e.preventDefault();
                     return false;
                   }
                 });
-              }
+              })();
             `,
           }}
         />

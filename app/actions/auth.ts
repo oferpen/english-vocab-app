@@ -32,15 +32,22 @@ export async function startAnonymousSession() {
     const cookieStore = await cookies();
     let deviceId = cookieStore.get('deviceId')?.value;
 
-    // FALLBACK: If middleware hasn't set it yet, set it here
+    // Always ensure cookie is set - even if it exists, re-set it to ensure it's in response headers
     if (!deviceId) {
       deviceId = randomUUID();
-      cookieStore.set('deviceId', deviceId, {
-        maxAge: 60 * 60 * 24 * 365,
-        path: '/',
-        httpOnly: true,
-        sameSite: 'lax',
-      });
+    }
+    
+    // Always set the cookie to ensure it's in the response headers
+    cookieStore.set('deviceId', deviceId, {
+      maxAge: 60 * 60 * 24 * 365,
+      path: '/',
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+    });
+    
+    if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
+      console.log('[Anonymous Session] Cookie set with deviceId:', deviceId);
     }
 
     // Add timeout wrapper for database queries
@@ -71,9 +78,13 @@ export async function startAnonymousSession() {
         path: '/',
         httpOnly: true,
         sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
       });
       deviceId = newDeviceId; // Update deviceId for user creation
       user = null; // Reset user so we create a new anonymous one
+      if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
+        console.log('[Anonymous Session] Created new deviceId for Google user:', newDeviceId);
+      }
     }
 
     // Create new anonymous user if not exists - WAIT for it to complete
@@ -134,6 +145,11 @@ export async function startAnonymousSession() {
     // Success - user exists and cookie is set
     // Revalidate the homepage to ensure it picks up the new cookie
     revalidatePath('/');
+    
+    // Log success for debugging
+    if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
+      console.log('[Anonymous Session] Success - User ID:', user.id, 'DeviceId:', deviceId);
+    }
     
     return { success: true, deviceId, userCreated: true, userId: user.id };
   } catch (error: any) {

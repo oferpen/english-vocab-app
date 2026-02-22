@@ -77,14 +77,14 @@ export default function GoogleSignIn() {
                 }
                 
                 // User created successfully
-                // Wait a moment to ensure cookie is set in browser before redirecting
-                console.log('[Anonymous Login] User created, waiting for cookie to be set...');
-                await new Promise(resolve => setTimeout(resolve, 1500)); // Wait 1.5 seconds
+                // The cookie should be set in the server action response
+                // Redirect with deviceId in URL so middleware can use it if cookie isn't available yet
+                console.log('[Anonymous Login] User created, deviceId:', resultData.deviceId);
+                console.log('[Anonymous Login] Redirecting with deviceId in URL...');
                 
-                console.log('[Anonymous Login] Redirecting...');
-                // Force a hard reload to ensure cookie is processed
-                // Use href instead of replace to ensure full navigation
-                window.location.href = '/';
+                // Redirect with deviceId as query param as fallback
+                // This ensures middleware can set the cookie even if it wasn't processed from the previous response
+                window.location.href = `/?deviceId=${resultData.deviceId}`;
               } catch (err: any) {
                 console.error('[Anonymous Login] Exception:', err);
                 clearTimeout(safetyTimeout);
